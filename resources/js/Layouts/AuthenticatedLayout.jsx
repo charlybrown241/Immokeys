@@ -6,7 +6,11 @@ import { Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
 export default function AuthenticatedLayout({ header, children }) {
-    const user = usePage().props.auth.user;
+    const { user, home_route: homeRoute } = usePage().props.auth;
+    const roleName = user.role?.name;
+    const homeLabel = roleName === 'etudiant' ? 'Annonces' : 'Dashboard';
+    const canManageSubscription =
+        roleName === 'etudiant' || roleName === 'proprietaire';
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
@@ -25,11 +29,22 @@ export default function AuthenticatedLayout({ header, children }) {
 
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink
-                                    href={route('dashboard')}
-                                    active={route().current('dashboard')}
+                                    href={route(homeRoute)}
+                                    active={route().current(homeRoute)}
                                 >
-                                    Dashboard
+                                    {homeLabel}
                                 </NavLink>
+
+                                {canManageSubscription && (
+                                    <NavLink
+                                        href={route('subscription.show')}
+                                        active={route().current(
+                                            'subscription.show',
+                                        )}
+                                    >
+                                        Mon abonnement
+                                    </NavLink>
+                                )}
                             </div>
                         </div>
 
@@ -129,11 +144,20 @@ export default function AuthenticatedLayout({ header, children }) {
                 >
                     <div className="space-y-1 pb-3 pt-2">
                         <ResponsiveNavLink
-                            href={route('dashboard')}
-                            active={route().current('dashboard')}
+                            href={route(homeRoute)}
+                            active={route().current(homeRoute)}
                         >
-                            Dashboard
+                            {homeLabel}
                         </ResponsiveNavLink>
+
+                        {canManageSubscription && (
+                            <ResponsiveNavLink
+                                href={route('subscription.show')}
+                                active={route().current('subscription.show')}
+                            >
+                                Mon abonnement
+                            </ResponsiveNavLink>
+                        )}
                     </div>
 
                     <div className="border-t border-gray-200 pb-1 pt-4">

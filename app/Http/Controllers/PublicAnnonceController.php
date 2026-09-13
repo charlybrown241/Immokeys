@@ -24,7 +24,7 @@ class PublicAnnonceController extends Controller
 
         $annonces = Annonce::query()
             ->where('status', 'disponible')
-            ->with(['mainPhoto', 'category:id,name', 'user:id,is_verified', 'user.subscription:id,user_id,type'])
+            ->with(['mainPhoto', 'category:id,name', 'user:id,is_verified', 'user.subscription:id,user_id,type,expires_at'])
             ->when($city, fn ($query, $value) => $query->where('city', $value))
             ->when($filters['quartier'] ?? null, fn ($query, $value) => $query->where('quartier', 'like', "%{$value}%"))
             ->when($filters['category_id'] ?? null, fn ($query, $value) => $query->where('category_id', $value))
@@ -65,7 +65,7 @@ class PublicAnnonceController extends Controller
             'photos' => fn ($query) => $query->orderBy('ordre'),
             'category:id,name',
             'user:id,is_verified,phone',
-            'user.subscription:id,user_id,type',
+            'user.subscription:id,user_id,type,expires_at',
         ]);
 
         $viewedAnnonces = $request->session()->get('viewed_annonces', []);
@@ -119,11 +119,15 @@ class PublicAnnonceController extends Controller
 
     /**
      * A landlord is shown as certified once their identity is verified
-     * and they hold an active "pro" subscription.
+     * and they hold an active (non-expired) "pro" subscription.
      */
     private function isCertifiedPro(Annonce $annonce): bool
     {
-        return (bool) $annonce->user?->is_verified && $annonce->user?->subscription?->type === 'pro';
+        $subscription = $annonce->user?->subscription;
+
+        return (bool) $annonce->user?->is_verified
+            && $subscription?->type === 'pro'
+            && $subscription->isActive();
     }
 
     /**

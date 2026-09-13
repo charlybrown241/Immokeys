@@ -1,4 +1,4 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 
 function buildQuery(values) {
@@ -10,6 +10,7 @@ function buildQuery(values) {
 }
 
 export default function Index({ annonces, categories, filters }) {
+    const { auth } = usePage().props;
     const [values, setValues] = useState({
         quartier: filters.quartier ?? '',
         category_id: filters.category_id ?? '',
@@ -65,6 +66,53 @@ export default function Index({ annonces, categories, filters }) {
             <Head title="Annonces" />
 
             <div className="min-h-screen bg-gray-100">
+                <div className="border-b border-gray-200 bg-white">
+                    <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+                        <span className="font-semibold text-gray-800">
+                            ImmoKeys
+                        </span>
+
+                        {auth.user ? (
+                            <div className="flex items-center gap-4 text-sm">
+                                <span className="text-gray-500">
+                                    {auth.user.name}
+                                </span>
+                                {auth.user.role?.name === 'etudiant' && (
+                                    <Link
+                                        href={route('subscription.show')}
+                                        className="text-indigo-600 underline hover:text-indigo-900"
+                                    >
+                                        Mon abonnement
+                                    </Link>
+                                )}
+                                <Link
+                                    href={route('logout')}
+                                    method="post"
+                                    as="button"
+                                    className="text-gray-600 underline hover:text-gray-900"
+                                >
+                                    Se déconnecter
+                                </Link>
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-4 text-sm">
+                                <Link
+                                    href={route('login')}
+                                    className="text-gray-600 underline hover:text-gray-900"
+                                >
+                                    Se connecter
+                                </Link>
+                                <Link
+                                    href={route('register')}
+                                    className="text-indigo-600 underline hover:text-indigo-900"
+                                >
+                                    S'inscrire
+                                </Link>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
                 <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
                     <h1 className="text-2xl font-semibold text-gray-900">
                         Annonces à Casablanca

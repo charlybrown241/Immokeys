@@ -26,4 +26,12 @@ class Subscription extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    /**
+     * A subscription with no expiry, or one that hasn't expired yet, is active.
+     */
+    public function isActive(): bool
+    {
+        return $this->expires_at === null || $this->expires_at->isFuture();
+    }
 }

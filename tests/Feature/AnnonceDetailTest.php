@@ -61,6 +61,24 @@ class AnnonceDetailTest extends TestCase
         );
     }
 
+    public function test_certified_pro_badge_hidden_when_pro_subscription_has_expired(): void
+    {
+        $owner = $this->owner(['is_verified' => true]);
+        Subscription::create([
+            'user_id' => $owner->id,
+            'type' => 'pro',
+            'started_at' => now()->subYears(2),
+            'expires_at' => now()->subDay(),
+        ]);
+        $this->annonce($owner, ['title' => 'Abonnement expire']);
+
+        $response = $this->get('/annonces');
+
+        $response->assertInertia(fn ($page) => $page
+            ->where('annonces.data.0.is_certified_pro', false)
+        );
+    }
+
     public function test_detail_page_shows_full_annonce_information(): void
     {
         $owner = $this->owner(['is_verified' => true]);

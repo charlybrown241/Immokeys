@@ -6,6 +6,7 @@ use App\Http\Controllers\CertificationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicAnnonceController;
+use App\Http\Controllers\SubscriptionController;
 use App\Models\Certification;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -57,6 +58,12 @@ Route::middleware(['auth', 'verified', 'role:proprietaire'])->group(function () 
     Route::get('/annonces/{annonce}/edit', [AnnonceController::class, 'edit'])->name('annonces.edit');
     Route::put('/annonces/{annonce}', [AnnonceController::class, 'update'])->name('annonces.update');
     Route::delete('/annonces/{annonce}', [AnnonceController::class, 'destroy'])->name('annonces.destroy');
+});
+
+Route::middleware(['auth', 'verified', 'role:etudiant,proprietaire'])->group(function () {
+    Route::get('/abonnement', [SubscriptionController::class, 'show'])->name('subscription.show');
+    Route::post('/abonnement/upgrade', [SubscriptionController::class, 'upgradeToPremium'])->name('subscription.upgrade');
+    Route::post('/abonnement/renew', [SubscriptionController::class, 'renewPro'])->name('subscription.renew');
 });
 
 Route::middleware('auth')->group(function () {
