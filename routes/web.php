@@ -10,17 +10,11 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicAnnonceController;
 use App\Http\Controllers\SubscriptionController;
-use Illuminate\Foundation\Application;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
+Route::get('/', function (Request $request) {
+    return redirect()->route($request->user()?->homeRouteName() ?? 'annonces.index');
 });
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
