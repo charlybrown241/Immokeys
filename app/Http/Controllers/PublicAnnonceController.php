@@ -20,22 +20,13 @@ class PublicAnnonceController extends Controller
     public function index(AnnonceFilterRequest $request): Response
     {
         $filters = $request->validated();
-        $city = $filters['city'] ?? 'Casablanca';
+        $filters['city'] = $filters['city'] ?? 'Casablanca';
 
         $annonces = Annonce::query()
             ->where('status', 'disponible')
             ->where('is_suspended', false)
             ->with(['mainPhoto', 'category:id,name', 'user:id,is_verified', 'user.subscription:id,user_id,type,expires_at'])
-            ->when($city, fn ($query, $value) => $query->where('city', $value))
-            ->when($filters['search'] ?? null, fn ($query, $value) => $query->where(
-                fn ($q) => $q->where('quartier', 'like', "%{$value}%")
-                    ->orWhere('title', 'like', "%{$value}%")
-            ))
-            ->when($filters['category_id'] ?? null, fn ($query, $value) => $query->where('category_id', $value))
-            ->when($filters['min_price'] ?? null, fn ($query, $value) => $query->where('price', '>=', $value))
-            ->when($filters['max_price'] ?? null, fn ($query, $value) => $query->where('price', '<=', $value))
-            ->when($filters['min_surface'] ?? null, fn ($query, $value) => $query->where('surface', '>=', $value))
-            ->when($filters['max_surface'] ?? null, fn ($query, $value) => $query->where('surface', '<=', $value))
+            ->filter($filters)
             ->latest()
             ->paginate(12)
             ->withQueryString()
@@ -54,7 +45,7 @@ class PublicAnnonceController extends Controller
         return Inertia::render('Annonces/Index', [
             'annonces' => $annonces,
             'categories' => Category::orderBy('name')->get(['id', 'name']),
-            'filters' => array_merge(['city' => $city], $filters),
+            'filters' => $filters,
         ]);
     }
 

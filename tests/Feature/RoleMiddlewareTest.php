@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class RoleMiddlewareTest extends TestCase
@@ -45,5 +46,26 @@ class RoleMiddlewareTest extends TestCase
         $user = $this->userWithRole('proprietaire');
 
         $this->actingAs($user)->get('/admin/dashboard')->assertForbidden();
+    }
+
+    /**
+     * @return array<string, array<string>>
+     */
+    public static function adminRouteProvider(): array
+    {
+        return [
+            'admin dashboard' => ['/admin/dashboard'],
+            'admin certifications list' => ['/admin/certifications'],
+            'admin annonces list' => ['/admin/annonces'],
+            'admin users list' => ['/admin/users'],
+        ];
+    }
+
+    #[DataProvider('adminRouteProvider')]
+    public function test_etudiant_cannot_access_any_admin_route(string $uri): void
+    {
+        $user = $this->userWithRole('etudiant');
+
+        $this->actingAs($user)->get($uri)->assertForbidden();
     }
 }
