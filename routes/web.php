@@ -3,10 +3,10 @@
 use App\Http\Controllers\Admin\CertificationController as AdminCertificationController;
 use App\Http\Controllers\AnnonceController;
 use App\Http\Controllers\CertificationController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Models\Certification;
 use Illuminate\Foundation\Application;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -19,11 +19,9 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', function (Request $request) {
-    return Inertia::render('Dashboard', [
-        'certification' => $request->user()->certification,
-    ]);
-})->middleware(['auth', 'verified', 'role:proprietaire'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified', 'role:proprietaire'])
+    ->name('dashboard');
 
 Route::get('/admin/dashboard', function () {
     return Inertia::render('Admin/Dashboard', [
