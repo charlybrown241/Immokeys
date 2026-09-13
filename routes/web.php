@@ -1,7 +1,10 @@
 <?php
 
+use App\Http\Controllers\AnnonceController;
+use App\Http\Controllers\CertificationController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -14,8 +17,10 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
+Route::get('/dashboard', function (Request $request) {
+    return Inertia::render('Dashboard', [
+        'certification' => $request->user()->certification,
+    ]);
 })->middleware(['auth', 'verified', 'role:proprietaire'])->name('dashboard');
 
 Route::get('/admin/dashboard', function () {
@@ -25,6 +30,12 @@ Route::get('/admin/dashboard', function () {
 Route::get('/annonces', function () {
     return Inertia::render('Annonces/Index');
 })->name('annonces.index');
+
+Route::middleware(['auth', 'verified', 'role:proprietaire'])->group(function () {
+    Route::get('/certification', [CertificationController::class, 'create'])->name('certification.create');
+    Route::post('/certification', [CertificationController::class, 'store'])->name('certification.store');
+    Route::get('/annonces/create', [AnnonceController::class, 'create'])->name('annonces.create');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
