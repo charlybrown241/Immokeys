@@ -68,11 +68,17 @@ export default function Dashboard({ certification }) {
                         </div>
                     )}
 
-                    <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-                        <div className="p-6 text-gray-900">
-                            You're logged in!
-                        </div>
-                    </div>
+                    <Link
+                        href={route('annonces.mine')}
+                        className="block overflow-hidden rounded-lg bg-white p-6 shadow-sm hover:bg-gray-50"
+                    >
+                        <span className="text-sm text-gray-500">
+                            Mes annonces
+                        </span>
+                        <p className="mt-1 font-semibold text-gray-900">
+                            Voir et gérer mes annonces
+                        </p>
+                    </Link>
                 </div>
             </div>
         </AuthenticatedLayout>

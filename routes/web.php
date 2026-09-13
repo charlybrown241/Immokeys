@@ -45,7 +45,13 @@ Route::get('/annonces', function () {
 Route::middleware(['auth', 'verified', 'role:proprietaire'])->group(function () {
     Route::get('/certification', [CertificationController::class, 'create'])->name('certification.create');
     Route::post('/certification', [CertificationController::class, 'store'])->name('certification.store');
+
+    Route::get('/mes-annonces', [AnnonceController::class, 'index'])->name('annonces.mine');
     Route::get('/annonces/create', [AnnonceController::class, 'create'])->name('annonces.create');
+    Route::post('/annonces', [AnnonceController::class, 'store'])->name('annonces.store');
+    Route::get('/annonces/{annonce}/edit', [AnnonceController::class, 'edit'])->name('annonces.edit');
+    Route::put('/annonces/{annonce}', [AnnonceController::class, 'update'])->name('annonces.update');
+    Route::delete('/annonces/{annonce}', [AnnonceController::class, 'destroy'])->name('annonces.destroy');
 });
 
 Route::middleware('auth')->group(function () {
