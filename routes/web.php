@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\Admin\CertificationController as AdminCertificationController;
 use App\Http\Controllers\AnnonceController;
 use App\Http\Controllers\CertificationController;
 use App\Http\Controllers\ProfileController;
+use App\Models\Certification;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -24,8 +26,17 @@ Route::get('/dashboard', function (Request $request) {
 })->middleware(['auth', 'verified', 'role:proprietaire'])->name('dashboard');
 
 Route::get('/admin/dashboard', function () {
-    return Inertia::render('Admin/Dashboard');
+    return Inertia::render('Admin/Dashboard', [
+        'pendingCertificationsCount' => Certification::where('status', 'en_attente')->count(),
+    ]);
 })->middleware(['auth', 'verified', 'role:admin'])->name('admin.dashboard');
+
+Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/certifications', [AdminCertificationController::class, 'index'])->name('certifications.index');
+    Route::get('/certifications/{certification}/document', [AdminCertificationController::class, 'document'])->name('certifications.document');
+    Route::post('/certifications/{certification}/approve', [AdminCertificationController::class, 'approve'])->name('certifications.approve');
+    Route::post('/certifications/{certification}/reject', [AdminCertificationController::class, 'reject'])->name('certifications.reject');
+});
 
 Route::get('/annonces', function () {
     return Inertia::render('Annonces/Index');
