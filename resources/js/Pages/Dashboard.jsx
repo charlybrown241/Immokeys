@@ -64,7 +64,7 @@ export default function Dashboard({ certification, stats, annonces }) {
     return (
         <AuthenticatedLayout
             header={
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-3">
                     <h2 className="text-xl font-semibold leading-tight text-gray-800">
                         Dashboard
                     </h2>
@@ -79,7 +79,7 @@ export default function Dashboard({ certification, stats, annonces }) {
             <Head title="Dashboard" />
 
             <div className="py-12">
-                <div className="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
+                <div className="mx-auto max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
                     {flash?.success && (
                         <div className="rounded-md bg-green-50 p-4 text-sm text-green-700">
                             {flash.success}
@@ -163,107 +163,198 @@ export default function Dashboard({ certification, stats, annonces }) {
                                 Vous n'avez pas encore publié d'annonce.
                             </div>
                         ) : (
-                            <div className="overflow-x-auto">
-                                <table className="min-w-full divide-y divide-gray-200">
-                                    <thead className="bg-gray-50">
-                                        <tr>
-                                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                Photo
-                                            </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                Titre & quartier
-                                            </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                Statut
-                                            </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                Vues
-                                            </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                Leads
-                                            </th>
-                                            <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                Actions
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-gray-200 bg-white">
-                                        {annonces.map((annonce) => (
-                                            <tr key={annonce.id}>
-                                                <td className="whitespace-nowrap px-6 py-4">
-                                                    <div className="h-12 w-16 overflow-hidden rounded bg-gray-100">
-                                                        {annonce.main_photo ? (
-                                                            <img
-                                                                src={`/storage/${annonce.main_photo.path}`}
-                                                                alt=""
-                                                                className="h-full w-full object-cover"
-                                                            />
-                                                        ) : (
-                                                            <div className="flex h-full items-center justify-center text-xs text-gray-400">
-                                                                Aucune
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </td>
-                                                <td className="px-6 py-4">
+                            <>
+                                {/* Mobile: stacked cards (below md) */}
+                                <div className="divide-y divide-gray-200 md:hidden">
+                                    {annonces.map((annonce) => (
+                                        <div
+                                            key={annonce.id}
+                                            className="p-4"
+                                        >
+                                            <div className="flex gap-3">
+                                                <div className="h-16 w-20 shrink-0 overflow-hidden rounded bg-gray-100">
+                                                    {annonce.main_photo ? (
+                                                        <img
+                                                            src={`/storage/${annonce.main_photo.path}`}
+                                                            alt=""
+                                                            className="h-full w-full object-cover"
+                                                        />
+                                                    ) : (
+                                                        <div className="flex h-full items-center justify-center text-xs text-gray-400">
+                                                            Aucune
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="min-w-0 flex-1">
                                                     <div className="font-medium text-gray-900">
                                                         {annonce.title}
                                                     </div>
                                                     <div className="text-sm text-gray-500">
                                                         {annonce.quartier}
                                                     </div>
-                                                </td>
-                                                <td className="whitespace-nowrap px-6 py-4">
-                                                    <StatusBadge
-                                                        annonce={annonce}
-                                                    />
-                                                </td>
-                                                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
-                                                    {annonce.views_count}
-                                                </td>
-                                                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
-                                                    {annonce.contact_logs_count}
-                                                </td>
-                                                <td className="whitespace-nowrap px-6 py-4 text-right text-sm">
-                                                    <div className="flex justify-end gap-4">
-                                                        <Link
-                                                            href={route(
-                                                                'annonces.edit',
-                                                                annonce.id,
-                                                            )}
-                                                            className="text-indigo-600 underline hover:text-indigo-900"
-                                                        >
-                                                            Modifier
-                                                        </Link>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() =>
-                                                                setContactsAnnonce(
-                                                                    annonce,
-                                                                )
-                                                            }
-                                                            className="text-gray-600 underline hover:text-gray-900"
-                                                        >
-                                                            Contacts reçus
-                                                        </button>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() =>
-                                                                setAnnonceToDelete(
-                                                                    annonce,
-                                                                )
-                                                            }
-                                                            className="text-red-600 underline hover:text-red-900"
-                                                        >
-                                                            Supprimer
-                                                        </button>
+                                                    <div className="mt-2">
+                                                        <StatusBadge
+                                                            annonce={annonce}
+                                                        />
                                                     </div>
-                                                </td>
+                                                </div>
+                                            </div>
+
+                                            <div className="mt-3 flex gap-4 text-sm text-gray-600">
+                                                <span>
+                                                    {annonce.views_count} vues
+                                                </span>
+                                                <span>
+                                                    {
+                                                        annonce.contact_logs_count
+                                                    }{' '}
+                                                    leads
+                                                </span>
+                                            </div>
+
+                                            <div className="mt-3 flex flex-wrap gap-4 text-sm">
+                                                <Link
+                                                    href={route(
+                                                        'annonces.edit',
+                                                        annonce.id,
+                                                    )}
+                                                    className="text-indigo-600 underline"
+                                                >
+                                                    Modifier
+                                                </Link>
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        setContactsAnnonce(
+                                                            annonce,
+                                                        )
+                                                    }
+                                                    className="text-gray-600 underline"
+                                                >
+                                                    Contacts reçus
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        setAnnonceToDelete(
+                                                            annonce,
+                                                        )
+                                                    }
+                                                    className="text-red-600 underline"
+                                                >
+                                                    Supprimer
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Desktop: table (md and up) */}
+                                <div className="hidden overflow-x-auto md:block">
+                                    <table className="min-w-full divide-y divide-gray-200">
+                                        <thead className="bg-gray-50">
+                                            <tr>
+                                                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                                    Photo
+                                                </th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                                    Titre & quartier
+                                                </th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                                    Statut
+                                                </th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                                    Vues
+                                                </th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                                    Leads
+                                                </th>
+                                                <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+                                                    Actions
+                                                </th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-200 bg-white">
+                                            {annonces.map((annonce) => (
+                                                <tr key={annonce.id}>
+                                                    <td className="whitespace-nowrap px-6 py-4">
+                                                        <div className="h-12 w-16 overflow-hidden rounded bg-gray-100">
+                                                            {annonce.main_photo ? (
+                                                                <img
+                                                                    src={`/storage/${annonce.main_photo.path}`}
+                                                                    alt=""
+                                                                    className="h-full w-full object-cover"
+                                                                />
+                                                            ) : (
+                                                                <div className="flex h-full items-center justify-center text-xs text-gray-400">
+                                                                    Aucune
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-4">
+                                                        <div className="font-medium text-gray-900">
+                                                            {annonce.title}
+                                                        </div>
+                                                        <div className="text-sm text-gray-500">
+                                                            {annonce.quartier}
+                                                        </div>
+                                                    </td>
+                                                    <td className="whitespace-nowrap px-6 py-4">
+                                                        <StatusBadge
+                                                            annonce={annonce}
+                                                        />
+                                                    </td>
+                                                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
+                                                        {annonce.views_count}
+                                                    </td>
+                                                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
+                                                        {
+                                                            annonce.contact_logs_count
+                                                        }
+                                                    </td>
+                                                    <td className="whitespace-nowrap px-6 py-4 text-right text-sm">
+                                                        <div className="flex justify-end gap-4">
+                                                            <Link
+                                                                href={route(
+                                                                    'annonces.edit',
+                                                                    annonce.id,
+                                                                )}
+                                                                className="text-indigo-600 underline hover:text-indigo-900"
+                                                            >
+                                                                Modifier
+                                                            </Link>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    setContactsAnnonce(
+                                                                        annonce,
+                                                                    )
+                                                                }
+                                                                className="text-gray-600 underline hover:text-gray-900"
+                                                            >
+                                                                Contacts
+                                                                reçus
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    setAnnonceToDelete(
+                                                                        annonce,
+                                                                    )
+                                                                }
+                                                                className="text-red-600 underline hover:text-red-900"
+                                                            >
+                                                                Supprimer
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </>
                         )}
                     </div>
                 </div>

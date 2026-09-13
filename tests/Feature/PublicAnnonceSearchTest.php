@@ -61,16 +61,29 @@ class PublicAnnonceSearchTest extends TestCase
         $this->actingAs($etudiant)->get('/annonces')->assertOk();
     }
 
-    public function test_quartier_filter_matches_partially(): void
+    public function test_search_filter_matches_quartier_partially(): void
     {
         $maarif = $this->annonce(['quartier' => 'Maarif']);
         $this->annonce(['quartier' => 'Gauthier']);
 
-        $response = $this->get('/annonces?quartier=aari');
+        $response = $this->get('/annonces?search=aari');
 
         $response->assertInertia(fn ($page) => $page
             ->has('annonces.data', 1)
             ->where('annonces.data.0.id', $maarif->id)
+        );
+    }
+
+    public function test_search_filter_also_matches_title(): void
+    {
+        $match = $this->annonce(['title' => 'Studio pres Universite Hassan II', 'quartier' => 'Ain Chock']);
+        $this->annonce(['title' => 'Chambre simple', 'quartier' => 'Gauthier']);
+
+        $response = $this->get('/annonces?search=Universite');
+
+        $response->assertInertia(fn ($page) => $page
+            ->has('annonces.data', 1)
+            ->where('annonces.data.0.id', $match->id)
         );
     }
 
@@ -133,7 +146,7 @@ class PublicAnnonceSearchTest extends TestCase
         ]);
 
         $response = $this->get('/annonces?'.http_build_query([
-            'quartier' => 'Maarif',
+            'search' => 'Maarif',
             'category_id' => $categories[0]->id,
             'min_price' => 2000,
             'max_price' => 3000,

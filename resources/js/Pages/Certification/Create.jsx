@@ -36,7 +36,7 @@ export default function Create({ certification }) {
             <Head title="Compléter mon profil" />
 
             <div className="py-12">
-                <div className="mx-auto max-w-3xl sm:px-6 lg:px-8">
+                <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
                     <div className="overflow-hidden bg-white p-6 shadow-sm sm:rounded-lg">
                         {alreadyCertified && (
                             <p className="text-gray-700">

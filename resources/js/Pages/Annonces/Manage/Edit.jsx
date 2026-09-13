@@ -39,7 +39,7 @@ export default function Edit({ annonce, categories }) {
             <Head title="Modifier l'annonce" />
 
             <div className="py-12">
-                <div className="mx-auto max-w-3xl sm:px-6 lg:px-8">
+                <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
                     <div className="overflow-hidden bg-white p-6 shadow-sm sm:rounded-lg">
                         {annonce.photos?.length > 0 && (
                             <div className="mb-6 grid grid-cols-4 gap-2">

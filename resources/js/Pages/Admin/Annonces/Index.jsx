@@ -75,7 +75,7 @@ export default function Index({ annonces, filters }) {
             <Head title="Annonces" />
 
             <div className="py-12">
-                <div className="mx-auto max-w-7xl space-y-4 sm:px-6 lg:px-8">
+                <div className="mx-auto max-w-7xl space-y-4 px-4 sm:px-6 lg:px-8">
                     {flash?.success && (
                         <div className="rounded-md bg-green-50 p-4 text-sm text-green-700">
                             {flash.success}

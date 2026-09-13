@@ -78,9 +78,9 @@ export default function Create({ categories }) {
             <Head title="Nouvelle annonce" />
 
             <div className="py-12">
-                <div className="mx-auto max-w-3xl sm:px-6 lg:px-8">
+                <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
                     <div className="overflow-hidden bg-white p-6 shadow-sm sm:rounded-lg">
-                        <ol className="mb-8 flex items-center justify-between text-sm">
+                        <ol className="mb-8 flex items-center justify-between text-xs sm:text-sm">
                             {STEPS.map((s) => (
                                 <li
                                     key={s.id}

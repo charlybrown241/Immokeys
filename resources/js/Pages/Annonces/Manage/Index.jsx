@@ -49,7 +49,7 @@ export default function Index({ annonces }) {
     return (
         <AuthenticatedLayout
             header={
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-3">
                     <h2 className="text-xl font-semibold leading-tight text-gray-800">
                         Mes annonces
                     </h2>
@@ -64,7 +64,7 @@ export default function Index({ annonces }) {
             <Head title="Mes annonces" />
 
             <div className="py-12">
-                <div className="mx-auto max-w-7xl space-y-4 sm:px-6 lg:px-8">
+                <div className="mx-auto max-w-7xl space-y-4 px-4 sm:px-6 lg:px-8">
                     {flash?.success && (
                         <div className="rounded-md bg-green-50 p-4 text-sm text-green-700">
                             {flash.success}

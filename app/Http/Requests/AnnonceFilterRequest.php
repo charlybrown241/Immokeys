@@ -23,7 +23,7 @@ class AnnonceFilterRequest extends FormRequest
     {
         return [
             'city' => ['nullable', 'string', 'max:100'],
-            'quartier' => ['nullable', 'string', 'max:100'],
+            'search' => ['nullable', 'string', 'max:150'],
             'category_id' => ['nullable', 'integer', 'exists:categories,id'],
             'min_price' => ['nullable', 'numeric', 'min:0'],
             'max_price' => ['nullable', 'numeric', 'min:0', 'gte:min_price'],

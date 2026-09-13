@@ -1,3 +1,82 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/*
+ * Dual-handle price range slider: two overlapping <input type="range">
+ * elements sharing one track. Each input is transparent except for its
+ * thumb, which stays clickable via pointer-events, so both handles can be
+ * dragged independently without a JS drag library.
+ */
+.dual-range {
+    position: relative;
+    height: 1.5rem;
+}
+
+.dual-range input[type='range'] {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100%;
+    margin: 0;
+    background: transparent;
+    pointer-events: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.dual-range input[type='range']::-webkit-slider-runnable-track {
+    height: 4px;
+    background: transparent;
+}
+
+.dual-range input[type='range']::-moz-range-track {
+    height: 4px;
+    background: transparent;
+}
+
+.dual-range input[type='range']::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    pointer-events: auto;
+    width: 16px;
+    height: 16px;
+    border-radius: 9999px;
+    background: #4f46e5;
+    border: 2px solid white;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    margin-top: 0;
+}
+
+.dual-range input[type='range']::-moz-range-thumb {
+    pointer-events: auto;
+    width: 16px;
+    height: 16px;
+    border-radius: 9999px;
+    background: #4f46e5;
+    border: 2px solid white;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+}
+
+.dual-range-track {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 4px;
+    transform: translateY(-50%);
+    background: #e5e7eb;
+    border-radius: 9999px;
+}
+
+.dual-range-track-fill {
+    position: absolute;
+    top: 50%;
+    height: 4px;
+    transform: translateY(-50%);
+    background: #4f46e5;
+    border-radius: 9999px;
+}

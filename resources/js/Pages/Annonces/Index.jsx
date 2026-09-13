@@ -1,10 +1,33 @@
-import AdBanner from '@/Components/AdBanner';
+import PriceRangeSlider from '@/Components/PriceRangeSlider';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 
+const MIN_PRICE = 0;
+const MAX_PRICE = 15000;
+const PRICE_STEP = 100;
+
+const POPULAR_QUARTIERS = [
+    'Maarif',
+    'Gauthier',
+    'Racine',
+    'Bourgogne',
+    'CIL',
+    'Sidi Belyout',
+];
+
 function buildQuery(values) {
+    const query = { ...values };
+
+    if (Number(query.min_price) === MIN_PRICE) {
+        delete query.min_price;
+    }
+
+    if (Number(query.max_price) === MAX_PRICE) {
+        delete query.max_price;
+    }
+
     return Object.fromEntries(
-        Object.entries(values).filter(
+        Object.entries(query).filter(
             ([, value]) => value !== '' && value !== null && value !== undefined,
         ),
     );
@@ -13,10 +36,10 @@ function buildQuery(values) {
 export default function Index({ annonces, categories, filters }) {
     const { auth } = usePage().props;
     const [values, setValues] = useState({
-        quartier: filters.quartier ?? '',
+        search: filters.search ?? '',
         category_id: filters.category_id ?? '',
-        min_price: filters.min_price ?? '',
-        max_price: filters.max_price ?? '',
+        min_price: filters.min_price ? Number(filters.min_price) : MIN_PRICE,
+        max_price: filters.max_price ? Number(filters.max_price) : MAX_PRICE,
         min_surface: filters.min_surface ?? '',
         max_surface: filters.max_surface ?? '',
     });
@@ -44,6 +67,19 @@ export default function Index({ annonces, categories, filters }) {
 
     const updateValue = (key, value) => {
         setValues((current) => ({ ...current, [key]: value }));
+    };
+
+    const toggleQuartierTag = (quartier) => {
+        updateValue('search', values.search === quartier ? '' : quartier);
+    };
+
+    const toggleCategoryTag = (categoryId) => {
+        updateValue(
+            'category_id',
+            String(values.category_id) === String(categoryId)
+                ? ''
+                : categoryId,
+        );
     };
 
     const goToPage = (url) => {
@@ -74,8 +110,8 @@ export default function Index({ annonces, categories, filters }) {
                         </span>
 
                         {auth.user ? (
-                            <div className="flex items-center gap-4 text-sm">
-                                <span className="text-gray-500">
+                            <div className="flex flex-wrap items-center gap-3 text-sm sm:gap-4">
+                                <span className="hidden text-gray-500 sm:inline">
                                     {auth.user.name}
                                 </span>
                                 {auth.user.role?.name === 'etudiant' && (
@@ -96,7 +132,7 @@ export default function Index({ annonces, categories, filters }) {
                                 </Link>
                             </div>
                         ) : (
-                            <div className="flex items-center gap-4 text-sm">
+                            <div className="flex items-center gap-3 text-sm sm:gap-4">
                                 <Link
                                     href={route('login')}
                                     className="text-gray-600 underline hover:text-gray-900"
@@ -114,108 +150,95 @@ export default function Index({ annonces, categories, filters }) {
                     </div>
                 </div>
 
-                <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-                    <h1 className="text-2xl font-semibold text-gray-900">
-                        Annonces à Casablanca
+                <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+                    <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl">
+                        Trouvez votre logement étudiant à Casablanca
                     </h1>
 
-                    <div className="mt-6 grid grid-cols-1 gap-4 rounded-lg bg-white p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-6">
-                        <div>
-                            <label className="block text-xs font-medium text-gray-500">
-                                Ville
-                            </label>
-                            <input
-                                value="Casablanca"
-                                disabled
-                                className="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 text-sm"
-                            />
-                        </div>
+                    <div className="mt-4 space-y-5 rounded-lg bg-white p-4 shadow-sm sm:p-5">
+                        <input
+                            type="text"
+                            value={values.search}
+                            onChange={(e) =>
+                                updateValue('search', e.target.value)
+                            }
+                            placeholder="Quartier, résidence, université..."
+                            className="block w-full rounded-md border-gray-300 text-base focus:border-indigo-500 focus:ring-indigo-500"
+                        />
 
                         <div>
-                            <label
-                                htmlFor="quartier"
-                                className="block text-xs font-medium text-gray-500"
-                            >
-                                Quartier
-                            </label>
-                            <input
-                                id="quartier"
-                                type="text"
-                                value={values.quartier}
-                                onChange={(e) =>
-                                    updateValue('quartier', e.target.value)
-                                }
-                                placeholder="Maarif, Gauthier..."
-                                className="mt-1 block w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-                            />
-                        </div>
-
-                        <div>
-                            <label
-                                htmlFor="category_id"
-                                className="block text-xs font-medium text-gray-500"
-                            >
-                                Catégorie
-                            </label>
-                            <select
-                                id="category_id"
-                                value={values.category_id}
-                                onChange={(e) =>
-                                    updateValue('category_id', e.target.value)
-                                }
-                                className="mt-1 block w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-                            >
-                                <option value="">Toutes</option>
-                                {categories.map((category) => (
-                                    <option
-                                        key={category.id}
-                                        value={category.id}
+                            <p className="mb-2 text-xs font-medium uppercase tracking-wide text-gray-500">
+                                Quartiers populaires
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                                {POPULAR_QUARTIERS.map((quartier) => (
+                                    <button
+                                        key={quartier}
+                                        type="button"
+                                        onClick={() =>
+                                            toggleQuartierTag(quartier)
+                                        }
+                                        className={`rounded-full px-3 py-2.5 text-sm font-medium transition ${
+                                            values.search === quartier
+                                                ? 'bg-indigo-600 text-white'
+                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                        }`}
                                     >
-                                        {category.name}
-                                    </option>
+                                        {quartier}
+                                    </button>
                                 ))}
-                            </select>
-                        </div>
-
-                        <div>
-                            <label className="block text-xs font-medium text-gray-500">
-                                Prix (MAD)
-                            </label>
-                            <div className="mt-1 flex gap-2">
-                                <input
-                                    type="number"
-                                    min="0"
-                                    value={values.min_price}
-                                    onChange={(e) =>
-                                        updateValue(
-                                            'min_price',
-                                            e.target.value,
-                                        )
-                                    }
-                                    placeholder="Min"
-                                    className="block w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                />
-                                <input
-                                    type="number"
-                                    min="0"
-                                    value={values.max_price}
-                                    onChange={(e) =>
-                                        updateValue(
-                                            'max_price',
-                                            e.target.value,
-                                        )
-                                    }
-                                    placeholder="Max"
-                                    className="block w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                />
                             </div>
                         </div>
 
                         <div>
-                            <label className="block text-xs font-medium text-gray-500">
-                                Surface (m²)
-                            </label>
-                            <div className="mt-1 flex gap-2">
+                            <p className="mb-2 text-xs font-medium uppercase tracking-wide text-gray-500">
+                                Catégorie
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                                {categories.map((category) => (
+                                    <button
+                                        key={category.id}
+                                        type="button"
+                                        onClick={() =>
+                                            toggleCategoryTag(category.id)
+                                        }
+                                        className={`rounded-full px-3 py-2.5 text-sm font-medium transition ${
+                                            String(values.category_id) ===
+                                            String(category.id)
+                                                ? 'bg-indigo-600 text-white'
+                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                        }`}
+                                    >
+                                        {category.name}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div>
+                            <p className="mb-2 text-xs font-medium uppercase tracking-wide text-gray-500">
+                                Loyer mensuel (MAD)
+                            </p>
+                            <PriceRangeSlider
+                                min={MIN_PRICE}
+                                max={MAX_PRICE}
+                                step={PRICE_STEP}
+                                value={[values.min_price, values.max_price]}
+                                onChange={([minPrice, maxPrice]) =>
+                                    setValues((current) => ({
+                                        ...current,
+                                        min_price: minPrice,
+                                        max_price: maxPrice,
+                                    }))
+                                }
+                            />
+                        </div>
+
+                        <details className="text-sm">
+                            <summary className="cursor-pointer font-medium text-gray-600">
+                                Filtres avancés (surface)
+                            </summary>
+                            <div className="mt-3 grid grid-cols-2 gap-3 sm:max-w-xs">
                                 <input
                                     type="number"
                                     min="0"
@@ -226,7 +249,7 @@ export default function Index({ annonces, categories, filters }) {
                                             e.target.value,
                                         )
                                     }
-                                    placeholder="Min"
+                                    placeholder="Min m²"
                                     className="block w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500"
                                 />
                                 <input
@@ -239,11 +262,11 @@ export default function Index({ annonces, categories, filters }) {
                                             e.target.value,
                                         )
                                     }
-                                    placeholder="Max"
+                                    placeholder="Max m²"
                                     className="block w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500"
                                 />
                             </div>
-                        </div>
+                        </details>
                     </div>
 
                     <p className="mt-4 text-sm text-gray-500">
@@ -252,11 +275,7 @@ export default function Index({ annonces, categories, filters }) {
                         {annonces.total > 1 ? 's' : ''}
                     </p>
 
-                    <div className="mt-4">
-                        <AdBanner />
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {annonces.data.map((annonce) => (
                             <Link
                                 key={annonce.id}
