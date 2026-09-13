@@ -1,3 +1,4 @@
+import AdBanner from '@/Components/AdBanner';
 import { Head, Link } from '@inertiajs/react';
 import { useState } from 'react';
 
@@ -90,7 +91,11 @@ export default function Show({ annonce }) {
                         ← Retour aux annonces
                     </Link>
 
-                    <div className="mt-4 overflow-hidden rounded-lg bg-white shadow-sm">
+                    <div className="mt-4">
+                        <AdBanner />
+                    </div>
+
+                    <div className="overflow-hidden rounded-lg bg-white shadow-sm">
                         <div className="h-80 w-full bg-gray-100">
                             {mainPhoto ? (
                                 <img

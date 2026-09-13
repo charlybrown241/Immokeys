@@ -1,3 +1,4 @@
+import AdBanner from '@/Components/AdBanner';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 
@@ -251,7 +252,11 @@ export default function Index({ annonces, categories, filters }) {
                         {annonces.total > 1 ? 's' : ''}
                     </p>
 
-                    <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="mt-4">
+                        <AdBanner />
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {annonces.data.map((annonce) => (
                             <Link
                                 key={annonce.id}
