@@ -1,4 +1,4 @@
-import { Head, router } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 
 function buildQuery(values) {
@@ -205,11 +205,12 @@ export default function Index({ annonces, categories, filters }) {
 
                     <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {annonces.data.map((annonce) => (
-                            <div
+                            <Link
                                 key={annonce.id}
-                                className="overflow-hidden rounded-lg bg-white shadow-sm"
+                                href={route('annonces.show', annonce.id)}
+                                className="block overflow-hidden rounded-lg bg-white shadow-sm transition hover:shadow-md"
                             >
-                                <div className="h-40 w-full bg-gray-100">
+                                <div className="relative h-40 w-full bg-gray-100">
                                     {annonce.main_photo ? (
                                         <img
                                             src={`/storage/${annonce.main_photo.path}`}
@@ -221,12 +222,18 @@ export default function Index({ annonces, categories, filters }) {
                                             Aucune photo
                                         </div>
                                     )}
+
+                                    {annonce.is_certified_pro && (
+                                        <span className="absolute left-2 top-2 inline-flex items-center rounded-full bg-indigo-600 px-2 py-0.5 text-xs font-medium text-white shadow">
+                                            Propriétaire certifié Pro
+                                        </span>
+                                    )}
                                 </div>
                                 <div className="p-4">
-                                    <span className="text-xs font-medium uppercase text-gray-400">
+                                    <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium uppercase text-gray-500">
                                         {annonce.category?.name}
                                     </span>
-                                    <h3 className="mt-1 font-medium text-gray-900">
+                                    <h3 className="mt-2 font-medium text-gray-900">
                                         {annonce.title}
                                     </h3>
                                     <p className="mt-1 text-sm text-gray-500">
@@ -244,7 +251,7 @@ export default function Index({ annonces, categories, filters }) {
                                         MAD / mois
                                     </p>
                                 </div>
-                            </div>
+                            </Link>
                         ))}
 
                         {annonces.data.length === 0 && (

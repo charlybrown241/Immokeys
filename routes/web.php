@@ -38,6 +38,9 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('ad
 });
 
 Route::get('/annonces', [PublicAnnonceController::class, 'index'])->name('annonces.index');
+Route::get('/annonces/{annonce}', [PublicAnnonceController::class, 'show'])
+    ->whereNumber('annonce')
+    ->name('annonces.show');
 
 Route::middleware(['auth', 'verified', 'role:proprietaire'])->group(function () {
     Route::get('/certification', [CertificationController::class, 'create'])->name('certification.create');
