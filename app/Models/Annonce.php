@@ -20,6 +20,7 @@ class Annonce extends Model
         'surface',
         'status',
         'views_count',
+        'is_suspended',
     ];
 
     protected function casts(): array
@@ -28,6 +29,7 @@ class Annonce extends Model
             'price' => 'decimal:2',
             'surface' => 'integer',
             'views_count' => 'integer',
+            'is_suspended' => 'boolean',
         ];
     }
 

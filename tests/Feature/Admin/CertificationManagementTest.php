@@ -135,6 +135,6 @@ class CertificationManagementTest extends TestCase
         $response = $this->actingAs($this->admin())->get('/admin/dashboard');
 
         $response->assertOk();
-        $response->assertInertia(fn ($page) => $page->where('pendingCertificationsCount', 2));
+        $response->assertInertia(fn ($page) => $page->where('stats.pendingCertificationsCount', 2));
     }
 }

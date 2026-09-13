@@ -1,13 +1,15 @@
 <?php
 
+use App\Http\Controllers\Admin\AnnonceController as AdminAnnonceController;
 use App\Http\Controllers\Admin\CertificationController as AdminCertificationController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\AnnonceController;
 use App\Http\Controllers\CertificationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicAnnonceController;
 use App\Http\Controllers\SubscriptionController;
-use App\Models\Certification;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -25,17 +27,21 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified', 'role:proprietaire'])
     ->name('dashboard');
 
-Route::get('/admin/dashboard', function () {
-    return Inertia::render('Admin/Dashboard', [
-        'pendingCertificationsCount' => Certification::where('status', 'en_attente')->count(),
-    ]);
-})->middleware(['auth', 'verified', 'role:admin'])->name('admin.dashboard');
+Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])
+    ->middleware(['auth', 'verified', 'role:admin'])
+    ->name('admin.dashboard');
 
 Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/certifications', [AdminCertificationController::class, 'index'])->name('certifications.index');
     Route::get('/certifications/{certification}/document', [AdminCertificationController::class, 'document'])->name('certifications.document');
     Route::post('/certifications/{certification}/approve', [AdminCertificationController::class, 'approve'])->name('certifications.approve');
     Route::post('/certifications/{certification}/reject', [AdminCertificationController::class, 'reject'])->name('certifications.reject');
+
+    Route::get('/annonces', [AdminAnnonceController::class, 'index'])->name('annonces.index');
+    Route::post('/annonces/{annonce}/toggle-suspension', [AdminAnnonceController::class, 'toggleSuspension'])->name('annonces.toggle-suspension');
+
+    Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+    Route::post('/users/{user}/toggle-active', [AdminUserController::class, 'toggleActive'])->name('users.toggle-active');
 });
 
 Route::get('/annonces', [PublicAnnonceController::class, 'index'])->name('annonces.index');

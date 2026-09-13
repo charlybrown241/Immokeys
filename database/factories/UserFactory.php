@@ -33,6 +33,7 @@ class UserFactory extends Factory
             'remember_token' => Str::random(10),
             'role_id' => Role::firstOrCreate(['name' => 'etudiant'])->id,
             'is_verified' => false,
+            'is_active' => true,
         ];
     }
 

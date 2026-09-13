@@ -24,6 +24,7 @@ class PublicAnnonceController extends Controller
 
         $annonces = Annonce::query()
             ->where('status', 'disponible')
+            ->where('is_suspended', false)
             ->with(['mainPhoto', 'category:id,name', 'user:id,is_verified', 'user.subscription:id,user_id,type,expires_at'])
             ->when($city, fn ($query, $value) => $query->where('city', $value))
             ->when($filters['quartier'] ?? null, fn ($query, $value) => $query->where('quartier', 'like', "%{$value}%"))
@@ -59,7 +60,7 @@ class PublicAnnonceController extends Controller
      */
     public function show(Request $request, Annonce $annonce): Response
     {
-        abort_if($annonce->status === 'en_attente', 404);
+        abort_if($annonce->status === 'en_attente' || $annonce->is_suspended, 404);
 
         $annonce->load([
             'photos' => fn ($query) => $query->orderBy('ordre'),
@@ -100,7 +101,7 @@ class PublicAnnonceController extends Controller
      */
     public function contactWhatsapp(Request $request, Annonce $annonce): RedirectResponse
     {
-        abort_unless($annonce->status === 'disponible', 404);
+        abort_unless($annonce->status === 'disponible' && ! $annonce->is_suspended, 404);
 
         $owner = $annonce->user;
 
@@ -147,7 +148,7 @@ class PublicAnnonceController extends Controller
             return ['status' => 'wrong_role'];
         }
 
-        if ($annonce->status !== 'disponible') {
+        if ($annonce->status !== 'disponible' || $annonce->is_suspended) {
             return ['status' => 'unavailable'];
         }
 

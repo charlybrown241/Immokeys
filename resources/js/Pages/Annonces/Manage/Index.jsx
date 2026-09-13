@@ -18,12 +18,20 @@ const STATUS_LABELS = {
     loue: 'Louée',
 };
 
-function StatusBadge({ status }) {
+function StatusBadge({ annonce }) {
+    if (annonce.is_suspended) {
+        return (
+            <span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
+                Suspendue par l'administrateur
+            </span>
+        );
+    }
+
     return (
         <span
-            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_STYLES[status]}`}
+            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_STYLES[annonce.status]}`}
         >
-            {STATUS_LABELS[status]}
+            {STATUS_LABELS[annonce.status]}
         </span>
     );
 }
@@ -98,7 +106,7 @@ export default function Index({ annonces }) {
                                                 {annonce.title}
                                             </h3>
                                             <StatusBadge
-                                                status={annonce.status}
+                                                annonce={annonce}
                                             />
                                         </div>
                                         <p className="mt-1 text-sm text-gray-500">
