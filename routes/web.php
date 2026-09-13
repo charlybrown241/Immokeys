@@ -5,6 +5,7 @@ use App\Http\Controllers\AnnonceController;
 use App\Http\Controllers\CertificationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PublicAnnonceController;
 use App\Models\Certification;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -36,9 +37,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('ad
     Route::post('/certifications/{certification}/reject', [AdminCertificationController::class, 'reject'])->name('certifications.reject');
 });
 
-Route::get('/annonces', function () {
-    return Inertia::render('Annonces/Index');
-})->name('annonces.index');
+Route::get('/annonces', [PublicAnnonceController::class, 'index'])->name('annonces.index');
 
 Route::middleware(['auth', 'verified', 'role:proprietaire'])->group(function () {
     Route::get('/certification', [CertificationController::class, 'create'])->name('certification.create');
