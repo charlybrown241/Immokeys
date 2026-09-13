@@ -11,6 +11,7 @@ export default function Register() {
         email: '',
         password: '',
         password_confirmation: '',
+        role: 'etudiant',
     });
 
     const submit = (e) => {
@@ -27,6 +28,38 @@ export default function Register() {
 
             <form onSubmit={submit}>
                 <div>
+                    <InputLabel value="Type de compte" />
+
+                    <div className="mt-2 flex gap-6">
+                        <label className="flex items-center gap-2">
+                            <input
+                                type="radio"
+                                name="role"
+                                value="etudiant"
+                                checked={data.role === 'etudiant'}
+                                onChange={(e) => setData('role', e.target.value)}
+                                className="text-indigo-600 focus:ring-indigo-500"
+                            />
+                            Étudiant
+                        </label>
+
+                        <label className="flex items-center gap-2">
+                            <input
+                                type="radio"
+                                name="role"
+                                value="proprietaire"
+                                checked={data.role === 'proprietaire'}
+                                onChange={(e) => setData('role', e.target.value)}
+                                className="text-indigo-600 focus:ring-indigo-500"
+                            />
+                            Propriétaire
+                        </label>
+                    </div>
+
+                    <InputError message={errors.role} className="mt-2" />
+                </div>
+
+                <div className="mt-4">
                     <InputLabel htmlFor="name" value="Name" />
 
                     <TextInput

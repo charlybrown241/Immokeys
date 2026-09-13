@@ -78,4 +78,16 @@ class User extends Authenticatable
     {
         return $this->hasMany(ContactLog::class);
     }
+
+    /**
+     * Name of the route to redirect to after login/registration, based on role.
+     */
+    public function homeRouteName(): string
+    {
+        return match ($this->role?->name) {
+            'admin' => 'admin.dashboard',
+            'proprietaire' => 'dashboard',
+            default => 'annonces.index',
+        };
+    }
 }

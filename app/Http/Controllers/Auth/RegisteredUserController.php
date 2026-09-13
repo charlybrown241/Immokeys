@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\Role;
+use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
@@ -36,19 +39,35 @@ class RegisteredUserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'role' => ['required', Rule::in(['etudiant', 'proprietaire'])],
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role_id' => Role::where('name', 'etudiant')->firstOrFail()->id,
-        ]);
+        $role = Role::where('name', $request->role)->firstOrFail();
+
+        $user = DB::transaction(function () use ($request, $role) {
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'role_id' => $role->id,
+            ]);
+
+            $isProprietaire = $role->name === 'proprietaire';
+
+            Subscription::create([
+                'user_id' => $user->id,
+                'type' => $isProprietaire ? 'pro' : 'gratuit',
+                'started_at' => $isProprietaire ? now() : null,
+                'expires_at' => $isProprietaire ? now()->addYear() : null,
+            ]);
+
+            return $user;
+        });
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect(route($user->homeRouteName(), absolute: false));
     }
 }
