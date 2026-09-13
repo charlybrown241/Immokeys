@@ -19,6 +19,14 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
         ]);
+
+        // The "guest" middleware (RedirectIfAuthenticated) hardcodes a
+        // redirect to route('dashboard') by default, which 403s for
+        // etudiant/admin users since that route is proprietaire-only.
+        // Reuse the same per-role home route as post-login/registration.
+        $middleware->redirectUsersTo(
+            fn ($request) => route($request->user()->homeRouteName())
+        );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

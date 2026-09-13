@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -50,5 +51,40 @@ class AuthenticationTest extends TestCase
 
         $this->assertGuest();
         $response->assertRedirect('/');
+    }
+
+    public function test_an_already_authenticated_etudiant_visiting_login_is_redirected_to_annonces(): void
+    {
+        $etudiant = User::factory()->create([
+            'role_id' => Role::where('name', 'etudiant')->firstOrFail()->id,
+        ]);
+
+        $response = $this->actingAs($etudiant)->get('/login');
+
+        $response->assertRedirect(route('annonces.index'));
+    }
+
+    public function test_an_already_authenticated_admin_visiting_login_is_redirected_to_admin_dashboard(): void
+    {
+        $admin = User::factory()->create([
+            'role_id' => Role::where('name', 'admin')->firstOrFail()->id,
+            'email_verified_at' => now(),
+        ]);
+
+        $response = $this->actingAs($admin)->get('/login');
+
+        $response->assertRedirect(route('admin.dashboard'));
+    }
+
+    public function test_an_already_authenticated_proprietaire_visiting_login_is_redirected_to_dashboard(): void
+    {
+        $proprietaire = User::factory()->create([
+            'role_id' => Role::where('name', 'proprietaire')->firstOrFail()->id,
+            'email_verified_at' => now(),
+        ]);
+
+        $response = $this->actingAs($proprietaire)->get('/login');
+
+        $response->assertRedirect(route('dashboard'));
     }
 }
