@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CertificationStoreRequest;
 use App\Models\Certification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -26,7 +27,7 @@ class CertificationController extends Controller
      * Store the phone number and identity document, submitting (or
      * resubmitting after a rejection) the certification for review.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(CertificationStoreRequest $request): RedirectResponse
     {
         $user = $request->user();
         $certification = $user->certification;
@@ -35,10 +36,7 @@ class CertificationController extends Controller
             return back()->with('error', 'Votre certification est deja soumise ou votre compte est deja certifie.');
         }
 
-        $validated = $request->validate([
-            'phone' => ['required', 'string', 'max:30'],
-            'document' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
-        ]);
+        $validated = $request->validated();
 
         $path = $request->file('document')->store('certifications', 'local');
 

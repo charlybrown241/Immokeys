@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\AnnonceIndexRequest;
 use App\Models\Annonce;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -17,9 +17,9 @@ class AnnonceController extends Controller
      * than the status column, since suspension is an independent axis
      * from the owner's own lifecycle status.
      */
-    public function index(Request $request): Response
+    public function index(AnnonceIndexRequest $request): Response
     {
-        $status = $request->query('status');
+        $status = $request->validated('status');
 
         $annonces = Annonce::query()
             ->with(['mainPhoto', 'user:id,name,email'])

@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\Annonce;
 use App\Models\Category;
-use App\Models\ContactLog;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -106,7 +105,7 @@ class WhatsappContactTest extends TestCase
     public function test_visiting_the_signed_link_logs_the_contact_and_redirects_to_whatsapp(): void
     {
         $owner = $this->owner(['phone' => '+212 6 00 00 01 23']);
-        $annonce = $this->annonce($owner, ['title' => "Studio a louer", 'quartier' => 'Maarif']);
+        $annonce = $this->annonce($owner, ['title' => 'Studio a louer', 'quartier' => 'Maarif']);
         $student = $this->etudiant();
 
         $url = URL::temporarySignedRoute('annonces.contact-whatsapp', now()->addMinutes(5), ['annonce' => $annonce->id]);
@@ -121,6 +120,23 @@ class WhatsappContactTest extends TestCase
             'user_id' => $student->id,
             'annonce_id' => $annonce->id,
         ]);
+    }
+
+    public function test_contact_whatsapp_is_rate_limited(): void
+    {
+        $owner = $this->owner(['phone' => '+212 6 00 00 01 23']);
+        $annonce = $this->annonce($owner, ['title' => 'Studio a louer', 'quartier' => 'Maarif']);
+        $student = $this->etudiant();
+
+        $url = URL::temporarySignedRoute('annonces.contact-whatsapp', now()->addMinutes(5), ['annonce' => $annonce->id]);
+
+        for ($i = 0; $i < 10; $i++) {
+            $this->actingAs($student)->get($url);
+        }
+
+        $response = $this->actingAs($student)->get($url);
+
+        $response->assertStatus(429);
     }
 
     public function test_signature_is_required_and_rejected_when_tampered(): void

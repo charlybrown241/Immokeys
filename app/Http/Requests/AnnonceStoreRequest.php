@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Models\Annonce;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\File;
 
 class AnnonceStoreRequest extends FormRequest
 {
@@ -29,8 +30,8 @@ class AnnonceStoreRequest extends FormRequest
             'quartier' => ['required', 'string', 'max:100'],
             'surface' => ['nullable', 'integer', 'min:1'],
             'price' => ['required', 'numeric', 'min:0'],
-            'photos' => ['nullable', 'array'],
-            'photos.*' => ['file', 'image', 'max:5120'],
+            'photos' => ['nullable', 'array', 'max:10'],
+            'photos.*' => File::types(['jpg', 'jpeg', 'png', 'webp'])->max(5 * 1024),
         ];
     }
 }

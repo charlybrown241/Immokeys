@@ -62,6 +62,27 @@ class CertificationTest extends TestCase
         Storage::disk('local')->assertExists($certification->document_path);
     }
 
+    public function test_certification_submission_is_rate_limited(): void
+    {
+        Storage::fake('local');
+
+        $user = $this->proprietaire();
+
+        for ($i = 0; $i < 5; $i++) {
+            $this->actingAs($user)->post('/certification', [
+                'phone' => '+212600000099',
+                'document' => UploadedFile::fake()->create('cin.pdf', 500, 'application/pdf'),
+            ]);
+        }
+
+        $response = $this->actingAs($user)->post('/certification', [
+            'phone' => '+212600000099',
+            'document' => UploadedFile::fake()->create('cin.pdf', 500, 'application/pdf'),
+        ]);
+
+        $response->assertStatus(429);
+    }
+
     public function test_document_must_not_exceed_5_megabytes(): void
     {
         Storage::fake('local');

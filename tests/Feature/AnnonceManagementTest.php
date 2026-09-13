@@ -89,6 +89,29 @@ class AnnonceManagementTest extends TestCase
         }
     }
 
+    public function test_a_disallowed_photo_type_is_rejected(): void
+    {
+        Storage::fake('public');
+
+        $owner = $this->verifiedProprietaire();
+        $category = Category::first();
+
+        $response = $this->actingAs($owner)->post('/annonces', [
+            'title' => 'Bel appartement',
+            'category_id' => $category->id,
+            'description' => 'Proche du tram',
+            'quartier' => 'Gauthier',
+            'surface' => 45,
+            'price' => 4500,
+            'photos' => [
+                UploadedFile::fake()->create('photo.gif', 100, 'image/gif'),
+            ],
+        ]);
+
+        $response->assertSessionHasErrors('photos.0');
+        $this->assertDatabaseMissing('annonces', ['title' => 'Bel appartement']);
+    }
+
     public function test_unverified_owner_cannot_create_an_annonce(): void
     {
         $owner = User::factory()->create([

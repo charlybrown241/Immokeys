@@ -73,6 +73,13 @@ class AnnonceModerationTest extends TestCase
         );
     }
 
+    public function test_filtering_by_an_unknown_status_value_is_rejected(): void
+    {
+        $response = $this->actingAs($this->admin())->get('/admin/annonces?status=not-a-real-status');
+
+        $response->assertSessionHasErrors('status');
+    }
+
     public function test_filtering_by_suspended_matches_the_flag_not_the_status_column(): void
     {
         $suspended = $this->annonce(['status' => 'disponible', 'title' => 'Suspendue']);
