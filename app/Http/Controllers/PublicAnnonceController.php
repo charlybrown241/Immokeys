@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\AnnonceFilterRequest;
 use App\Models\Annonce;
 use App\Models\Category;
+use App\Models\ContactLog;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\URL;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -61,7 +64,7 @@ class PublicAnnonceController extends Controller
         $annonce->load([
             'photos' => fn ($query) => $query->orderBy('ordre'),
             'category:id,name',
-            'user:id,is_verified',
+            'user:id,is_verified,phone',
             'user.subscription:id,user_id,type',
         ]);
 
@@ -85,8 +88,33 @@ class PublicAnnonceController extends Controller
                 'category' => $annonce->category,
                 'photos' => $annonce->photos,
                 'is_certified_pro' => $this->isCertifiedPro($annonce),
+                'whatsapp_contact' => $this->whatsappContactState($request, $annonce),
             ],
         ]);
+    }
+
+    /**
+     * Verify the signed link, log the contact, and hand off to WhatsApp
+     * with a prefilled message. The "signed" middleware already rejects
+     * a missing/expired/tampered signature before this method runs.
+     */
+    public function contactWhatsapp(Request $request, Annonce $annonce): RedirectResponse
+    {
+        abort_unless($annonce->status === 'disponible', 404);
+
+        $owner = $annonce->user;
+
+        abort_if(blank($owner?->phone), 404);
+
+        ContactLog::create([
+            'user_id' => $request->user()->id,
+            'annonce_id' => $annonce->id,
+        ]);
+
+        $message = "Bonjour, je suis interesse(e) par votre annonce '{$annonce->title}' a {$annonce->quartier} (".route('annonces.show', $annonce->id).').';
+        $phone = preg_replace('/[^0-9]/', '', $owner->phone);
+
+        return redirect()->away("https://wa.me/{$phone}?text=".urlencode($message));
     }
 
     /**
@@ -96,5 +124,40 @@ class PublicAnnonceController extends Controller
     private function isCertifiedPro(Annonce $annonce): bool
     {
         return (bool) $annonce->user?->is_verified && $annonce->user?->subscription?->type === 'pro';
+    }
+
+    /**
+     * Decide what the "Contacter sur WhatsApp" button should do: generate
+     * a short-lived signed link when everything checks out, or report why
+     * it can't (guest, wrong role, unavailable annonce, missing phone).
+     */
+    private function whatsappContactState(Request $request, Annonce $annonce): array
+    {
+        $user = $request->user();
+
+        if (! $user) {
+            return ['status' => 'guest'];
+        }
+
+        if ($user->role?->name !== 'etudiant') {
+            return ['status' => 'wrong_role'];
+        }
+
+        if ($annonce->status !== 'disponible') {
+            return ['status' => 'unavailable'];
+        }
+
+        if (blank($annonce->user?->phone)) {
+            return ['status' => 'missing_phone'];
+        }
+
+        return [
+            'status' => 'ready',
+            'url' => URL::temporarySignedRoute(
+                'annonces.contact-whatsapp',
+                now()->addMinutes(5),
+                ['annonce' => $annonce->id],
+            ),
+        ];
     }
 }

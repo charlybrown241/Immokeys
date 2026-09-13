@@ -1,6 +1,77 @@
 import { Head, Link } from '@inertiajs/react';
 import { useState } from 'react';
 
+function WhatsappIcon() {
+    return (
+        <svg
+            className="h-5 w-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+        >
+            <path d="M21 11.5a8.5 8.5 0 0 1-12.3 7.6L4 20l1.1-4.5A8.5 8.5 0 1 1 21 11.5Z" />
+            <path d="M8.5 10.5c0 3 2.5 5.5 5.5 5.5" />
+        </svg>
+    );
+}
+
+const WHATSAPP_UNAVAILABLE_MESSAGES = {
+    wrong_role:
+        'Seuls les étudiants peuvent contacter les propriétaires via WhatsApp.',
+    missing_phone:
+        "Le propriétaire n'a pas encore renseigné de numéro de téléphone.",
+    unavailable: "Cette annonce n'est plus disponible.",
+};
+
+function WhatsappButton({ contact }) {
+    const buttonClasses =
+        'inline-flex items-center gap-2 rounded-md px-5 py-3 text-sm font-semibold text-white shadow-sm';
+
+    if (contact.status === 'ready') {
+        return (
+            <a
+                href={contact.url}
+                className={`${buttonClasses} bg-green-600 hover:bg-green-700`}
+            >
+                <WhatsappIcon />
+                Contacter sur WhatsApp
+            </a>
+        );
+    }
+
+    if (contact.status === 'guest') {
+        return (
+            <Link
+                href={`${route('login')}?reason=contact-whatsapp`}
+                className={`${buttonClasses} bg-green-600 hover:bg-green-700`}
+            >
+                <WhatsappIcon />
+                Contacter sur WhatsApp
+            </Link>
+        );
+    }
+
+    return (
+        <div>
+            <button
+                type="button"
+                disabled
+                className={`${buttonClasses} cursor-not-allowed bg-green-600/50`}
+            >
+                <WhatsappIcon />
+                Contacter sur WhatsApp
+            </button>
+            <p className="mt-2 text-xs text-gray-500">
+                {WHATSAPP_UNAVAILABLE_MESSAGES[contact.status]}
+            </p>
+        </div>
+    );
+}
+
 export default function Show({ annonce }) {
     const [activePhoto, setActivePhoto] = useState(0);
     const photos = annonce.photos ?? [];
@@ -92,25 +163,9 @@ export default function Show({ annonce }) {
                             </p>
 
                             <div className="mt-8">
-                                <button
-                                    type="button"
-                                    className="inline-flex items-center gap-2 rounded-md bg-green-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-green-700"
-                                >
-                                    <svg
-                                        className="h-5 w-5"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        aria-hidden="true"
-                                    >
-                                        <path d="M21 11.5a8.5 8.5 0 0 1-12.3 7.6L4 20l1.1-4.5A8.5 8.5 0 1 1 21 11.5Z" />
-                                        <path d="M8.5 10.5c0 3 2.5 5.5 5.5 5.5" />
-                                    </svg>
-                                    Contacter sur WhatsApp
-                                </button>
+                                <WhatsappButton
+                                    contact={annonce.whatsapp_contact}
+                                />
                             </div>
                         </div>
                     </div>

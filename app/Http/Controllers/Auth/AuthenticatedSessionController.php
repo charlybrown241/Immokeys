@@ -16,11 +16,17 @@ class AuthenticatedSessionController extends Controller
     /**
      * Display the login view.
      */
-    public function create(): Response
+    public function create(Request $request): Response
     {
+        $status = session('status');
+
+        if ($request->query('reason') === 'contact-whatsapp') {
+            $status = 'Connectez-vous pour contacter ce proprietaire.';
+        }
+
         return Inertia::render('Auth/Login', [
             'canResetPassword' => Route::has('password.request'),
-            'status' => session('status'),
+            'status' => $status,
         ]);
     }
 

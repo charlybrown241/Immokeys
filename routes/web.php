@@ -42,6 +42,11 @@ Route::get('/annonces/{annonce}', [PublicAnnonceController::class, 'show'])
     ->whereNumber('annonce')
     ->name('annonces.show');
 
+Route::get('/annonces/{annonce}/contact-whatsapp', [PublicAnnonceController::class, 'contactWhatsapp'])
+    ->whereNumber('annonce')
+    ->middleware(['auth', 'role:etudiant', 'signed'])
+    ->name('annonces.contact-whatsapp');
+
 Route::middleware(['auth', 'verified', 'role:proprietaire'])->group(function () {
     Route::get('/certification', [CertificationController::class, 'create'])->name('certification.create');
     Route::post('/certification', [CertificationController::class, 'store'])->name('certification.store');
