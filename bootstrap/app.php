@@ -21,6 +21,10 @@ return Application::configure(basePath: dirname(__DIR__))
             AddLinkHeadersForPreloadedAssets::class,
         ]);
 
+        // Behind a TLS-terminating proxy (tunnel, load balancer), honour
+        // X-Forwarded-* so generated URLs use https and the public host.
+        $middleware->trustProxies(at: '*');
+
         $middleware->alias([
             'role' => RoleMiddleware::class,
         ]);
