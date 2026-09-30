@@ -11,7 +11,12 @@ export default function Register() {
         email: '',
         password: '',
         password_confirmation: '',
-        role: 'etudiant',
+        // "Devenir propriétaire" links here with ?role=proprietaire.
+        role:
+            new URLSearchParams(window.location.search).get('role') ===
+            'proprietaire'
+                ? 'proprietaire'
+                : 'etudiant',
     });
 
     const submit = (e) => {
@@ -38,7 +43,7 @@ export default function Register() {
                                 value="etudiant"
                                 checked={data.role === 'etudiant'}
                                 onChange={(e) => setData('role', e.target.value)}
-                                className="text-indigo-600 focus:ring-indigo-500"
+                                className="text-terracotta-700 focus:ring-terracotta-500"
                             />
                             Étudiant
                         </label>
@@ -50,7 +55,7 @@ export default function Register() {
                                 value="proprietaire"
                                 checked={data.role === 'proprietaire'}
                                 onChange={(e) => setData('role', e.target.value)}
-                                className="text-indigo-600 focus:ring-indigo-500"
+                                className="text-terracotta-700 focus:ring-terracotta-500"
                             />
                             Propriétaire
                         </label>
@@ -138,7 +143,7 @@ export default function Register() {
                 <div className="mt-4 flex items-center justify-end">
                     <Link
                         href={route('login')}
-                        className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                        className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-terracotta-500 focus:ring-offset-2"
                     >
                         Already registered?
                     </Link>

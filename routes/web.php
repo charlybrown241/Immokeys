@@ -39,6 +39,12 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('ad
 });
 
 Route::get('/annonces', [PublicAnnonceController::class, 'index'])->name('annonces.index');
+
+// Static information pages linked from the footer.
+Route::inertia('/comment-ca-marche', 'Static/CommentCaMarche')->name('pages.how-it-works');
+Route::inertia('/securite-certification', 'Static/Securite')->name('pages.security');
+Route::inertia('/mentions-legales', 'Static/MentionsLegales')->name('pages.legal');
+Route::inertia('/confidentialite', 'Static/Confidentialite')->name('pages.privacy');
 Route::get('/annonces/{annonce}', [PublicAnnonceController::class, 'show'])
     ->whereNumber('annonce')
     ->name('annonces.show');

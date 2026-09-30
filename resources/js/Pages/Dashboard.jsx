@@ -218,7 +218,7 @@ export default function Dashboard({ certification, stats, annonces }) {
                                                         'annonces.edit',
                                                         annonce.id,
                                                     )}
-                                                    className="text-indigo-600 underline"
+                                                    className="text-terracotta-700 underline"
                                                 >
                                                     Modifier
                                                 </Link>
@@ -320,7 +320,7 @@ export default function Dashboard({ certification, stats, annonces }) {
                                                                     'annonces.edit',
                                                                     annonce.id,
                                                                 )}
-                                                                className="text-indigo-600 underline hover:text-indigo-900"
+                                                                className="text-terracotta-700 underline hover:text-terracotta-900"
                                                             >
                                                                 Modifier
                                                             </Link>

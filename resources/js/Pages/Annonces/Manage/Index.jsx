@@ -125,7 +125,7 @@ export default function Index({ annonces }) {
                                                     'annonces.edit',
                                                     annonce.id,
                                                 )}
-                                                className="text-sm text-indigo-600 underline hover:text-indigo-900"
+                                                className="text-sm text-terracotta-700 underline hover:text-terracotta-900"
                                             >
                                                 Modifier
                                             </Link>

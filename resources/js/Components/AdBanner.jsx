@@ -17,7 +17,7 @@ export default function AdBanner() {
             <span>Publicité — espace réservé aux comptes gratuits.</span>
             <Link
                 href={route('subscription.show')}
-                className="font-medium text-indigo-600 underline hover:text-indigo-900"
+                className="font-medium text-terracotta-700 underline hover:text-terracotta-900"
             >
                 Passer Premium pour la retirer
             </Link>

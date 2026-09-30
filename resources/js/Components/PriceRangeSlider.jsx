@@ -45,7 +45,7 @@ export default function PriceRangeSlider({ min, max, step = 100, value, onChange
                     aria-label="Prix maximum"
                 />
             </div>
-            <div className="mt-2 flex items-center justify-between text-sm text-gray-600">
+            <div className="mt-2 flex items-center justify-between text-sm font-medium text-charcoal/70">
                 <span>{minVal.toLocaleString('fr-FR')} MAD</span>
                 <span>
                     {maxVal >= max

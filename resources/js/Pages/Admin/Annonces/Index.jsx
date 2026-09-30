@@ -89,7 +89,7 @@ export default function Index({ annonces, filters }) {
                         <select
                             value={filters.status ?? ''}
                             onChange={(e) => applyFilter(e.target.value)}
-                            className="rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            className="rounded-md border-gray-300 text-sm focus:border-terracotta-500 focus:ring-terracotta-500"
                         >
                             {FILTER_OPTIONS.map((option) => (
                                 <option key={option.value} value={option.value}>

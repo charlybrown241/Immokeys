@@ -1,5 +1,6 @@
 import PriceRangeSlider from '@/Components/PriceRangeSlider';
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import PublicLayout from '@/Layouts/PublicLayout';
+import { Head, Link, router } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 
 const MIN_PRICE = 0;
@@ -34,7 +35,6 @@ function buildQuery(values) {
 }
 
 export default function Index({ annonces, categories, filters }) {
-    const { auth } = usePage().props;
     const [values, setValues] = useState({
         search: filters.search ?? '',
         category_id: filters.category_id ?? '',
@@ -98,76 +98,72 @@ export default function Index({ annonces, categories, filters }) {
         );
     };
 
+    // The search already runs live (debounced); the round button just lets
+    // the user fire it immediately.
+    const submitSearch = (e) => {
+        e.preventDefault();
+
+        router.get(route('annonces.index'), buildQuery(values), {
+            preserveState: true,
+            preserveScroll: true,
+            only: ['annonces'],
+            replace: true,
+        });
+    };
+
+    const pillClasses = (active) =>
+        `rounded-full border px-4 py-2 text-sm font-medium transition ${
+            active
+                ? 'border-ink bg-ink text-white'
+                : 'border-sand bg-white text-charcoal hover:border-charcoal/30'
+        }`;
+
     return (
-        <>
+        <PublicLayout>
             <Head title="Annonces" />
 
-            <div className="min-h-screen bg-gray-100">
-                <div className="border-b border-gray-200 bg-white">
-                    <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-                        <span className="font-semibold text-gray-800">
-                            ImmoKeys
-                        </span>
-
-                        {auth.user ? (
-                            <div className="flex flex-wrap items-center gap-3 text-sm sm:gap-4">
-                                <span className="hidden text-gray-500 sm:inline">
-                                    {auth.user.name}
-                                </span>
-                                {auth.user.role?.name === 'etudiant' && (
-                                    <Link
-                                        href={route('subscription.show')}
-                                        className="text-indigo-600 underline hover:text-indigo-900"
-                                    >
-                                        Mon abonnement
-                                    </Link>
-                                )}
-                                <Link
-                                    href={route('logout')}
-                                    method="post"
-                                    as="button"
-                                    className="text-gray-600 underline hover:text-gray-900"
-                                >
-                                    Se déconnecter
-                                </Link>
-                            </div>
-                        ) : (
-                            <div className="flex items-center gap-3 text-sm sm:gap-4">
-                                <Link
-                                    href={route('login')}
-                                    className="text-gray-600 underline hover:text-gray-900"
-                                >
-                                    Se connecter
-                                </Link>
-                                <Link
-                                    href={route('register')}
-                                    className="text-indigo-600 underline hover:text-indigo-900"
-                                >
-                                    S'inscrire
-                                </Link>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-                    <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl">
+            <div>
+                <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+                    <h1 className="font-serif text-3xl font-semibold leading-tight text-charcoal sm:text-4xl">
                         Trouvez votre logement étudiant à Casablanca
                     </h1>
 
-                    <div className="mt-4 space-y-5 rounded-lg bg-white p-4 shadow-sm sm:p-5">
-                        <input
-                            type="text"
-                            value={values.search}
-                            onChange={(e) =>
-                                updateValue('search', e.target.value)
-                            }
-                            placeholder="Quartier, résidence, université..."
-                            className="block w-full rounded-md border-gray-300 text-base focus:border-indigo-500 focus:ring-indigo-500"
-                        />
+                    <form
+                        onSubmit={submitSearch}
+                        className="mt-6 space-y-6 rounded-2xl bg-white p-5 shadow-[0_8px_30px_rgba(30,27,24,0.06)] ring-1 ring-sand sm:mt-8 sm:p-7"
+                    >
+                        <div className="flex items-center gap-3">
+                            <input
+                                type="text"
+                                value={values.search}
+                                onChange={(e) =>
+                                    updateValue('search', e.target.value)
+                                }
+                                placeholder="Quartier, résidence, université..."
+                                className="block w-full rounded-full border-sand bg-cream/60 px-5 py-3 text-base text-charcoal placeholder:text-charcoal/40 focus:border-terracotta focus:ring-terracotta"
+                            />
+                            <button
+                                type="submit"
+                                aria-label="Rechercher"
+                                className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-ink text-white shadow-sm transition hover:bg-charcoal focus:outline-none focus:ring-2 focus:ring-terracotta focus:ring-offset-2"
+                            >
+                                <svg
+                                    className="h-5 w-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2.2"
+                                    strokeLinecap="round"
+                                    viewBox="0 0 24 24"
+                                    aria-hidden="true"
+                                >
+                                    <circle cx="11" cy="11" r="7" />
+                                    <path d="m20 20-3.5-3.5" />
+                                </svg>
+                            </button>
+                        </div>
 
                         <div>
-                            <p className="mb-2 text-xs font-medium uppercase tracking-wide text-gray-500">
+                            <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-charcoal/60">
                                 Quartiers populaires
                             </p>
                             <div className="flex flex-wrap gap-2">
@@ -178,11 +174,9 @@ export default function Index({ annonces, categories, filters }) {
                                         onClick={() =>
                                             toggleQuartierTag(quartier)
                                         }
-                                        className={`rounded-full px-3 py-2.5 text-sm font-medium transition ${
-                                            values.search === quartier
-                                                ? 'bg-indigo-600 text-white'
-                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                        }`}
+                                        className={pillClasses(
+                                            values.search === quartier,
+                                        )}
                                     >
                                         {quartier}
                                     </button>
@@ -191,7 +185,7 @@ export default function Index({ annonces, categories, filters }) {
                         </div>
 
                         <div>
-                            <p className="mb-2 text-xs font-medium uppercase tracking-wide text-gray-500">
+                            <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-charcoal/60">
                                 Catégorie
                             </p>
                             <div className="flex flex-wrap gap-2">
@@ -202,12 +196,10 @@ export default function Index({ annonces, categories, filters }) {
                                         onClick={() =>
                                             toggleCategoryTag(category.id)
                                         }
-                                        className={`rounded-full px-3 py-2.5 text-sm font-medium transition ${
+                                        className={pillClasses(
                                             String(values.category_id) ===
-                                            String(category.id)
-                                                ? 'bg-indigo-600 text-white'
-                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                        }`}
+                                                String(category.id),
+                                        )}
                                     >
                                         {category.name}
                                     </button>
@@ -215,8 +207,8 @@ export default function Index({ annonces, categories, filters }) {
                             </div>
                         </div>
 
-                        <div>
-                            <p className="mb-2 text-xs font-medium uppercase tracking-wide text-gray-500">
+                        <div className="sm:max-w-md">
+                            <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-charcoal/60">
                                 Loyer mensuel (MAD)
                             </p>
                             <PriceRangeSlider
@@ -234,8 +226,8 @@ export default function Index({ annonces, categories, filters }) {
                             />
                         </div>
 
-                        <details className="text-sm">
-                            <summary className="cursor-pointer font-medium text-gray-600">
+                        <details className="border-t border-sand pt-5 text-sm">
+                            <summary className="cursor-pointer font-medium text-charcoal/70 hover:text-charcoal">
                                 Filtres avancés (surface)
                             </summary>
                             <div className="mt-3 grid grid-cols-2 gap-3 sm:max-w-xs">
@@ -250,7 +242,7 @@ export default function Index({ annonces, categories, filters }) {
                                         )
                                     }
                                     placeholder="Min m²"
-                                    className="block w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    className="block w-full rounded-xl border-sand text-sm focus:border-terracotta focus:ring-terracotta"
                                 />
                                 <input
                                     type="number"
@@ -263,78 +255,114 @@ export default function Index({ annonces, categories, filters }) {
                                         )
                                     }
                                     placeholder="Max m²"
-                                    className="block w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    className="block w-full rounded-xl border-sand text-sm focus:border-terracotta focus:ring-terracotta"
                                 />
                             </div>
                         </details>
-                    </div>
+                    </form>
 
-                    <p className="mt-4 text-sm text-gray-500">
+                    <p className="mt-10 text-sm text-charcoal/60">
                         {annonces.total} annonce
                         {annonces.total > 1 ? 's' : ''} trouvée
                         {annonces.total > 1 ? 's' : ''}
                     </p>
 
-                    <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="mt-5 grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3">
                         {annonces.data.map((annonce) => (
                             <Link
                                 key={annonce.id}
                                 href={route('annonces.show', annonce.id)}
-                                className="block overflow-hidden rounded-lg bg-white shadow-sm transition hover:shadow-md"
+                                className="group flex flex-col rounded-2xl bg-white p-3 shadow-sm ring-1 ring-sand transition duration-200 hover:shadow-lg"
                             >
-                                <div className="relative h-40 w-full bg-gray-100">
+                                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-sand/60">
                                     {annonce.main_photo ? (
                                         <img
                                             src={`/storage/${annonce.main_photo.path}`}
                                             alt={annonce.title}
-                                            className="h-full w-full object-cover"
+                                            className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
                                         />
                                     ) : (
-                                        <div className="flex h-full items-center justify-center text-sm text-gray-400">
+                                        <div className="flex h-full items-center justify-center text-sm text-charcoal/40">
                                             Aucune photo
                                         </div>
                                     )}
 
                                     {annonce.is_certified_pro && (
-                                        <span className="absolute left-2 top-2 inline-flex items-center rounded-full bg-indigo-600 px-2 py-0.5 text-xs font-medium text-white shadow">
-                                            Propriétaire certifié Pro
+                                        <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-olive px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm">
+                                            <svg
+                                                className="h-3 w-3"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="3"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                viewBox="0 0 24 24"
+                                                aria-hidden="true"
+                                            >
+                                                <path d="m5 12 5 5L20 7" />
+                                            </svg>
+                                            Certifié Pro
                                         </span>
                                     )}
                                 </div>
-                                <div className="p-4">
-                                    <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium uppercase text-gray-500">
-                                        {annonce.category?.name}
-                                    </span>
-                                    <h3 className="mt-2 font-medium text-gray-900">
-                                        {annonce.title}
-                                    </h3>
-                                    <p className="mt-1 text-sm text-gray-500">
-                                        {annonce.quartier}, {annonce.city}
-                                    </p>
-                                    {annonce.surface && (
-                                        <p className="mt-1 text-sm text-gray-500">
-                                            {annonce.surface} m²
+
+                                <div className="flex flex-1 items-end justify-between gap-3 px-2 pb-1 pt-4">
+                                    <div className="min-w-0">
+                                        <h3 className="truncate font-serif text-lg font-semibold text-charcoal">
+                                            {[
+                                                annonce.category?.name,
+                                                annonce.quartier,
+                                            ]
+                                                .filter(Boolean)
+                                                .join(' — ')}
+                                        </h3>
+                                        <p className="mt-0.5 truncate text-sm text-charcoal/60">
+                                            {annonce.title}
+                                            {annonce.surface
+                                                ? ` · ${annonce.surface} m²`
+                                                : ''}
                                         </p>
-                                    )}
-                                    <p className="mt-2 font-semibold text-gray-900">
-                                        {Number(
-                                            annonce.price,
-                                        ).toLocaleString('fr-FR')}{' '}
-                                        MAD / mois
-                                    </p>
+                                        <p className="mt-3 text-xl font-bold text-terracotta">
+                                            {Number(
+                                                annonce.price,
+                                            ).toLocaleString('fr-FR')}{' '}
+                                            MAD
+                                            <span className="text-sm font-medium text-charcoal/60">
+                                                {' '}
+                                                / mois
+                                            </span>
+                                        </p>
+                                    </div>
+
+                                    <span
+                                        aria-hidden="true"
+                                        className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-ink text-white transition group-hover:bg-terracotta"
+                                    >
+                                        <svg
+                                            className="h-4 w-4 -rotate-45"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="2.2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path d="M5 12h14M13 6l6 6-6 6" />
+                                        </svg>
+                                    </span>
                                 </div>
                             </Link>
                         ))}
 
                         {annonces.data.length === 0 && (
-                            <div className="col-span-full rounded-lg bg-white p-6 text-center text-sm text-gray-500 shadow-sm">
+                            <div className="col-span-full rounded-2xl bg-white p-10 text-center text-sm text-charcoal/60 ring-1 ring-sand">
                                 Aucune annonce ne correspond à ces critères.
                             </div>
                         )}
                     </div>
 
                     {annonces.links.length > 3 && (
-                        <nav className="mt-6 flex flex-wrap items-center justify-center gap-1">
+                        <nav className="mt-12 flex flex-wrap items-center justify-center gap-2">
                             {annonces.links.map((link, index) => (
                                 <button
                                     key={index}
@@ -344,12 +372,12 @@ export default function Index({ annonces, categories, filters }) {
                                     dangerouslySetInnerHTML={{
                                         __html: link.label,
                                     }}
-                                    className={`rounded-md px-3 py-1 text-sm ${
+                                    className={`inline-flex h-10 min-w-10 items-center justify-center rounded-full px-3 text-sm font-medium transition ${
                                         link.active
-                                            ? 'bg-gray-800 text-white'
+                                            ? 'bg-ink text-white'
                                             : link.url
-                                              ? 'bg-white text-gray-700 hover:bg-gray-100'
-                                              : 'cursor-not-allowed bg-white text-gray-300'
+                                              ? 'bg-white text-charcoal ring-1 ring-sand hover:ring-charcoal/30'
+                                              : 'cursor-not-allowed bg-white text-charcoal/30 ring-1 ring-sand'
                                     }`}
                                 />
                             ))}
@@ -357,6 +385,6 @@ export default function Index({ annonces, categories, filters }) {
                     )}
                 </div>
             </div>
-        </>
+        </PublicLayout>
     );
 }

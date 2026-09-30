@@ -63,7 +63,7 @@ export default function Edit({ annonce, categories }) {
                                     onChange={(e) =>
                                         setData('status', e.target.value)
                                     }
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-terracotta-500 focus:ring-terracotta-500"
                                 >
                                     {STATUS_OPTIONS.map((option) => (
                                         <option
@@ -113,7 +113,7 @@ export default function Edit({ annonce, categories }) {
                                             e.target.value,
                                         )
                                     }
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-terracotta-500 focus:ring-terracotta-500"
                                 >
                                     {categories.map((category) => (
                                         <option
@@ -145,7 +145,7 @@ export default function Edit({ annonce, categories }) {
                                         )
                                     }
                                     rows={5}
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-terracotta-500 focus:ring-terracotta-500"
                                 />
                                 <InputError
                                     message={errors.description}

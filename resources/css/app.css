@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+    --color-cream: #faf6f0;
+    --color-ink: #1e1b18;
+    --color-charcoal: #2a2622;
+    --color-terracotta: #c2652e;
+    --color-olive: #6b7a4f;
+    --color-sand: #e8e1d6;
+}
+
 /*
  * Dual-handle price range slider: two overlapping <input type="range">
  * elements sharing one track. Each input is transparent except for its
@@ -43,7 +52,7 @@
     width: 16px;
     height: 16px;
     border-radius: 9999px;
-    background: #4f46e5;
+    background: var(--color-terracotta);
     border: 2px solid white;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     cursor: pointer;
@@ -55,7 +64,7 @@
     width: 16px;
     height: 16px;
     border-radius: 9999px;
-    background: #4f46e5;
+    background: var(--color-terracotta);
     border: 2px solid white;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     cursor: pointer;
@@ -68,7 +77,7 @@
     top: 50%;
     height: 4px;
     transform: translateY(-50%);
-    background: #e5e7eb;
+    background: var(--color-sand);
     border-radius: 9999px;
 }
 
@@ -77,6 +86,6 @@
     top: 50%;
     height: 4px;
     transform: translateY(-50%);
-    background: #4f46e5;
+    background: var(--color-terracotta);
     border-radius: 9999px;
 }

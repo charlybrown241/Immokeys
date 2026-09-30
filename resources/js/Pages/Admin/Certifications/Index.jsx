@@ -104,7 +104,7 @@ export default function Index({ certifications }) {
                                                 )}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="text-indigo-600 underline hover:text-indigo-900"
+                                                className="text-terracotta-700 underline hover:text-terracotta-900"
                                             >
                                                 Voir le document
                                             </a>

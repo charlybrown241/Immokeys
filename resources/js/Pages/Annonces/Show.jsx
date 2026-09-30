@@ -1,4 +1,5 @@
 import AdBanner from '@/Components/AdBanner';
+import PublicLayout from '@/Layouts/PublicLayout';
 import { Head, Link } from '@inertiajs/react';
 import { useState } from 'react';
 
@@ -30,7 +31,7 @@ const WHATSAPP_UNAVAILABLE_MESSAGES = {
 
 function WhatsappButton({ contact }) {
     const buttonClasses =
-        'inline-flex items-center gap-2 rounded-md px-5 py-3 text-sm font-semibold text-white shadow-sm';
+        'inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white shadow-sm';
 
     if (contact.status === 'ready') {
         return (
@@ -79,14 +80,14 @@ export default function Show({ annonce }) {
     const mainPhoto = photos[activePhoto] ?? null;
 
     return (
-        <>
+        <PublicLayout>
             <Head title={annonce.title} />
 
-            <div className="min-h-screen bg-gray-100">
-                <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+            <div>
+                <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
                     <Link
                         href={route('annonces.index')}
-                        className="text-sm text-indigo-600 underline hover:text-indigo-900"
+                        className="text-sm font-medium text-charcoal/70 transition hover:text-terracotta-700"
                     >
                         ← Retour aux annonces
                     </Link>
@@ -95,8 +96,8 @@ export default function Show({ annonce }) {
                         <AdBanner />
                     </div>
 
-                    <div className="overflow-hidden rounded-lg bg-white shadow-sm">
-                        <div className="h-80 w-full bg-gray-100">
+                    <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-sand">
+                        <div className="h-80 w-full bg-sand/60">
                             {mainPhoto ? (
                                 <img
                                     src={`/storage/${mainPhoto.path}`}
@@ -104,7 +105,7 @@ export default function Show({ annonce }) {
                                     className="h-full w-full object-cover"
                                 />
                             ) : (
-                                <div className="flex h-full items-center justify-center text-gray-400">
+                                <div className="flex h-full items-center justify-center text-charcoal/40">
                                     Aucune photo disponible
                                 </div>
                             )}
@@ -117,9 +118,9 @@ export default function Show({ annonce }) {
                                         key={photo.id}
                                         type="button"
                                         onClick={() => setActivePhoto(index)}
-                                        className={`h-16 w-24 flex-shrink-0 overflow-hidden rounded-md border-2 ${
+                                        className={`h-16 w-24 flex-shrink-0 overflow-hidden rounded-lg border-2 ${
                                             index === activePhoto
-                                                ? 'border-indigo-600'
+                                                ? 'border-terracotta-600'
                                                 : 'border-transparent'
                                         }`}
                                     >
@@ -133,37 +134,37 @@ export default function Show({ annonce }) {
                             </div>
                         )}
 
-                        <div className="p-6">
+                        <div className="p-6 sm:p-8">
                             <div className="flex flex-wrap items-center gap-2">
-                                <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium uppercase text-gray-500">
+                                <span className="inline-flex items-center rounded-full border border-sand px-2.5 py-0.5 text-xs font-medium uppercase tracking-wide text-charcoal/60">
                                     {annonce.category?.name}
                                 </span>
 
                                 {annonce.is_certified_pro && (
-                                    <span className="inline-flex items-center rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-medium text-indigo-800">
-                                        Propriétaire certifié
+                                    <span className="inline-flex items-center rounded-full bg-olive px-2.5 py-0.5 text-xs font-semibold text-white">
+                                        Certifié Pro
                                     </span>
                                 )}
                             </div>
 
-                            <h1 className="mt-3 text-2xl font-semibold text-gray-900">
+                            <h1 className="mt-4 font-serif text-3xl font-semibold leading-tight text-charcoal sm:text-4xl">
                                 {annonce.title}
                             </h1>
-                            <p className="mt-1 text-gray-500">
+                            <p className="mt-2 text-charcoal/60">
                                 {annonce.quartier}, {annonce.city}
                                 {annonce.surface
                                     ? ` · ${annonce.surface} m²`
                                     : ''}
                             </p>
 
-                            <p className="mt-3 text-2xl font-bold text-gray-900">
+                            <p className="mt-4 text-2xl font-bold text-terracotta">
                                 {Number(annonce.price).toLocaleString(
                                     'fr-FR',
                                 )}{' '}
                                 MAD / mois
                             </p>
 
-                            <p className="mt-6 whitespace-pre-line text-gray-700">
+                            <p className="mt-6 whitespace-pre-line border-t border-sand pt-6 leading-relaxed text-charcoal/80">
                                 {annonce.description}
                             </p>
 
@@ -176,6 +177,6 @@ export default function Show({ annonce }) {
                     </div>
                 </div>
             </div>
-        </>
+        </PublicLayout>
     );
 }

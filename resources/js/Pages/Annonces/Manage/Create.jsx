@@ -86,7 +86,7 @@ export default function Create({ categories }) {
                                     key={s.id}
                                     className={`flex-1 border-b-2 pb-2 text-center ${
                                         step === s.id
-                                            ? 'border-indigo-600 font-semibold text-indigo-600'
+                                            ? 'border-terracotta-600 font-semibold text-terracotta-700'
                                             : 'border-gray-200 text-gray-400'
                                     }`}
                                 >
@@ -131,7 +131,7 @@ export default function Create({ categories }) {
                                                     e.target.value,
                                                 )
                                             }
-                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-terracotta-500 focus:ring-terracotta-500"
                                         >
                                             <option value="">
                                                 Sélectionner...
@@ -166,7 +166,7 @@ export default function Create({ categories }) {
                                                 )
                                             }
                                             rows={5}
-                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-terracotta-500 focus:ring-terracotta-500"
                                         />
                                         <InputError
                                             message={errors.description}

@@ -80,7 +80,7 @@ export default function Show({ subscription }) {
                                             )}
                                     </div>
                                     {isPremium && (
-                                        <span className="inline-flex items-center rounded-full bg-indigo-100 px-3 py-1 text-xs font-medium text-indigo-800">
+                                        <span className="inline-flex items-center rounded-full bg-terracotta-100 px-3 py-1 text-xs font-medium text-terracotta-800">
                                             Premium actif
                                         </span>
                                     )}
@@ -98,7 +98,7 @@ export default function Show({ subscription }) {
                                                         key={benefit}
                                                         className="flex items-center gap-2"
                                                     >
-                                                        <span className="text-indigo-600">
+                                                        <span className="text-terracotta-700">
                                                             ✓
                                                         </span>
                                                         {benefit}
@@ -139,7 +139,7 @@ export default function Show({ subscription }) {
                                             </p>
                                         )}
                                     </div>
-                                    <span className="inline-flex items-center rounded-full bg-indigo-100 px-3 py-1 text-xs font-medium text-indigo-800">
+                                    <span className="inline-flex items-center rounded-full bg-terracotta-100 px-3 py-1 text-xs font-medium text-terracotta-800">
                                         Pro actif
                                     </span>
                                 </div>
