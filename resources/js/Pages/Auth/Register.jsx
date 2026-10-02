@@ -29,13 +29,13 @@ export default function Register() {
 
     return (
         <GuestLayout>
-            <Head title="Register" />
+            <Head title="Inscription" />
 
             <form onSubmit={submit}>
                 <div>
                     <InputLabel value="Type de compte" />
 
-                    <div className="mt-2 flex gap-6">
+                    <div className="mt-2 flex gap-6 text-sm text-ink">
                         <label className="flex items-center gap-2">
                             <input
                                 type="radio"
@@ -43,7 +43,7 @@ export default function Register() {
                                 value="etudiant"
                                 checked={data.role === 'etudiant'}
                                 onChange={(e) => setData('role', e.target.value)}
-                                className="text-terracotta-700 focus:ring-terracotta-500"
+                                className="text-accent focus:ring-accent"
                             />
                             Étudiant
                         </label>
@@ -55,7 +55,7 @@ export default function Register() {
                                 value="proprietaire"
                                 checked={data.role === 'proprietaire'}
                                 onChange={(e) => setData('role', e.target.value)}
-                                className="text-terracotta-700 focus:ring-terracotta-500"
+                                className="text-accent focus:ring-accent"
                             />
                             Propriétaire
                         </label>
@@ -65,7 +65,7 @@ export default function Register() {
                 </div>
 
                 <div className="mt-4">
-                    <InputLabel htmlFor="name" value="Name" />
+                    <InputLabel htmlFor="name" value="Nom complet" />
 
                     <TextInput
                         id="name"
@@ -82,7 +82,7 @@ export default function Register() {
                 </div>
 
                 <div className="mt-4">
-                    <InputLabel htmlFor="email" value="Email" />
+                    <InputLabel htmlFor="email" value="E-mail" />
 
                     <TextInput
                         id="email"
@@ -99,7 +99,7 @@ export default function Register() {
                 </div>
 
                 <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
+                    <InputLabel htmlFor="password" value="Mot de passe" />
 
                     <TextInput
                         id="password"
@@ -118,7 +118,7 @@ export default function Register() {
                 <div className="mt-4">
                     <InputLabel
                         htmlFor="password_confirmation"
-                        value="Confirm Password"
+                        value="Confirmer le mot de passe"
                     />
 
                     <TextInput
@@ -140,18 +140,19 @@ export default function Register() {
                     />
                 </div>
 
-                <div className="mt-4 flex items-center justify-end">
+                <PrimaryButton className="mt-6 w-full" disabled={processing}>
+                    Créer mon compte
+                </PrimaryButton>
+
+                <p className="mt-4 text-center text-xs text-ink-soft">
+                    Déjà inscrit ?{' '}
                     <Link
                         href={route('login')}
-                        className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-terracotta-500 focus:ring-offset-2"
+                        className="rounded text-ink underline underline-offset-2 hover:text-accent-strong focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
                     >
-                        Already registered?
+                        Se connecter
                     </Link>
-
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        Register
-                    </PrimaryButton>
-                </div>
+                </p>
             </form>
         </GuestLayout>
     );
