@@ -128,8 +128,11 @@ export default function Show({ annonce }) {
                     <AdBanner />
                 </div>
 
-                <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
-                    <div className="min-w-0">
+                {/* DOM order is gallery, summary card, details so phones see the
+                    price and contact button right after the photos; on desktop
+                    the card moves to a sticky right column spanning both rows. */}
+                <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:grid-rows-[auto_1fr]">
+                    <div className="min-w-0 lg:col-start-1 lg:row-start-1">
                         <div className="relative aspect-[16/10] w-full overflow-hidden rounded-[14px] bg-gradient-to-br from-line to-pending-bg">
                             {mainPhoto ? (
                                 <img
@@ -177,34 +180,9 @@ export default function Show({ annonce }) {
                                 ))}
                             </div>
                         )}
-
-                        <section className="mt-8">
-                            <h2 className="font-display text-base font-semibold text-ink">
-                                Description
-                            </h2>
-                            <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-ink/80">
-                                {annonce.description}
-                            </p>
-                        </section>
-
-                        <dl className="mt-8 grid grid-cols-1 gap-x-8 sm:grid-cols-2">
-                            {features.map(([label, value]) => (
-                                <div
-                                    key={label}
-                                    className="flex items-baseline justify-between gap-4 border-b border-dotted border-ink-soft/40 py-3"
-                                >
-                                    <dt className="text-sm text-ink-soft">
-                                        {label}
-                                    </dt>
-                                    <dd className="text-sm font-bold text-ink">
-                                        {value}
-                                    </dd>
-                                </div>
-                            ))}
-                        </dl>
                     </div>
 
-                    <aside className="self-start rounded-card bg-surface p-[22px] shadow-card lg:sticky lg:top-6">
+                    <aside className="self-start rounded-card bg-surface p-[22px] shadow-card lg:sticky lg:top-6 lg:col-start-2 lg:row-span-2 lg:row-start-1">
                         <h1 className="font-display text-2xl font-semibold leading-tight text-ink">
                             {annonce.title}
                         </h1>
@@ -264,6 +242,33 @@ export default function Show({ annonce }) {
                             />
                         </div>
                     </aside>
+
+                    <div className="min-w-0 lg:col-start-1 lg:row-start-2">
+                        <section>
+                            <h2 className="font-display text-base font-semibold text-ink">
+                                Description
+                            </h2>
+                            <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-ink/80">
+                                {annonce.description}
+                            </p>
+                        </section>
+
+                        <dl className="mt-8 grid grid-cols-1 gap-x-8 sm:grid-cols-2">
+                            {features.map(([label, value]) => (
+                                <div
+                                    key={label}
+                                    className="flex items-baseline justify-between gap-4 border-b border-dotted border-ink-soft/40 py-3"
+                                >
+                                    <dt className="text-sm text-ink-soft">
+                                        {label}
+                                    </dt>
+                                    <dd className="text-sm font-bold text-ink">
+                                        {value}
+                                    </dd>
+                                </div>
+                            ))}
+                        </dl>
+                    </div>
                 </div>
             </div>
         </PublicLayout>
