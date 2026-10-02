@@ -45,6 +45,18 @@ export default function Index({ annonces, categories, filters }) {
         max_surface: filters.max_surface ?? '',
     });
 
+    // On phones the filter panel starts collapsed so results show up in
+    // the first screen; from sm up it is always expanded.
+    const [filtersOpen, setFiltersOpen] = useState(false);
+
+    // Filters hidden behind the collapsed panel, surfaced on its toggle.
+    const activeFiltersCount = [
+        POPULAR_QUARTIERS.includes(values.search),
+        values.category_id !== '',
+        values.min_price !== MIN_PRICE || values.max_price !== MAX_PRICE,
+        values.min_surface !== '' || values.max_surface !== '',
+    ].filter(Boolean).length;
+
     const isFirstRender = useRef(true);
 
     useEffect(() => {
@@ -184,100 +196,149 @@ export default function Index({ annonces, categories, filters }) {
                         </button>
                     </div>
 
-                    <div>
-                        <p className={sectionLabelClasses}>
-                            Quartiers populaires
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                            {POPULAR_QUARTIERS.map((quartier) => (
-                                <button
-                                    key={quartier}
-                                    type="button"
-                                    onClick={() => toggleQuartierTag(quartier)}
-                                    aria-pressed={values.search === quartier}
-                                    className={chipClasses(
-                                        values.search === quartier,
-                                    )}
-                                >
-                                    {quartier}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
+                    <button
+                        type="button"
+                        onClick={() => setFiltersOpen((open) => !open)}
+                        aria-expanded={filtersOpen}
+                        aria-controls="filtres"
+                        className="!mt-3 flex min-h-10 w-full items-center justify-between rounded-input border border-line px-4 py-2 text-sm font-semibold text-ink transition hover:border-ink/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:hidden"
+                    >
+                        <span className="flex items-center gap-2">
+                            <svg
+                                className="h-4 w-4 text-ink-soft"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                viewBox="0 0 24 24"
+                                aria-hidden="true"
+                            >
+                                <path d="M4 6h16M7 12h10M10 18h4" />
+                            </svg>
+                            Filtres
+                            {activeFiltersCount > 0 && (
+                                <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-accent-strong px-1.5 text-xs font-bold text-accent-ink">
+                                    {activeFiltersCount}
+                                </span>
+                            )}
+                        </span>
+                        <svg
+                            className={`h-4 w-4 text-ink-soft transition ${
+                                filtersOpen ? 'rotate-180' : ''
+                            }`}
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                        >
+                            <path d="m6 9 6 6 6-6" />
+                        </svg>
+                    </button>
 
-                    <div>
-                        <p className={sectionLabelClasses}>Catégorie</p>
-                        <div className="flex flex-wrap gap-2">
-                            {categories.map((category) => {
-                                const active =
-                                    String(values.category_id) ===
-                                    String(category.id);
-
-                                return (
+                    <div
+                        id="filtres"
+                        className={`${
+                            filtersOpen ? 'block' : 'hidden'
+                        } space-y-6 sm:block`}
+                    >
+                        <div>
+                            <p className={sectionLabelClasses}>
+                                Quartiers populaires
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                                {POPULAR_QUARTIERS.map((quartier) => (
                                     <button
-                                        key={category.id}
+                                        key={quartier}
                                         type="button"
-                                        onClick={() =>
-                                            toggleCategoryTag(category.id)
-                                        }
-                                        aria-pressed={active}
-                                        className={chipClasses(active)}
+                                        onClick={() => toggleQuartierTag(quartier)}
+                                        aria-pressed={values.search === quartier}
+                                        className={chipClasses(
+                                            values.search === quartier,
+                                        )}
                                     >
-                                        {category.name}
+                                        {quartier}
                                     </button>
-                                );
-                            })}
+                                ))}
+                            </div>
                         </div>
-                    </div>
 
-                    <div className="sm:max-w-md">
-                        <p className={sectionLabelClasses}>
-                            Loyer mensuel (MAD)
-                        </p>
-                        <PriceRangeSlider
-                            min={MIN_PRICE}
-                            max={MAX_PRICE}
-                            step={PRICE_STEP}
-                            value={[values.min_price, values.max_price]}
-                            onChange={([minPrice, maxPrice]) =>
-                                setValues((current) => ({
-                                    ...current,
-                                    min_price: minPrice,
-                                    max_price: maxPrice,
-                                }))
-                            }
-                        />
-                    </div>
+                        <div>
+                            <p className={sectionLabelClasses}>Catégorie</p>
+                            <div className="flex flex-wrap gap-2">
+                                {categories.map((category) => {
+                                    const active =
+                                        String(values.category_id) ===
+                                        String(category.id);
 
-                    <details className="border-t border-line pt-5 text-sm">
-                        <summary className="cursor-pointer font-semibold text-ink-soft hover:text-ink">
-                            Filtres avancés (surface)
-                        </summary>
-                        <div className="mt-3 grid grid-cols-2 gap-3 sm:max-w-xs">
-                            <input
-                                type="number"
-                                min="0"
-                                value={values.min_surface}
-                                onChange={(e) =>
-                                    updateValue('min_surface', e.target.value)
+                                    return (
+                                        <button
+                                            key={category.id}
+                                            type="button"
+                                            onClick={() =>
+                                                toggleCategoryTag(category.id)
+                                            }
+                                            aria-pressed={active}
+                                            className={chipClasses(active)}
+                                        >
+                                            {category.name}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        <div className="sm:max-w-md">
+                            <p className={sectionLabelClasses}>
+                                Loyer mensuel (MAD)
+                            </p>
+                            <PriceRangeSlider
+                                min={MIN_PRICE}
+                                max={MAX_PRICE}
+                                step={PRICE_STEP}
+                                value={[values.min_price, values.max_price]}
+                                onChange={([minPrice, maxPrice]) =>
+                                    setValues((current) => ({
+                                        ...current,
+                                        min_price: minPrice,
+                                        max_price: maxPrice,
+                                    }))
                                 }
-                                placeholder="Min m²"
-                                aria-label="Surface minimum"
-                                className="block w-full rounded-input border-line text-sm text-ink focus:border-accent focus:ring-accent"
-                            />
-                            <input
-                                type="number"
-                                min="0"
-                                value={values.max_surface}
-                                onChange={(e) =>
-                                    updateValue('max_surface', e.target.value)
-                                }
-                                placeholder="Max m²"
-                                aria-label="Surface maximum"
-                                className="block w-full rounded-input border-line text-sm text-ink focus:border-accent focus:ring-accent"
                             />
                         </div>
-                    </details>
+
+                        <details className="border-t border-line pt-5 text-sm">
+                            <summary className="cursor-pointer font-semibold text-ink-soft hover:text-ink">
+                                Filtres avancés (surface)
+                            </summary>
+                            <div className="mt-3 grid grid-cols-2 gap-3 sm:max-w-xs">
+                                <input
+                                    type="number"
+                                    min="0"
+                                    value={values.min_surface}
+                                    onChange={(e) =>
+                                        updateValue('min_surface', e.target.value)
+                                    }
+                                    placeholder="Min m²"
+                                    aria-label="Surface minimum"
+                                    className="block w-full rounded-input border-line text-sm text-ink focus:border-accent focus:ring-accent"
+                                />
+                                <input
+                                    type="number"
+                                    min="0"
+                                    value={values.max_surface}
+                                    onChange={(e) =>
+                                        updateValue('max_surface', e.target.value)
+                                    }
+                                    placeholder="Max m²"
+                                    aria-label="Surface maximum"
+                                    className="block w-full rounded-input border-line text-sm text-ink focus:border-accent focus:ring-accent"
+                                />
+                            </div>
+                        </details>
+                    </div>
                 </form>
 
                 <p className="mt-10 text-sm text-ink-soft">
