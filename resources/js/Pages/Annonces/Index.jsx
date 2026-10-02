@@ -344,7 +344,7 @@ export default function Index({ annonces, categories, filters }) {
                                 </p>
 
                                 <div className="mt-auto flex items-center justify-between gap-3 pt-4">
-                                    <p className="text-lg font-bold text-accent">
+                                    <p className="text-lg font-bold text-accent-strong">
                                         {Number(annonce.price).toLocaleString(
                                             'fr-FR',
                                         )}{' '}

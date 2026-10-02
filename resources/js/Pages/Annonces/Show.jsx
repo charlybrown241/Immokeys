@@ -34,7 +34,7 @@ function WhatsappButton({ contact }) {
     const buttonClasses =
         'flex w-full items-center justify-center gap-2 rounded-[12px] px-5 py-3 text-sm font-bold text-accent-ink';
     const enabledClasses =
-        'bg-accent transition hover:bg-terracotta-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-terracotta-300 focus-visible:ring-offset-2';
+        'bg-accent-strong transition hover:bg-terracotta-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-terracotta-300 focus-visible:ring-offset-2';
 
     if (contact.status === 'ready') {
         return (

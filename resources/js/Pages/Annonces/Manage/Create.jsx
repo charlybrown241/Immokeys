@@ -38,7 +38,7 @@ function StepCircle({ state, number }) {
         <span
             className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
                 state === 'active'
-                    ? 'bg-accent text-accent-ink'
+                    ? 'bg-accent-strong text-accent-ink'
                     : 'bg-idle text-ink-soft'
             }`}
         >

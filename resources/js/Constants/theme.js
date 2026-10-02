@@ -7,7 +7,7 @@ export const badgeCertified = `${pill} bg-success-bg text-success-ink`;
 
 export const badgePending = `${pill} bg-pending-bg text-pending-ink`;
 
-export const badgeNeutral = `${pill} bg-line text-ink-soft`;
+export const badgeNeutral = `${pill} bg-line text-ink`;
 
 export const badgeDanger = `${pill} bg-red-100 text-red-800`;
 

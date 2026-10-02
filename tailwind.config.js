@@ -22,13 +22,18 @@ export default {
                 bg: '#FAF6EF',
                 surface: '#FFFFFF',
                 ink: '#2A2622',
-                'ink-soft': '#8A8075',
+                // Darkened from the mockup's #8A8075 to reach WCAG AA (4.5:1)
+                // on white, cream and disabled fields.
+                'ink-soft': '#70665B',
                 navbar: '#1E1B18',
                 // Raised surface on the navbar/footer (avatar, separators).
                 'navbar-soft': '#3A352E',
                 'navbar-ink': '#F3EDE3',
                 'navbar-ink-dim': '#B6AEA2',
                 accent: '#C2652E',
+                // Accent for small text and white-on-accent buttons: #C2652E
+                // only reaches 4:1, this shade reaches 5.6:1 on white.
+                'accent-strong': '#A15225',
                 'accent-ink': '#FFFFFF',
                 'success-bg': '#E6EEDC',
                 'success-ink': '#55682F',
