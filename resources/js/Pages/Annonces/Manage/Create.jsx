@@ -3,6 +3,7 @@ import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import TextInput from '@/Components/TextInput';
+import { inputClasses } from '@/Constants/theme';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm } from '@inertiajs/react';
 import { useState } from 'react';
@@ -12,6 +13,81 @@ const STEPS = [
     { id: 2, label: 'Localisation & prix' },
     { id: 3, label: 'Photos' },
 ];
+
+function StepCircle({ state, number }) {
+    if (state === 'done') {
+        return (
+            <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-success-bg text-success-ink">
+                <svg
+                    className="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+                    <path d="m5 12 5 5L20 7" />
+                </svg>
+            </span>
+        );
+    }
+
+    return (
+        <span
+            className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+                state === 'active'
+                    ? 'bg-accent text-accent-ink'
+                    : 'bg-idle text-ink-soft'
+            }`}
+        >
+            {number}
+        </span>
+    );
+}
+
+function Stepper({ current }) {
+    return (
+        <ol className="mb-8 flex items-center gap-3">
+            {STEPS.map((s, index) => {
+                const state =
+                    s.id < current
+                        ? 'done'
+                        : s.id === current
+                          ? 'active'
+                          : 'upcoming';
+
+                return (
+                    <li
+                        key={s.id}
+                        aria-current={state === 'active' ? 'step' : undefined}
+                        className={`flex items-center gap-3 ${
+                            index < STEPS.length - 1 ? 'flex-1' : ''
+                        }`}
+                    >
+                        <StepCircle state={state} number={s.id} />
+                        <span
+                            className={`whitespace-nowrap text-sm ${
+                                state === 'active'
+                                    ? 'font-semibold text-ink'
+                                    : 'hidden text-ink-soft sm:inline'
+                            }`}
+                        >
+                            {s.id}. {s.label}
+                        </span>
+                        {index < STEPS.length - 1 && (
+                            <span
+                                aria-hidden="true"
+                                className="h-px flex-1 bg-line"
+                            />
+                        )}
+                    </li>
+                );
+            })}
+        </ol>
+    );
+}
 
 export default function Create({ categories }) {
     const [step, setStep] = useState(1);
@@ -70,30 +146,17 @@ export default function Create({ categories }) {
     return (
         <AuthenticatedLayout
             header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
+                <h2 className="font-display text-2xl font-semibold leading-tight text-ink">
                     Publier une annonce
                 </h2>
             }
         >
             <Head title="Nouvelle annonce" />
 
-            <div className="py-12">
-                <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-                    <div className="overflow-hidden bg-white p-6 shadow-sm sm:rounded-lg">
-                        <ol className="mb-8 flex items-center justify-between text-xs sm:text-sm">
-                            {STEPS.map((s) => (
-                                <li
-                                    key={s.id}
-                                    className={`flex-1 border-b-2 pb-2 text-center ${
-                                        step === s.id
-                                            ? 'border-terracotta-600 font-semibold text-terracotta-700'
-                                            : 'border-gray-200 text-gray-400'
-                                    }`}
-                                >
-                                    {s.id}. {s.label}
-                                </li>
-                            ))}
-                        </ol>
+            <div className="py-10">
+                <div className="mx-auto max-w-3xl px-4 md:px-7">
+                    <div className="rounded-card bg-surface p-6 shadow-card sm:p-8">
+                        <Stepper current={step} />
 
                         <form onSubmit={submit}>
                             {step === 1 && (
@@ -131,7 +194,7 @@ export default function Create({ categories }) {
                                                     e.target.value,
                                                 )
                                             }
-                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-terracotta-500 focus:ring-terracotta-500"
+                                            className={`mt-1 block w-full ${inputClasses}`}
                                         >
                                             <option value="">
                                                 Sélectionner...
@@ -166,7 +229,7 @@ export default function Create({ categories }) {
                                                 )
                                             }
                                             rows={5}
-                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-terracotta-500 focus:ring-terracotta-500"
+                                            className={`mt-1 block w-full ${inputClasses}`}
                                         />
                                         <InputError
                                             message={errors.description}
@@ -182,7 +245,7 @@ export default function Create({ categories }) {
                                         <InputLabel value="Ville" />
                                         <TextInput
                                             value="Casablanca"
-                                            className="mt-1 block w-full bg-gray-100"
+                                            className="mt-1 block w-full"
                                             disabled
                                         />
                                     </div>
@@ -270,7 +333,7 @@ export default function Create({ categories }) {
                                             accept="image/*"
                                             multiple
                                             onChange={handlePhotosChange}
-                                            className="mt-1 block w-full text-sm text-gray-700"
+                                            className="mt-1 block w-full text-sm text-ink-soft file:mr-3 file:rounded-full file:border-0 file:bg-navbar file:px-4 file:py-2 file:text-sm file:font-semibold file:text-navbar-ink hover:file:bg-ink"
                                         />
                                         <InputError
                                             message={errors.photos}
@@ -288,14 +351,15 @@ export default function Create({ categories }) {
                                                     <img
                                                         src={src}
                                                         alt=""
-                                                        className="h-24 w-full rounded-md object-cover"
+                                                        className="h-24 w-full rounded-lg object-cover"
                                                     />
                                                     <button
                                                         type="button"
                                                         onClick={() =>
                                                             removePhoto(index)
                                                         }
-                                                        className="absolute right-1 top-1 rounded-full bg-white/90 px-1.5 text-xs font-semibold text-red-600 shadow"
+                                                        aria-label="Retirer la photo"
+                                                        className="absolute right-1.5 top-1.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-surface/90 text-sm font-semibold text-red-600 shadow"
                                                     >
                                                         ×
                                                     </button>
@@ -306,7 +370,7 @@ export default function Create({ categories }) {
                                 </div>
                             )}
 
-                            <div className="mt-8 flex items-center justify-between">
+                            <div className="mt-8 flex items-center justify-between border-t border-line pt-6">
                                 <SecondaryButton
                                     type="button"
                                     disabled={step === 1}
@@ -316,22 +380,15 @@ export default function Create({ categories }) {
                                 </SecondaryButton>
 
                                 {step < 3 ? (
-                                    <div className="text-right">
-                                        {stepErrorMessage[step] && (
-                                            <p className="mb-2 text-sm text-red-600">
-                                                {stepErrorMessage[step]}
-                                            </p>
+                                    <PrimaryButton
+                                        type="button"
+                                        disabled={Boolean(
+                                            stepErrorMessage[step],
                                         )}
-                                        <PrimaryButton
-                                            type="button"
-                                            disabled={Boolean(
-                                                stepErrorMessage[step],
-                                            )}
-                                            onClick={() => goToStep(step + 1)}
-                                        >
-                                            Suivant
-                                        </PrimaryButton>
-                                    </div>
+                                        onClick={() => goToStep(step + 1)}
+                                    >
+                                        Suivant
+                                    </PrimaryButton>
                                 ) : (
                                     <PrimaryButton
                                         type="submit"
@@ -341,6 +398,12 @@ export default function Create({ categories }) {
                                     </PrimaryButton>
                                 )}
                             </div>
+
+                            {step < 3 && stepErrorMessage[step] && (
+                                <p className="mt-3 text-right text-sm text-red-600">
+                                    {stepErrorMessage[step]}
+                                </p>
+                            )}
                         </form>
                     </div>
                 </div>

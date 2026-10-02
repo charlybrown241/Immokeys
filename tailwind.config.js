@@ -35,6 +35,9 @@ export default {
                 'pending-bg': '#F6E7D6',
                 'pending-ink': '#8A5A22',
                 line: '#EAE3D6',
+                // Greys from the mockup: disabled field, upcoming wizard step.
+                'surface-muted': '#F2EFE7',
+                idle: '#EEEAE2',
                 // Shade scale around the accent, kept for hover/focus states.
                 terracotta: {
                     DEFAULT: '#C2652E',

@@ -1,3 +1,4 @@
+import { inputClasses } from '@/Constants/theme';
 import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 
 export default forwardRef(function TextInput(
@@ -20,10 +21,7 @@ export default forwardRef(function TextInput(
         <input
             {...props}
             type={type}
-            className={
-                'rounded-md border-gray-300 shadow-sm focus:border-terracotta-500 focus:ring-terracotta-500 ' +
-                className
-            }
+            className={`${inputClasses} ${className}`}
             ref={localRef}
         />
     );

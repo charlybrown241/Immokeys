@@ -2,6 +2,7 @@ import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
+import { inputClasses } from '@/Constants/theme';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm } from '@inertiajs/react';
 
@@ -31,16 +32,16 @@ export default function Edit({ annonce, categories }) {
     return (
         <AuthenticatedLayout
             header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
+                <h2 className="font-display text-2xl font-semibold leading-tight text-ink">
                     Modifier l'annonce
                 </h2>
             }
         >
             <Head title="Modifier l'annonce" />
 
-            <div className="py-12">
-                <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-                    <div className="overflow-hidden bg-white p-6 shadow-sm sm:rounded-lg">
+            <div className="py-10">
+                <div className="mx-auto max-w-3xl px-4 md:px-7">
+                    <div className="rounded-card bg-surface p-6 shadow-card sm:p-8">
                         {annonce.photos?.length > 0 && (
                             <div className="mb-6 grid grid-cols-4 gap-2">
                                 {annonce.photos.map((photo) => (
@@ -48,7 +49,7 @@ export default function Edit({ annonce, categories }) {
                                         key={photo.id}
                                         src={`/storage/${photo.path}`}
                                         alt=""
-                                        className="h-20 w-full rounded-md object-cover"
+                                        className="h-20 w-full rounded-lg object-cover"
                                     />
                                 ))}
                             </div>
@@ -63,7 +64,7 @@ export default function Edit({ annonce, categories }) {
                                     onChange={(e) =>
                                         setData('status', e.target.value)
                                     }
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-terracotta-500 focus:ring-terracotta-500"
+                                    className={`mt-1 block w-full ${inputClasses}`}
                                 >
                                     {STATUS_OPTIONS.map((option) => (
                                         <option
@@ -113,7 +114,7 @@ export default function Edit({ annonce, categories }) {
                                             e.target.value,
                                         )
                                     }
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-terracotta-500 focus:ring-terracotta-500"
+                                    className={`mt-1 block w-full ${inputClasses}`}
                                 >
                                     {categories.map((category) => (
                                         <option
@@ -145,7 +146,7 @@ export default function Edit({ annonce, categories }) {
                                         )
                                     }
                                     rows={5}
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-terracotta-500 focus:ring-terracotta-500"
+                                    className={`mt-1 block w-full ${inputClasses}`}
                                 />
                                 <InputError
                                     message={errors.description}
