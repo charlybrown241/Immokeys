@@ -1,6 +1,7 @@
 import Modal from '@/Components/Modal';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
+import { badgePending } from '@/Constants/theme';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
@@ -11,8 +12,72 @@ const PREMIUM_BENEFITS = [
     'Support prioritaire',
 ];
 
+const PRO_BENEFITS = [
+    'Badge de confiance sur vos annonces',
+    'Visibilité accrue auprès des étudiants',
+];
+
 function formatDate(value) {
     return value ? new Date(value).toLocaleDateString('fr-FR') : null;
+}
+
+/**
+ * Plan card shared by both roles: current status on top, then an optional
+ * benefit list and call to action.
+ */
+function PlanCard({ plan, expiresAt, badge, benefits, action }) {
+    return (
+        <div className="rounded-card bg-surface p-[22px] shadow-card">
+            <div className="flex items-start justify-between gap-4">
+                <div>
+                    <span className="text-sm text-ink-soft">Statut actuel</span>
+                    <p className="mt-1 font-display text-3xl font-semibold text-ink">
+                        {plan}
+                    </p>
+                    {expiresAt && (
+                        <p className="mt-1 text-sm text-ink-soft">
+                            Valable jusqu'au {formatDate(expiresAt)}
+                        </p>
+                    )}
+                </div>
+                {badge && (
+                    <span className={`px-3 py-1 text-xs ${badgePending}`}>
+                        {badge}
+                    </span>
+                )}
+            </div>
+
+            {(benefits || action) && (
+                <div className="mt-5 border-t border-line pt-5">
+                    {benefits && (
+                        <ul className="space-y-2.5 text-sm text-ink">
+                            {benefits.map((benefit) => (
+                                <li
+                                    key={benefit}
+                                    className="flex items-center gap-2.5"
+                                >
+                                    <svg
+                                        className="h-4 w-4 shrink-0 text-accent"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="3"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                    >
+                                        <path d="m5 12 5 5L20 7" />
+                                    </svg>
+                                    {benefit}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                    {action && <div className="mt-5">{action}</div>}
+                </div>
+            )}
+        </div>
+    );
 }
 
 export default function Show({ subscription }) {
@@ -43,117 +108,59 @@ export default function Show({ subscription }) {
     return (
         <AuthenticatedLayout
             header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
+                <h2 className="font-display text-2xl font-semibold leading-tight text-ink">
                     Mon abonnement
                 </h2>
             }
         >
             <Head title="Mon abonnement" />
 
-            <div className="py-12">
-                <div className="mx-auto max-w-3xl space-y-4 px-4 sm:px-6 lg:px-8">
+            <div className="py-10">
+                <div className="mx-auto max-w-md space-y-4 px-4">
                     {flash?.success && (
-                        <div className="rounded-md bg-green-50 p-4 text-sm text-green-700">
+                        <div className="rounded-input bg-success-bg p-4 text-sm text-success-ink">
                             {flash.success}
                         </div>
                     )}
 
-                    <div className="overflow-hidden bg-white p-6 shadow-sm sm:rounded-lg">
-                        {isEtudiant && (
-                            <>
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <span className="text-sm text-gray-500">
-                                            Statut actuel
-                                        </span>
-                                        <p className="mt-1 text-2xl font-semibold text-gray-900">
-                                            {isPremium ? 'Premium' : 'Gratuit'}
-                                        </p>
-                                        {isPremium &&
-                                            subscription.expires_at && (
-                                                <p className="mt-1 text-sm text-gray-500">
-                                                    Valable jusqu'au{' '}
-                                                    {formatDate(
-                                                        subscription.expires_at,
-                                                    )}
-                                                </p>
-                                            )}
-                                    </div>
-                                    {isPremium && (
-                                        <span className="inline-flex items-center rounded-full bg-terracotta-100 px-3 py-1 text-xs font-medium text-terracotta-800">
-                                            Premium actif
-                                        </span>
-                                    )}
-                                </div>
-
-                                {!isPremium && (
-                                    <div className="mt-6 border-t border-gray-200 pt-6">
-                                        <h3 className="font-medium text-gray-900">
-                                            Passer Premium
-                                        </h3>
-                                        <ul className="mt-3 space-y-2 text-sm text-gray-600">
-                                            {PREMIUM_BENEFITS.map(
-                                                (benefit) => (
-                                                    <li
-                                                        key={benefit}
-                                                        className="flex items-center gap-2"
-                                                    >
-                                                        <span className="text-terracotta-700">
-                                                            ✓
-                                                        </span>
-                                                        {benefit}
-                                                    </li>
-                                                ),
-                                            )}
-                                        </ul>
-
-                                        <PrimaryButton
-                                            className="mt-4"
-                                            onClick={() =>
-                                                setConfirming(true)
-                                            }
-                                        >
-                                            Passer Premium
-                                        </PrimaryButton>
-                                    </div>
-                                )}
-                            </>
-                        )}
-
-                        {isProprietaire && (
-                            <>
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <span className="text-sm text-gray-500">
-                                            Statut actuel
-                                        </span>
-                                        <p className="mt-1 text-2xl font-semibold text-gray-900">
-                                            Pro
-                                        </p>
-                                        {subscription.expires_at && (
-                                            <p className="mt-1 text-sm text-gray-500">
-                                                Valable jusqu'au{' '}
-                                                {formatDate(
-                                                    subscription.expires_at,
-                                                )}
-                                            </p>
-                                        )}
-                                    </div>
-                                    <span className="inline-flex items-center rounded-full bg-terracotta-100 px-3 py-1 text-xs font-medium text-terracotta-800">
-                                        Pro actif
-                                    </span>
-                                </div>
-
-                                <div className="mt-6 border-t border-gray-200 pt-6">
+                    {isEtudiant &&
+                        (isPremium ? (
+                            <PlanCard
+                                plan="Premium"
+                                expiresAt={subscription.expires_at}
+                                badge="Premium actif"
+                            />
+                        ) : (
+                            <PlanCard
+                                plan="Gratuit"
+                                benefits={PREMIUM_BENEFITS}
+                                action={
                                     <PrimaryButton
+                                        className="w-full"
                                         onClick={() => setConfirming(true)}
                                     >
-                                        Renouveler mon abonnement Pro
+                                        Passer Premium
                                     </PrimaryButton>
-                                </div>
-                            </>
-                        )}
-                    </div>
+                                }
+                            />
+                        ))}
+
+                    {isProprietaire && (
+                        <PlanCard
+                            plan="Pro"
+                            expiresAt={subscription.expires_at}
+                            badge="Pro actif"
+                            benefits={PRO_BENEFITS}
+                            action={
+                                <PrimaryButton
+                                    className="w-full"
+                                    onClick={() => setConfirming(true)}
+                                >
+                                    Renouveler mon abonnement Pro
+                                </PrimaryButton>
+                            }
+                        />
+                    )}
                 </div>
             </div>
 
@@ -162,13 +169,13 @@ export default function Show({ subscription }) {
                 onClose={() => setConfirming(false)}
             >
                 <div className="p-6">
-                    <h2 className="text-lg font-medium text-gray-900">
+                    <h2 className="font-display text-lg font-semibold text-ink">
                         {isEtudiant
                             ? "Passer à l'abonnement Premium"
                             : "Renouveler l'abonnement Pro"}
                     </h2>
 
-                    <div className="mt-4 rounded-md bg-yellow-50 p-4 text-sm text-yellow-800">
+                    <div className="mt-4 rounded-input bg-pending-bg p-4 text-sm text-pending-ink">
                         Paiement simulé à des fins pédagogiques — aucune
                         transaction réelle n'est effectuée.
                     </div>
