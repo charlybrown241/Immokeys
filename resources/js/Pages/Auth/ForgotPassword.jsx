@@ -3,7 +3,7 @@ import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 
 export default function ForgotPassword({ status }) {
     const { data, setData, post, processing, errors } = useForm({
@@ -49,6 +49,16 @@ export default function ForgotPassword({ status }) {
                 <PrimaryButton className="mt-6 w-full" disabled={processing}>
                     Envoyer le lien de réinitialisation
                 </PrimaryButton>
+
+                <p className="mt-4 text-center text-xs text-ink-soft">
+                    Vous vous en souvenez ?{' '}
+                    <Link
+                        href={route('login')}
+                        className="-my-3 inline-flex min-h-10 items-center rounded py-3 text-ink underline underline-offset-2 hover:text-accent-strong focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+                    >
+                        Se connecter
+                    </Link>
+                </p>
             </form>
         </GuestLayout>
     );

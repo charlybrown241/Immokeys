@@ -30,6 +30,41 @@ class PasswordResetTest extends TestCase
         Notification::assertSentTo($user, ResetPassword::class);
     }
 
+    public function test_unknown_email_gets_the_same_response_as_a_known_one(): void
+    {
+        Notification::fake();
+
+        $user = User::factory()->create();
+
+        $known = $this->from('/forgot-password')->post('/forgot-password', ['email' => $user->email]);
+        $unknown = $this->from('/forgot-password')->post('/forgot-password', ['email' => 'inconnu@example.com']);
+
+        foreach ([$known, $unknown] as $response) {
+            $response->assertRedirect('/forgot-password')
+                ->assertSessionHasNoErrors()
+                ->assertSessionHas('status', __('passwords.sent'));
+        }
+
+        Notification::assertSentTimes(ResetPassword::class, 1);
+    }
+
+    public function test_throttled_request_does_not_reveal_the_account(): void
+    {
+        Notification::fake();
+
+        $user = User::factory()->create();
+
+        $this->post('/forgot-password', ['email' => $user->email]);
+
+        // A second request right away is throttled by the broker; it must
+        // still look exactly like a successful one.
+        $this->from('/forgot-password')->post('/forgot-password', ['email' => $user->email])
+            ->assertSessionHasNoErrors()
+            ->assertSessionHas('status', __('passwords.sent'));
+
+        Notification::assertSentTimes(ResetPassword::class, 1);
+    }
+
     public function test_reset_password_screen_can_be_rendered(): void
     {
         Notification::fake();
