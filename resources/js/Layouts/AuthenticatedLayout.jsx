@@ -1,6 +1,10 @@
 import Dropdown from '@/Components/Dropdown';
 import NavLink from '@/Components/NavLink';
-import { BrandLogo } from '@/Components/PublicNavbar';
+import {
+    BrandLogo,
+    navbarGutter,
+    UserAvatar,
+} from '@/Components/PublicNavbar';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { usePage } from '@inertiajs/react';
 import { useState } from 'react';
@@ -17,130 +21,111 @@ export default function AuthenticatedLayout({ header, children }) {
 
     return (
         <div className="min-h-screen bg-bg">
-            <nav className="bg-navbar">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <div className="flex h-16 justify-between">
-                        <div className="flex">
-                            <div className="flex shrink-0 items-center">
-                                <BrandLogo />
-                            </div>
+            <nav className="bg-navbar text-navbar-ink">
+                <div
+                    className={`mx-auto flex max-w-7xl items-center justify-between py-3.5 ${navbarGutter}`}
+                >
+                    <div className="flex items-center gap-10">
+                        <BrandLogo />
 
-                            <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink
-                                    href={route(homeRoute)}
-                                    active={route().current(homeRoute)}
-                                >
-                                    {homeLabel}
-                                </NavLink>
-
-                                {canManageSubscription && (
-                                    <NavLink
-                                        href={route('subscription.show')}
-                                        active={route().current(
-                                            'subscription.show',
-                                        )}
-                                    >
-                                        Mon abonnement
-                                    </NavLink>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="hidden sm:ms-6 sm:flex sm:items-center">
-                            <div className="relative ms-3">
-                                <Dropdown>
-                                    <Dropdown.Trigger>
-                                        <span className="inline-flex rounded-md">
-                                            <button
-                                                type="button"
-                                                className="inline-flex items-center rounded-md border border-transparent bg-transparent px-3 py-2 text-sm font-medium leading-4 text-navbar-ink-dim transition duration-150 ease-in-out hover:text-white focus:outline-none"
-                                            >
-                                                {user.name}
-
-                                                <svg
-                                                    className="-me-0.5 ms-2 h-4 w-4"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    viewBox="0 0 20 20"
-                                                    fill="currentColor"
-                                                >
-                                                    <path
-                                                        fillRule="evenodd"
-                                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                        clipRule="evenodd"
-                                                    />
-                                                </svg>
-                                            </button>
-                                        </span>
-                                    </Dropdown.Trigger>
-
-                                    <Dropdown.Content>
-                                        <Dropdown.Link
-                                            href={route('profile.edit')}
-                                        >
-                                            Profile
-                                        </Dropdown.Link>
-                                        <Dropdown.Link
-                                            href={route('logout')}
-                                            method="post"
-                                            as="button"
-                                        >
-                                            Log Out
-                                        </Dropdown.Link>
-                                    </Dropdown.Content>
-                                </Dropdown>
-                            </div>
-                        </div>
-
-                        <div className="-me-2 flex items-center sm:hidden">
-                            <button
-                                onClick={() =>
-                                    setShowingNavigationDropdown(
-                                        (previousState) => !previousState,
-                                    )
-                                }
-                                className="inline-flex items-center justify-center rounded-md p-2 text-navbar-ink-dim transition duration-150 ease-in-out hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white focus:outline-none"
+                        <div className="hidden items-center gap-7 sm:flex">
+                            <NavLink
+                                href={route(homeRoute)}
+                                active={route().current(homeRoute)}
                             >
-                                <svg
-                                    className="h-6 w-6"
-                                    stroke="currentColor"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
+                                {homeLabel}
+                            </NavLink>
+
+                            {canManageSubscription && (
+                                <NavLink
+                                    href={route('subscription.show')}
+                                    active={route().current(
+                                        'subscription.show',
+                                    )}
                                 >
-                                    <path
-                                        className={
-                                            !showingNavigationDropdown
-                                                ? 'inline-flex'
-                                                : 'hidden'
-                                        }
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="M4 6h16M4 12h16M4 18h16"
-                                    />
-                                    <path
-                                        className={
-                                            showingNavigationDropdown
-                                                ? 'inline-flex'
-                                                : 'hidden'
-                                        }
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="M6 18L18 6M6 6l12 12"
-                                    />
-                                </svg>
-                            </button>
+                                    Mon abonnement
+                                </NavLink>
+                            )}
                         </div>
                     </div>
+
+                    <div className="hidden sm:flex sm:items-center">
+                        <Dropdown>
+                            <Dropdown.Trigger>
+                                <button
+                                    type="button"
+                                    className="inline-flex items-center gap-2.5 rounded-full py-0.5 pe-1 ps-0.5 text-sm font-semibold text-navbar-ink transition duration-150 ease-in-out hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                                >
+                                    <UserAvatar name={user.name} />
+                                    {user.name}
+
+                                    <svg
+                                        className="h-4 w-4 text-navbar-ink-dim"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 20 20"
+                                        fill="currentColor"
+                                        aria-hidden="true"
+                                    >
+                                        <path
+                                            fillRule="evenodd"
+                                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                            clipRule="evenodd"
+                                        />
+                                    </svg>
+                                </button>
+                            </Dropdown.Trigger>
+
+                            <Dropdown.Content>
+                                <Dropdown.Link href={route('profile.edit')}>
+                                    Profil
+                                </Dropdown.Link>
+                                <Dropdown.Link
+                                    href={route('logout')}
+                                    method="post"
+                                    as="button"
+                                >
+                                    Se déconnecter
+                                </Dropdown.Link>
+                            </Dropdown.Content>
+                        </Dropdown>
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={() =>
+                            setShowingNavigationDropdown(
+                                (previousState) => !previousState,
+                            )
+                        }
+                        aria-label="Menu"
+                        aria-expanded={showingNavigationDropdown}
+                        className="inline-flex h-10 w-10 items-center justify-center rounded-full text-navbar-ink-dim transition duration-150 ease-in-out hover:bg-white/10 hover:text-navbar-ink focus:outline-none focus-visible:bg-white/10 focus-visible:text-navbar-ink sm:hidden"
+                    >
+                        <svg
+                            className="h-6 w-6"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                        >
+                            {showingNavigationDropdown ? (
+                                <path d="M6 18 18 6M6 6l12 12" />
+                            ) : (
+                                <path d="M4 7h16M4 12h16M4 17h16" />
+                            )}
+                        </svg>
+                    </button>
                 </div>
 
                 <div
                     className={
                         (showingNavigationDropdown ? 'block' : 'hidden') +
-                        ' sm:hidden'
+                        ' border-t border-white/10 sm:hidden'
                     }
                 >
-                    <div className="space-y-1 pb-3 pt-2">
+                    <div className="pb-2 pt-2">
                         <ResponsiveNavLink
                             href={route(homeRoute)}
                             active={route().current(homeRoute)}
@@ -158,26 +143,29 @@ export default function AuthenticatedLayout({ header, children }) {
                         )}
                     </div>
 
-                    <div className="border-t border-white/10 pb-1 pt-4">
-                        <div className="px-4">
-                            <div className="text-base font-medium text-navbar-ink">
-                                {user.name}
-                            </div>
-                            <div className="text-sm font-medium text-navbar-ink-dim">
-                                {user.email}
+                    <div className="border-t border-white/10 pb-3 pt-3">
+                        <div className="flex items-center gap-2.5 px-4">
+                            <UserAvatar name={user.name} />
+                            <div>
+                                <div className="text-sm font-semibold text-navbar-ink">
+                                    {user.name}
+                                </div>
+                                <div className="text-xs text-navbar-ink-dim">
+                                    {user.email}
+                                </div>
                             </div>
                         </div>
 
-                        <div className="mt-3 space-y-1">
+                        <div className="mt-2">
                             <ResponsiveNavLink href={route('profile.edit')}>
-                                Profile
+                                Profil
                             </ResponsiveNavLink>
                             <ResponsiveNavLink
                                 method="post"
                                 href={route('logout')}
                                 as="button"
                             >
-                                Log Out
+                                Se déconnecter
                             </ResponsiveNavLink>
                         </div>
                     </div>

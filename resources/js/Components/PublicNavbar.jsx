@@ -1,23 +1,53 @@
 import ApplicationLogo from '@/Components/ApplicationLogo';
+import NavLink from '@/Components/NavLink';
+import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
 export function BrandLogo({ className = '' }) {
     return (
         <Link href="/" className={`flex items-center gap-2.5 ${className}`}>
-            <ApplicationLogo className="h-8 w-auto fill-current text-terracotta-400" />
-            <span translate="no" className="font-display text-xl font-semibold tracking-tight text-navbar-ink">
+            <ApplicationLogo className="h-7 w-auto fill-current text-accent" />
+            <span
+                translate="no"
+                className="font-display text-[1.05rem] font-semibold tracking-tight text-navbar-ink"
+            >
                 ImmoKeys
             </span>
         </Link>
     );
 }
 
+function initials(name = '') {
+    return name
+        .trim()
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((part) => part.charAt(0))
+        .join('')
+        .toUpperCase();
+}
+
+/** Round avatar with the user's initials, shown next to their name. */
+export function UserAvatar({ name }) {
+    return (
+        <span
+            aria-hidden="true"
+            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-navbar-soft text-xs font-bold text-navbar-ink"
+        >
+            {initials(name)}
+        </span>
+    );
+}
+
+// Shared horizontal padding of every navbar row: 16px mobile, 28px desktop.
+export const navbarGutter = 'px-4 md:px-7';
+
 const linkClasses =
-    'text-sm font-medium text-navbar-ink-dim transition hover:text-white';
+    'text-sm font-semibold text-navbar-ink-dim transition hover:text-navbar-ink focus:outline-none focus-visible:text-navbar-ink';
 
 const ctaClasses =
-    'inline-flex items-center justify-center rounded-full bg-terracotta px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-terracotta-700 focus:outline-none focus:ring-2 focus:ring-terracotta-300 focus:ring-offset-2 focus:ring-offset-navbar';
+    'inline-flex items-center justify-center rounded-full bg-accent px-4 py-[9px] text-sm font-bold text-accent-ink transition hover:bg-terracotta-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-terracotta-300 focus-visible:ring-offset-2 focus-visible:ring-offset-navbar';
 
 /**
  * Dark top bar used by the public pages (search results, listing detail).
@@ -28,62 +58,64 @@ export default function PublicNavbar() {
     const { auth } = usePage().props;
     const user = auth.user;
     const [open, setOpen] = useState(false);
-
-    const accountLinks = user ? (
-        <>
-            {user.role?.name === 'etudiant' && (
-                <Link href={route('subscription.show')} className={linkClasses}>
-                    Mon abonnement
-                </Link>
-            )}
-            <Link
-                href={route('logout')}
-                method="post"
-                as="button"
-                className={`${linkClasses} text-left`}
-            >
-                Se déconnecter
-            </Link>
-        </>
-    ) : (
-        <>
-            <Link href={route('login')} className={linkClasses}>
-                Se connecter
-            </Link>
-            <Link
-                href={`${route('register')}?role=proprietaire`}
-                className={ctaClasses}
-            >
-                Devenir propriétaire
-            </Link>
-        </>
-    );
+    const onAnnonces = route().current('annonces.index');
 
     return (
         <nav className="bg-navbar text-navbar-ink">
-            <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-                <BrandLogo />
+            <div
+                className={`mx-auto flex max-w-7xl items-center justify-between py-3.5 ${navbarGutter}`}
+            >
+                <div className="flex items-center gap-10">
+                    <BrandLogo />
 
-                <div className="hidden items-center gap-7 md:flex">
-                    <Link href="/" className={linkClasses}>
-                        Accueil
-                    </Link>
-                    <Link
-                        href={route('annonces.index')}
-                        className={
-                            route().current('annonces.index')
-                                ? 'text-sm font-medium text-white'
-                                : linkClasses
-                        }
-                    >
-                        Annonces
-                    </Link>
-                    {user && (
-                        <span className="text-sm text-navbar-ink-dim">
-                            {user.name}
-                        </span>
+                    <div className="hidden items-center gap-7 md:flex">
+                        <NavLink href="/">Accueil</NavLink>
+                        <NavLink
+                            href={route('annonces.index')}
+                            active={onAnnonces}
+                        >
+                            Annonces
+                        </NavLink>
+                    </div>
+                </div>
+
+                <div className="hidden items-center gap-5 md:flex">
+                    {user ? (
+                        <>
+                            {user.role?.name === 'etudiant' && (
+                                <Link
+                                    href={route('subscription.show')}
+                                    className={linkClasses}
+                                >
+                                    Mon abonnement
+                                </Link>
+                            )}
+                            <span className="flex items-center gap-2.5 text-sm font-semibold text-navbar-ink">
+                                <UserAvatar name={user.name} />
+                                {user.name}
+                            </span>
+                            <Link
+                                href={route('logout')}
+                                method="post"
+                                as="button"
+                                className={linkClasses}
+                            >
+                                Se déconnecter
+                            </Link>
+                        </>
+                    ) : (
+                        <>
+                            <Link href={route('login')} className={linkClasses}>
+                                Se connecter
+                            </Link>
+                            <Link
+                                href={`${route('register')}?role=proprietaire`}
+                                className={ctaClasses}
+                            >
+                                Devenir propriétaire
+                            </Link>
+                        </>
                     )}
-                    {accountLinks}
                 </div>
 
                 <button
@@ -91,7 +123,7 @@ export default function PublicNavbar() {
                     onClick={() => setOpen((value) => !value)}
                     aria-label="Menu"
                     aria-expanded={open}
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-full text-navbar-ink-dim transition hover:bg-white/10 md:hidden"
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-full text-navbar-ink-dim transition hover:bg-white/10 hover:text-navbar-ink md:hidden"
                 >
                     <svg
                         className="h-6 w-6"
@@ -112,19 +144,49 @@ export default function PublicNavbar() {
             </div>
 
             {open && (
-                <div className="flex flex-col gap-4 border-t border-white/10 px-4 pb-5 pt-4 sm:px-6 md:hidden">
-                    <Link href="/" className={linkClasses}>
-                        Accueil
-                    </Link>
-                    <Link href={route('annonces.index')} className={linkClasses}>
+                <div className="border-t border-white/10 pb-4 pt-2 md:hidden">
+                    <ResponsiveNavLink href="/">Accueil</ResponsiveNavLink>
+                    <ResponsiveNavLink
+                        href={route('annonces.index')}
+                        active={onAnnonces}
+                    >
                         Annonces
-                    </Link>
-                    {user && (
-                        <span className="text-sm text-navbar-ink-dim">
-                            {user.name}
-                        </span>
+                    </ResponsiveNavLink>
+
+                    {user ? (
+                        <div className="mt-3 border-t border-white/10 pt-3">
+                            <div className="flex items-center gap-2.5 px-4 pb-2 text-sm font-semibold text-navbar-ink">
+                                <UserAvatar name={user.name} />
+                                {user.name}
+                            </div>
+                            {user.role?.name === 'etudiant' && (
+                                <ResponsiveNavLink
+                                    href={route('subscription.show')}
+                                >
+                                    Mon abonnement
+                                </ResponsiveNavLink>
+                            )}
+                            <ResponsiveNavLink
+                                href={route('logout')}
+                                method="post"
+                                as="button"
+                            >
+                                Se déconnecter
+                            </ResponsiveNavLink>
+                        </div>
+                    ) : (
+                        <div className="mt-3 flex flex-col gap-3 border-t border-white/10 px-4 pt-4">
+                            <Link href={route('login')} className={linkClasses}>
+                                Se connecter
+                            </Link>
+                            <Link
+                                href={`${route('register')}?role=proprietaire`}
+                                className={`${ctaClasses} self-start`}
+                            >
+                                Devenir propriétaire
+                            </Link>
+                        </div>
                     )}
-                    {accountLinks}
                 </div>
             )}
         </nav>

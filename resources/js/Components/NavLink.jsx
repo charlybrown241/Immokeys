@@ -1,5 +1,9 @@
 import { Link } from '@inertiajs/react';
 
+/**
+ * Navbar link. The active link is underlined by a 2px accent bar drawn
+ * ~16px below the text rather than as a border glued to it.
+ */
 export default function NavLink({
     active = false,
     className = '',
@@ -10,10 +14,10 @@ export default function NavLink({
         <Link
             {...props}
             className={
-                'inline-flex items-center border-b-2 px-1 pt-1 text-sm font-medium leading-5 transition duration-150 ease-in-out focus:outline-none ' +
+                'relative inline-flex items-center text-sm font-semibold transition duration-150 ease-in-out focus:outline-none focus-visible:text-navbar-ink ' +
                 (active
-                    ? 'border-terracotta-400 text-white focus:border-terracotta-300'
-                    : 'border-transparent text-navbar-ink-dim hover:border-navbar-ink-dim/40 hover:text-white focus:border-navbar-ink-dim/40 focus:text-white') +
+                    ? 'text-navbar-ink after:absolute after:inset-x-0 after:-bottom-4 after:h-0.5 after:rounded-full after:bg-accent '
+                    : 'text-navbar-ink-dim hover:text-navbar-ink ') +
                 className
             }
         >

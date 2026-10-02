@@ -24,6 +24,8 @@ export default {
                 ink: '#2A2622',
                 'ink-soft': '#8A8075',
                 navbar: '#1E1B18',
+                // Raised surface on the navbar/footer (avatar, separators).
+                'navbar-soft': '#3A352E',
                 'navbar-ink': '#F3EDE3',
                 'navbar-ink-dim': '#B6AEA2',
                 accent: '#C2652E',
