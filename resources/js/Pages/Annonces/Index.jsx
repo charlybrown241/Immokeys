@@ -113,7 +113,7 @@ export default function Index({ annonces, categories, filters }) {
     };
 
     const chipClasses = (active) =>
-        `rounded-full border px-4 py-2 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${
+        `rounded-full border px-4 py-2.5 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${
             active
                 ? 'border-navbar bg-navbar text-navbar-ink'
                 : 'border-line bg-surface text-ink hover:border-ink/30'

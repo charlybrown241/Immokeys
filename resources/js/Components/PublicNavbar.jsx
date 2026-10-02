@@ -44,10 +44,10 @@ export function UserAvatar({ name }) {
 export const navbarGutter = 'px-4 md:px-7';
 
 const linkClasses =
-    'text-sm font-semibold text-navbar-ink-dim transition hover:text-navbar-ink focus:outline-none focus-visible:text-navbar-ink';
+    'inline-flex items-center py-2.5 text-sm font-semibold text-navbar-ink-dim transition hover:text-navbar-ink focus:outline-none focus-visible:text-navbar-ink';
 
 const ctaClasses =
-    'inline-flex items-center justify-center rounded-full bg-accent px-4 py-[9px] text-sm font-bold text-accent-ink transition hover:bg-terracotta-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-terracotta-300 focus-visible:ring-offset-2 focus-visible:ring-offset-navbar';
+    'inline-flex min-h-10 items-center justify-center rounded-full bg-accent px-4 py-[9px] text-sm font-bold text-accent-ink transition hover:bg-terracotta-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-terracotta-300 focus-visible:ring-offset-2 focus-visible:ring-offset-navbar';
 
 /**
  * Dark top bar used by the public pages (search results, listing detail).

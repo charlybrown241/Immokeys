@@ -54,7 +54,7 @@ export default function AuthenticatedLayout({ header, children }) {
                             <Dropdown.Trigger>
                                 <button
                                     type="button"
-                                    className="inline-flex items-center gap-2.5 rounded-full py-0.5 pe-1 ps-0.5 text-sm font-semibold text-navbar-ink transition duration-150 ease-in-out hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                                    className="inline-flex items-center gap-2.5 rounded-full py-1 pe-1 ps-1 text-sm font-semibold text-navbar-ink transition duration-150 ease-in-out hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                                 >
                                     <UserAvatar name={user.name} />
                                     {user.name}

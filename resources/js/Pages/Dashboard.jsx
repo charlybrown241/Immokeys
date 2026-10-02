@@ -76,7 +76,7 @@ function Thumbnail({ annonce, className }) {
 }
 
 const iconButtonClasses =
-    'inline-flex h-9 w-9 items-center justify-center rounded-full text-ink-soft transition hover:bg-bg hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-accent';
+    'inline-flex h-10 w-10 items-center justify-center rounded-full text-ink-soft transition hover:bg-bg hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-accent';
 
 function RowActions({ annonce, onContacts, onDelete }) {
     return (
