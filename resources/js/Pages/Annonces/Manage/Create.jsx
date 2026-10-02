@@ -49,7 +49,7 @@ function StepCircle({ state, number }) {
 
 function Stepper({ current }) {
     return (
-        <ol className="mb-8 flex items-center gap-3">
+        <ol className="mb-8 flex items-center gap-2 sm:gap-3">
             {STEPS.map((s, index) => {
                 const state =
                     s.id < current
@@ -62,13 +62,22 @@ function Stepper({ current }) {
                     <li
                         key={s.id}
                         aria-current={state === 'active' ? 'step' : undefined}
-                        className={`flex items-center gap-3 ${
-                            index < STEPS.length - 1 ? 'flex-1' : ''
+                        className={`flex items-center gap-2 sm:gap-3 ${
+                            // The active step sizes to its label and is the
+                            // only one allowed to shrink (its label wraps);
+                            // the others keep room for circle + connector.
+                            state === 'active' ? 'min-w-0' : ''
+                        } ${
+                            index < STEPS.length - 1
+                                ? state === 'active'
+                                    ? 'flex-auto'
+                                    : 'flex-1'
+                                : ''
                         }`}
                     >
                         <StepCircle state={state} number={s.id} />
                         <span
-                            className={`whitespace-nowrap text-sm ${
+                            className={`text-sm leading-tight sm:whitespace-nowrap ${
                                 state === 'active'
                                     ? 'font-semibold text-ink'
                                     : 'hidden text-ink-soft sm:inline'
@@ -79,7 +88,7 @@ function Stepper({ current }) {
                         {index < STEPS.length - 1 && (
                             <span
                                 aria-hidden="true"
-                                className="h-px flex-1 bg-line"
+                                className="h-px min-w-3 flex-1 bg-line"
                             />
                         )}
                     </li>
