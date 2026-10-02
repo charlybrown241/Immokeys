@@ -1,4 +1,5 @@
 import AdBanner from '@/Components/AdBanner';
+import { initials } from '@/Components/PublicNavbar';
 import { badgeCertified } from '@/Constants/theme';
 import PublicLayout from '@/Layouts/PublicLayout';
 import { Head, Link } from '@inertiajs/react';
@@ -219,28 +220,30 @@ export default function Show({ annonce }) {
                             </span>
                         </p>
 
-                        {/* The owner's name is not part of this page's props,
-                            so the card stays generic. */}
                         <div className="mt-5 flex items-center gap-3 border-y border-line py-4">
                             <span
                                 aria-hidden="true"
-                                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-navbar text-navbar-ink"
+                                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-navbar text-sm font-bold text-navbar-ink"
                             >
-                                <svg
-                                    className="h-5 w-5"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="1.8"
-                                    strokeLinecap="round"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <circle cx="12" cy="8" r="4" />
-                                    <path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6" />
-                                </svg>
+                                {annonce.owner_name ? (
+                                    initials(annonce.owner_name)
+                                ) : (
+                                    <svg
+                                        className="h-5 w-5"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="1.8"
+                                        strokeLinecap="round"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <circle cx="12" cy="8" r="4" />
+                                        <path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6" />
+                                    </svg>
+                                )}
                             </span>
                             <div>
                                 <p className="text-sm font-semibold text-ink">
-                                    Propriétaire
+                                    {annonce.owner_name ?? 'Propriétaire'}
                                 </p>
                                 {annonce.is_certified_pro ? (
                                     <p className="flex items-center gap-1 text-xs font-semibold text-success-ink">

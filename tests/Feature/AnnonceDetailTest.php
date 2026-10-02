@@ -95,6 +95,25 @@ class AnnonceDetailTest extends TestCase
         );
     }
 
+    public function test_detail_page_shows_only_the_owner_first_name_and_last_initial(): void
+    {
+        $annonce = $this->annonce($this->owner(['name' => 'Karim Benali']));
+
+        $this->get("/annonces/{$annonce->id}")->assertInertia(fn ($page) => $page
+            ->where('annonce.owner_name', 'Karim B.')
+            ->missing('annonce.user')
+        );
+    }
+
+    public function test_owner_with_a_single_name_is_shown_as_is(): void
+    {
+        $annonce = $this->annonce($this->owner(['name' => 'Karim']));
+
+        $this->get("/annonces/{$annonce->id}")->assertInertia(fn ($page) => $page
+            ->where('annonce.owner_name', 'Karim')
+        );
+    }
+
     public function test_viewing_the_detail_page_increments_views_count_once_per_session(): void
     {
         $annonce = $this->annonce($this->owner());

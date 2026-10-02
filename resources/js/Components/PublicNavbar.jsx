@@ -18,7 +18,7 @@ export function BrandLogo({ className = '' }) {
     );
 }
 
-function initials(name = '') {
+export function initials(name = '') {
     return name
         .trim()
         .split(/\s+/)

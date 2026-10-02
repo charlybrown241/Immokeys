@@ -59,7 +59,7 @@ class PublicAnnonceController extends Controller
         $annonce->load([
             'photos' => fn ($query) => $query->orderBy('ordre'),
             'category:id,name',
-            'user:id,is_verified,phone',
+            'user:id,name,is_verified,phone',
             'user.subscription:id,user_id,type,expires_at',
         ]);
 
@@ -83,6 +83,7 @@ class PublicAnnonceController extends Controller
                 'category' => $annonce->category,
                 'photos' => $annonce->photos,
                 'is_certified_pro' => $this->isCertifiedPro($annonce),
+                'owner_name' => $this->publicOwnerName($annonce),
                 'whatsapp_contact' => $this->whatsappContactState($request, $annonce),
             ],
         ]);
@@ -110,6 +111,25 @@ class PublicAnnonceController extends Controller
         $phone = preg_replace('/[^0-9]/', '', $owner->phone);
 
         return redirect()->away("https://wa.me/{$phone}?text=".urlencode($message));
+    }
+
+    /**
+     * The detail page is public, so only the landlord's first name and last
+     * initial are exposed ("Karim Benali" -> "Karim B.").
+     */
+    private function publicOwnerName(Annonce $annonce): ?string
+    {
+        $parts = preg_split('/\s+/', trim((string) $annonce->user?->name), -1, PREG_SPLIT_NO_EMPTY);
+
+        if ($parts === []) {
+            return null;
+        }
+
+        $firstName = array_shift($parts);
+
+        return $parts === []
+            ? $firstName
+            : $firstName.' '.mb_strtoupper(mb_substr(end($parts), 0, 1)).'.';
     }
 
     /**
