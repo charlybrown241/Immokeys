@@ -13,11 +13,11 @@ export default function AdBanner() {
     }
 
     return (
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-dashed border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-500">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-input border border-dashed border-line bg-surface px-4 py-3 text-sm text-ink-soft">
             <span>Publicité — espace réservé aux comptes gratuits.</span>
             <Link
                 href={route('subscription.show')}
-                className="font-medium text-terracotta-700 underline hover:text-terracotta-900"
+                className="font-semibold text-accent underline hover:text-terracotta-700"
             >
                 Passer Premium pour la retirer
             </Link>
