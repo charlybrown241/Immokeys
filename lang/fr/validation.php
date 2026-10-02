@@ -175,6 +175,9 @@ return [
         'email' => [
             'unique' => 'Un compte existe déjà avec cette adresse e-mail.',
         ],
+        'password' => [
+            'confirmed' => 'Les deux mots de passe ne correspondent pas.',
+        ],
     ],
 
     /*

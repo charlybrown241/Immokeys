@@ -35,8 +35,9 @@ export default function Register() {
                 <div>
                     <InputLabel value="Type de compte" />
 
+                    {/* -my-2.5 py-2.5: 40px touch targets without moving the layout */}
                     <div className="mt-2 flex gap-6 text-sm text-ink">
-                        <label className="flex items-center gap-2">
+                        <label className="-my-2.5 flex cursor-pointer items-center gap-2 py-2.5">
                             <input
                                 type="radio"
                                 name="role"
@@ -48,7 +49,7 @@ export default function Register() {
                             Étudiant
                         </label>
 
-                        <label className="flex items-center gap-2">
+                        <label className="-my-2.5 flex cursor-pointer items-center gap-2 py-2.5">
                             <input
                                 type="radio"
                                 name="role"
@@ -148,7 +149,7 @@ export default function Register() {
                     Déjà inscrit ?{' '}
                     <Link
                         href={route('login')}
-                        className="rounded text-ink underline underline-offset-2 hover:text-accent-strong focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+                        className="-my-3 inline-flex min-h-10 items-center rounded py-3 text-ink underline underline-offset-2 hover:text-accent-strong focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
                     >
                         Se connecter
                     </Link>
