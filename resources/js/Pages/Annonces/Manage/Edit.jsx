@@ -4,7 +4,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import { inputClasses } from '@/Constants/theme';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 
 const STATUS_OPTIONS = [
     { value: 'en_attente', label: 'En attente' },
@@ -43,15 +43,24 @@ export default function Edit({ annonce, categories }) {
                 <div className="mx-auto max-w-3xl px-4 md:px-7">
                     <div className="rounded-card bg-surface p-6 shadow-card sm:p-8">
                         {annonce.photos?.length > 0 && (
-                            <div className="mb-6 grid grid-cols-4 gap-2">
-                                {annonce.photos.map((photo) => (
-                                    <img
-                                        key={photo.id}
-                                        src={`/storage/${photo.path}`}
-                                        alt=""
-                                        className="h-20 w-full rounded-lg object-cover"
-                                    />
-                                ))}
+                            <div className="mb-6">
+                                <p className="text-sm font-semibold text-ink">
+                                    Photos
+                                </p>
+                                <p className="mt-0.5 text-xs text-ink-soft">
+                                    Les photos ne peuvent pas encore être
+                                    modifiées après la publication.
+                                </p>
+                                <div className="mt-3 grid grid-cols-4 gap-2">
+                                    {annonce.photos.map((photo) => (
+                                        <img
+                                            key={photo.id}
+                                            src={`/storage/${photo.path}`}
+                                            alt=""
+                                            className="aspect-square w-full rounded-lg object-cover"
+                                        />
+                                    ))}
+                                </div>
                             </div>
                         )}
 
@@ -216,8 +225,17 @@ export default function Edit({ annonce, categories }) {
                                 />
                             </div>
 
-                            <div className="flex justify-end">
-                                <PrimaryButton disabled={processing}>
+                            <div className="flex items-center gap-3 border-t border-line pt-6 sm:justify-between">
+                                <Link
+                                    href={route('annonces.mine')}
+                                    className="inline-flex min-h-10 flex-1 items-center justify-center rounded-input border border-line px-5 py-2.5 text-sm font-semibold text-ink transition hover:border-ink/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 sm:flex-none"
+                                >
+                                    Annuler
+                                </Link>
+                                <PrimaryButton
+                                    className="flex-1 sm:flex-none"
+                                    disabled={processing}
+                                >
                                     Enregistrer
                                 </PrimaryButton>
                             </div>
