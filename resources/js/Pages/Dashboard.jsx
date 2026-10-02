@@ -43,11 +43,11 @@ function StatusBadge({ annonce }) {
 
 function StatCard({ label, value, hint }) {
     return (
-        <div className="rounded-xl border border-l-[3px] border-line border-l-accent bg-surface p-5">
+        <div className="rounded-xl border border-l-[3px] border-line border-l-accent bg-surface p-4 sm:p-5">
             <span className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
                 {label}
             </span>
-            <p className="mt-2 font-display text-[1.6rem] font-semibold leading-none text-ink">
+            <p className="mt-2 font-display text-[1.35rem] font-semibold leading-none text-ink sm:text-[1.6rem]">
                 {value}
             </p>
             {hint && <p className="mt-2 text-xs text-ink-soft">{hint}</p>}
@@ -213,7 +213,7 @@ export default function Dashboard({ certification, stats, annonces }) {
                         </div>
                     )}
 
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
                         <StatCard
                             label="Annonces actives"
                             value={stats.activeAnnoncesCount}
@@ -256,7 +256,7 @@ export default function Dashboard({ certification, stats, annonces }) {
                                                     className="h-16 w-20"
                                                 />
                                                 <div className="min-w-0 flex-1">
-                                                    <div className="truncate font-semibold text-ink">
+                                                    <div className="line-clamp-2 font-semibold text-ink">
                                                         {annonce.title}
                                                     </div>
                                                     <div className="text-sm text-ink-soft">
