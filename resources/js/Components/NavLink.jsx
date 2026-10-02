@@ -13,7 +13,7 @@ export default function NavLink({
                 'inline-flex items-center border-b-2 px-1 pt-1 text-sm font-medium leading-5 transition duration-150 ease-in-out focus:outline-none ' +
                 (active
                     ? 'border-terracotta-400 text-white focus:border-terracotta-300'
-                    : 'border-transparent text-sand/70 hover:border-sand/40 hover:text-white focus:border-sand/40 focus:text-white') +
+                    : 'border-transparent text-navbar-ink-dim hover:border-navbar-ink-dim/40 hover:text-white focus:border-navbar-ink-dim/40 focus:text-white') +
                 className
             }
         >

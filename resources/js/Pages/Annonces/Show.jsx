@@ -1,4 +1,5 @@
 import AdBanner from '@/Components/AdBanner';
+import { badgeCertified } from '@/Constants/theme';
 import PublicLayout from '@/Layouts/PublicLayout';
 import { Head, Link } from '@inertiajs/react';
 import { useState } from 'react';
@@ -87,7 +88,7 @@ export default function Show({ annonce }) {
                 <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
                     <Link
                         href={route('annonces.index')}
-                        className="text-sm font-medium text-charcoal/70 transition hover:text-terracotta-700"
+                        className="text-sm font-medium text-ink/70 transition hover:text-terracotta-700"
                     >
                         ← Retour aux annonces
                     </Link>
@@ -96,8 +97,8 @@ export default function Show({ annonce }) {
                         <AdBanner />
                     </div>
 
-                    <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-sand">
-                        <div className="h-80 w-full bg-sand/60">
+                    <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-line">
+                        <div className="h-80 w-full bg-line/60">
                             {mainPhoto ? (
                                 <img
                                     src={`/storage/${mainPhoto.path}`}
@@ -105,7 +106,7 @@ export default function Show({ annonce }) {
                                     className="h-full w-full object-cover"
                                 />
                             ) : (
-                                <div className="flex h-full items-center justify-center text-charcoal/40">
+                                <div className="flex h-full items-center justify-center text-ink/40">
                                     Aucune photo disponible
                                 </div>
                             )}
@@ -136,21 +137,21 @@ export default function Show({ annonce }) {
 
                         <div className="p-6 sm:p-8">
                             <div className="flex flex-wrap items-center gap-2">
-                                <span className="inline-flex items-center rounded-full border border-sand px-2.5 py-0.5 text-xs font-medium uppercase tracking-wide text-charcoal/60">
+                                <span className="inline-flex items-center rounded-full border border-line px-2.5 py-0.5 text-xs font-medium uppercase tracking-wide text-ink/60">
                                     {annonce.category?.name}
                                 </span>
 
                                 {annonce.is_certified_pro && (
-                                    <span className="inline-flex items-center rounded-full bg-olive px-2.5 py-0.5 text-xs font-semibold text-white">
+                                    <span className={`px-2.5 py-0.5 text-xs ${badgeCertified}`}>
                                         Certifié Pro
                                     </span>
                                 )}
                             </div>
 
-                            <h1 className="mt-4 font-serif text-3xl font-semibold leading-tight text-charcoal sm:text-4xl">
+                            <h1 className="mt-4 font-display text-3xl font-semibold leading-tight text-ink sm:text-4xl">
                                 {annonce.title}
                             </h1>
-                            <p className="mt-2 text-charcoal/60">
+                            <p className="mt-2 text-ink/60">
                                 {annonce.quartier}, {annonce.city}
                                 {annonce.surface
                                     ? ` · ${annonce.surface} m²`
@@ -164,7 +165,7 @@ export default function Show({ annonce }) {
                                 MAD / mois
                             </p>
 
-                            <p className="mt-6 whitespace-pre-line border-t border-sand pt-6 leading-relaxed text-charcoal/80">
+                            <p className="mt-6 whitespace-pre-line border-t border-line pt-6 leading-relaxed text-ink/80">
                                 {annonce.description}
                             </p>
 

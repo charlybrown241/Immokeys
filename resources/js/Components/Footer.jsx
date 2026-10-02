@@ -36,18 +36,18 @@ const SOCIALS = [
 ];
 
 const headingClasses =
-    'text-xs font-semibold uppercase tracking-wider text-sand/50';
+    'text-xs font-semibold uppercase tracking-wider text-navbar-ink-dim';
 
-const linkClasses = 'text-sm text-sand/80 transition hover:text-terracotta-300';
+const linkClasses = 'text-sm text-navbar-ink-dim transition hover:text-terracotta-300';
 
 export default function Footer() {
     return (
-        <footer className="bg-ink text-sand">
+        <footer className="bg-navbar text-navbar-ink-dim">
             <div className="mx-auto max-w-7xl px-4 pb-8 pt-14 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
                     <div>
                         <BrandLogo />
-                        <p className="mt-4 max-w-xs font-serif text-lg leading-snug text-cream/90">
+                        <p className="mt-4 max-w-xs font-display text-lg leading-snug text-navbar-ink/90">
                             La location étudiante en confiance à Casablanca.
                         </p>
                     </div>
@@ -104,7 +104,7 @@ export default function Footer() {
                                     href="#"
                                     aria-label={label}
                                     title={label}
-                                    className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/15 text-sand/80 transition hover:border-terracotta hover:bg-terracotta hover:text-white"
+                                    className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/15 text-navbar-ink-dim transition hover:border-terracotta hover:bg-terracotta hover:text-white"
                                 >
                                     <Icon />
                                 </a>
@@ -113,13 +113,13 @@ export default function Footer() {
                     </div>
                 </div>
 
-                <div className="mt-12 flex flex-col gap-4 border-t border-white/10 pt-6 text-xs text-sand/50 sm:flex-row sm:items-center sm:justify-between">
-                    <p>© 2026 ImmoKeys — Tous droits réservés</p>
+                <div className="mt-12 flex flex-col gap-4 border-t border-white/10 pt-6 text-xs text-navbar-ink-dim sm:flex-row sm:items-center sm:justify-between">
+                    <p>© 2026 <span translate="no">ImmoKeys</span> — Tous droits réservés</p>
                     <div className="flex flex-wrap gap-x-6 gap-y-2">
-                        <Link href={route('pages.legal')} className="transition hover:text-sand">
+                        <Link href={route('pages.legal')} className="transition hover:text-navbar-ink">
                             Mentions légales
                         </Link>
-                        <Link href={route('pages.privacy')} className="transition hover:text-sand">
+                        <Link href={route('pages.privacy')} className="transition hover:text-navbar-ink">
                             Politique de confidentialité
                         </Link>
                     </div>

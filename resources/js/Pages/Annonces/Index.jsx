@@ -1,4 +1,5 @@
 import PriceRangeSlider from '@/Components/PriceRangeSlider';
+import { badgeCertified } from '@/Constants/theme';
 import PublicLayout from '@/Layouts/PublicLayout';
 import { Head, Link, router } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
@@ -114,8 +115,8 @@ export default function Index({ annonces, categories, filters }) {
     const pillClasses = (active) =>
         `rounded-full border px-4 py-2 text-sm font-medium transition ${
             active
-                ? 'border-ink bg-ink text-white'
-                : 'border-sand bg-white text-charcoal hover:border-charcoal/30'
+                ? 'border-navbar bg-navbar text-white'
+                : 'border-line bg-white text-ink hover:border-ink/30'
         }`;
 
     return (
@@ -124,13 +125,13 @@ export default function Index({ annonces, categories, filters }) {
 
             <div>
                 <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
-                    <h1 className="font-serif text-3xl font-semibold leading-tight text-charcoal sm:text-4xl">
+                    <h1 className="font-display text-3xl font-semibold leading-tight text-ink sm:text-4xl">
                         Trouvez votre logement étudiant à Casablanca
                     </h1>
 
                     <form
                         onSubmit={submitSearch}
-                        className="mt-6 space-y-6 rounded-2xl bg-white p-5 shadow-[0_8px_30px_rgba(30,27,24,0.06)] ring-1 ring-sand sm:mt-8 sm:p-7"
+                        className="mt-6 space-y-6 rounded-2xl bg-white p-5 shadow-[0_8px_30px_rgba(30,27,24,0.06)] ring-1 ring-line sm:mt-8 sm:p-7"
                     >
                         <div className="flex items-center gap-3">
                             <input
@@ -140,12 +141,12 @@ export default function Index({ annonces, categories, filters }) {
                                     updateValue('search', e.target.value)
                                 }
                                 placeholder="Quartier, résidence, université..."
-                                className="block w-full rounded-full border-sand bg-cream/60 px-5 py-3 text-base text-charcoal placeholder:text-charcoal/40 focus:border-terracotta focus:ring-terracotta"
+                                className="block w-full rounded-full border-line bg-bg/60 px-5 py-3 text-base text-ink placeholder:text-ink/40 focus:border-terracotta focus:ring-terracotta"
                             />
                             <button
                                 type="submit"
                                 aria-label="Rechercher"
-                                className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-ink text-white shadow-sm transition hover:bg-charcoal focus:outline-none focus:ring-2 focus:ring-terracotta focus:ring-offset-2"
+                                className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-navbar text-white shadow-sm transition hover:bg-ink focus:outline-none focus:ring-2 focus:ring-terracotta focus:ring-offset-2"
                             >
                                 <svg
                                     className="h-5 w-5"
@@ -163,7 +164,7 @@ export default function Index({ annonces, categories, filters }) {
                         </div>
 
                         <div>
-                            <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-charcoal/60">
+                            <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-ink/60">
                                 Quartiers populaires
                             </p>
                             <div className="flex flex-wrap gap-2">
@@ -185,7 +186,7 @@ export default function Index({ annonces, categories, filters }) {
                         </div>
 
                         <div>
-                            <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-charcoal/60">
+                            <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-ink/60">
                                 Catégorie
                             </p>
                             <div className="flex flex-wrap gap-2">
@@ -208,7 +209,7 @@ export default function Index({ annonces, categories, filters }) {
                         </div>
 
                         <div className="sm:max-w-md">
-                            <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-charcoal/60">
+                            <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-ink/60">
                                 Loyer mensuel (MAD)
                             </p>
                             <PriceRangeSlider
@@ -226,8 +227,8 @@ export default function Index({ annonces, categories, filters }) {
                             />
                         </div>
 
-                        <details className="border-t border-sand pt-5 text-sm">
-                            <summary className="cursor-pointer font-medium text-charcoal/70 hover:text-charcoal">
+                        <details className="border-t border-line pt-5 text-sm">
+                            <summary className="cursor-pointer font-medium text-ink/70 hover:text-ink">
                                 Filtres avancés (surface)
                             </summary>
                             <div className="mt-3 grid grid-cols-2 gap-3 sm:max-w-xs">
@@ -242,7 +243,7 @@ export default function Index({ annonces, categories, filters }) {
                                         )
                                     }
                                     placeholder="Min m²"
-                                    className="block w-full rounded-xl border-sand text-sm focus:border-terracotta focus:ring-terracotta"
+                                    className="block w-full rounded-xl border-line text-sm focus:border-terracotta focus:ring-terracotta"
                                 />
                                 <input
                                     type="number"
@@ -255,13 +256,13 @@ export default function Index({ annonces, categories, filters }) {
                                         )
                                     }
                                     placeholder="Max m²"
-                                    className="block w-full rounded-xl border-sand text-sm focus:border-terracotta focus:ring-terracotta"
+                                    className="block w-full rounded-xl border-line text-sm focus:border-terracotta focus:ring-terracotta"
                                 />
                             </div>
                         </details>
                     </form>
 
-                    <p className="mt-10 text-sm text-charcoal/60">
+                    <p className="mt-10 text-sm text-ink/60">
                         {annonces.total} annonce
                         {annonces.total > 1 ? 's' : ''} trouvée
                         {annonces.total > 1 ? 's' : ''}
@@ -272,9 +273,9 @@ export default function Index({ annonces, categories, filters }) {
                             <Link
                                 key={annonce.id}
                                 href={route('annonces.show', annonce.id)}
-                                className="group flex flex-col rounded-2xl bg-white p-3 shadow-sm ring-1 ring-sand transition duration-200 hover:shadow-lg"
+                                className="group flex flex-col rounded-2xl bg-white p-3 shadow-sm ring-1 ring-line transition duration-200 hover:shadow-lg"
                             >
-                                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-sand/60">
+                                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-line/60">
                                     {annonce.main_photo ? (
                                         <img
                                             src={`/storage/${annonce.main_photo.path}`}
@@ -282,13 +283,13 @@ export default function Index({ annonces, categories, filters }) {
                                             className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
                                         />
                                     ) : (
-                                        <div className="flex h-full items-center justify-center text-sm text-charcoal/40">
+                                        <div className="flex h-full items-center justify-center text-sm text-ink/40">
                                             Aucune photo
                                         </div>
                                     )}
 
                                     {annonce.is_certified_pro && (
-                                        <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-olive px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm">
+                                        <span className={`absolute left-3 top-3 px-2.5 py-1 text-[11px] shadow-sm ${badgeCertified}`}>
                                             <svg
                                                 className="h-3 w-3"
                                                 fill="none"
@@ -308,7 +309,7 @@ export default function Index({ annonces, categories, filters }) {
 
                                 <div className="flex flex-1 items-end justify-between gap-3 px-2 pb-1 pt-4">
                                     <div className="min-w-0">
-                                        <h3 className="truncate font-serif text-lg font-semibold text-charcoal">
+                                        <h3 className="truncate font-display text-lg font-semibold text-ink">
                                             {[
                                                 annonce.category?.name,
                                                 annonce.quartier,
@@ -316,7 +317,7 @@ export default function Index({ annonces, categories, filters }) {
                                                 .filter(Boolean)
                                                 .join(' — ')}
                                         </h3>
-                                        <p className="mt-0.5 truncate text-sm text-charcoal/60">
+                                        <p className="mt-0.5 truncate text-sm text-ink/60">
                                             {annonce.title}
                                             {annonce.surface
                                                 ? ` · ${annonce.surface} m²`
@@ -327,7 +328,7 @@ export default function Index({ annonces, categories, filters }) {
                                                 annonce.price,
                                             ).toLocaleString('fr-FR')}{' '}
                                             MAD
-                                            <span className="text-sm font-medium text-charcoal/60">
+                                            <span className="text-sm font-medium text-ink/60">
                                                 {' '}
                                                 / mois
                                             </span>
@@ -336,7 +337,7 @@ export default function Index({ annonces, categories, filters }) {
 
                                     <span
                                         aria-hidden="true"
-                                        className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-ink text-white transition group-hover:bg-terracotta"
+                                        className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-navbar text-white transition group-hover:bg-terracotta"
                                     >
                                         <svg
                                             className="h-4 w-4 -rotate-45"
@@ -355,7 +356,7 @@ export default function Index({ annonces, categories, filters }) {
                         ))}
 
                         {annonces.data.length === 0 && (
-                            <div className="col-span-full rounded-2xl bg-white p-10 text-center text-sm text-charcoal/60 ring-1 ring-sand">
+                            <div className="col-span-full rounded-2xl bg-white p-10 text-center text-sm text-ink/60 ring-1 ring-line">
                                 Aucune annonce ne correspond à ces critères.
                             </div>
                         )}
@@ -374,10 +375,10 @@ export default function Index({ annonces, categories, filters }) {
                                     }}
                                     className={`inline-flex h-10 min-w-10 items-center justify-center rounded-full px-3 text-sm font-medium transition ${
                                         link.active
-                                            ? 'bg-ink text-white'
+                                            ? 'bg-navbar text-white'
                                             : link.url
-                                              ? 'bg-white text-charcoal ring-1 ring-sand hover:ring-charcoal/30'
-                                              : 'cursor-not-allowed bg-white text-charcoal/30 ring-1 ring-sand'
+                                              ? 'bg-white text-ink ring-1 ring-line hover:ring-ink/30'
+                                              : 'cursor-not-allowed bg-white text-ink/30 ring-1 ring-line'
                                     }`}
                                 />
                             ))}

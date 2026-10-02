@@ -16,8 +16,8 @@ export default function AuthenticatedLayout({ header, children }) {
         useState(false);
 
     return (
-        <div className="min-h-screen bg-cream">
-            <nav className="bg-ink">
+        <div className="min-h-screen bg-bg">
+            <nav className="bg-navbar">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 justify-between">
                         <div className="flex">
@@ -53,7 +53,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                         <span className="inline-flex rounded-md">
                                             <button
                                                 type="button"
-                                                className="inline-flex items-center rounded-md border border-transparent bg-transparent px-3 py-2 text-sm font-medium leading-4 text-sand/80 transition duration-150 ease-in-out hover:text-white focus:outline-none"
+                                                className="inline-flex items-center rounded-md border border-transparent bg-transparent px-3 py-2 text-sm font-medium leading-4 text-navbar-ink-dim transition duration-150 ease-in-out hover:text-white focus:outline-none"
                                             >
                                                 {user.name}
 
@@ -98,7 +98,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                         (previousState) => !previousState,
                                     )
                                 }
-                                className="inline-flex items-center justify-center rounded-md p-2 text-sand transition duration-150 ease-in-out hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white focus:outline-none"
+                                className="inline-flex items-center justify-center rounded-md p-2 text-navbar-ink-dim transition duration-150 ease-in-out hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white focus:outline-none"
                             >
                                 <svg
                                     className="h-6 w-6"
@@ -160,10 +160,10 @@ export default function AuthenticatedLayout({ header, children }) {
 
                     <div className="border-t border-white/10 pb-1 pt-4">
                         <div className="px-4">
-                            <div className="text-base font-medium text-cream">
+                            <div className="text-base font-medium text-navbar-ink">
                                 {user.name}
                             </div>
-                            <div className="text-sm font-medium text-sand/60">
+                            <div className="text-sm font-medium text-navbar-ink-dim">
                                 {user.email}
                             </div>
                         </div>
@@ -185,7 +185,7 @@ export default function AuthenticatedLayout({ header, children }) {
             </nav>
 
             {header && (
-                <header className="border-b border-sand bg-white">
+                <header className="border-b border-line bg-white">
                     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
                         {header}
                     </div>

@@ -6,7 +6,7 @@ export function BrandLogo({ className = '' }) {
     return (
         <Link href="/" className={`flex items-center gap-2.5 ${className}`}>
             <ApplicationLogo className="h-8 w-auto fill-current text-terracotta-400" />
-            <span className="font-serif text-xl font-semibold tracking-tight text-cream">
+            <span translate="no" className="font-display text-xl font-semibold tracking-tight text-navbar-ink">
                 ImmoKeys
             </span>
         </Link>
@@ -14,10 +14,10 @@ export function BrandLogo({ className = '' }) {
 }
 
 const linkClasses =
-    'text-sm font-medium text-sand/80 transition hover:text-white';
+    'text-sm font-medium text-navbar-ink-dim transition hover:text-white';
 
 const ctaClasses =
-    'inline-flex items-center justify-center rounded-full bg-terracotta px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-terracotta-700 focus:outline-none focus:ring-2 focus:ring-terracotta-300 focus:ring-offset-2 focus:ring-offset-ink';
+    'inline-flex items-center justify-center rounded-full bg-terracotta px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-terracotta-700 focus:outline-none focus:ring-2 focus:ring-terracotta-300 focus:ring-offset-2 focus:ring-offset-navbar';
 
 /**
  * Dark top bar used by the public pages (search results, listing detail).
@@ -60,7 +60,7 @@ export default function PublicNavbar() {
     );
 
     return (
-        <nav className="bg-ink text-cream">
+        <nav className="bg-navbar text-navbar-ink">
             <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
                 <BrandLogo />
 
@@ -79,7 +79,7 @@ export default function PublicNavbar() {
                         Annonces
                     </Link>
                     {user && (
-                        <span className="text-sm text-sand/60">
+                        <span className="text-sm text-navbar-ink-dim">
                             {user.name}
                         </span>
                     )}
@@ -91,7 +91,7 @@ export default function PublicNavbar() {
                     onClick={() => setOpen((value) => !value)}
                     aria-label="Menu"
                     aria-expanded={open}
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-full text-sand transition hover:bg-white/10 md:hidden"
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-full text-navbar-ink-dim transition hover:bg-white/10 md:hidden"
                 >
                     <svg
                         className="h-6 w-6"
@@ -120,7 +120,7 @@ export default function PublicNavbar() {
                         Annonces
                     </Link>
                     {user && (
-                        <span className="text-sm text-sand/60">
+                        <span className="text-sm text-navbar-ink-dim">
                             {user.name}
                         </span>
                     )}
