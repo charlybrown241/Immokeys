@@ -107,7 +107,7 @@ class PublicAnnonceController extends Controller
             'annonce_id' => $annonce->id,
         ]);
 
-        $message = "Bonjour, je suis interesse(e) par votre annonce '{$annonce->title}' a {$annonce->quartier} (".route('annonces.show', $annonce->id).').';
+        $message = "Bonjour, je suis intéressé(e) par votre annonce '{$annonce->title}' à {$annonce->quartier} (".route('annonces.show', $annonce->id).').';
         $phone = preg_replace('/[^0-9]/', '', $owner->phone);
 
         return redirect()->away("https://wa.me/{$phone}?text=".urlencode($message));

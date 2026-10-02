@@ -21,7 +21,7 @@ class AuthenticatedSessionController extends Controller
         $status = session('status');
 
         if ($request->query('reason') === 'contact-whatsapp') {
-            $status = 'Connectez-vous pour contacter ce proprietaire.';
+            $status = 'Connectez-vous pour contacter ce propriétaire.';
         }
 
         return Inertia::render('Auth/Login', [

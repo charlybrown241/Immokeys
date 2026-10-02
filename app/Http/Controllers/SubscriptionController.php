@@ -34,7 +34,7 @@ class SubscriptionController extends Controller
             'expires_at' => now()->addMonth(),
         ]);
 
-        return back()->with('success', 'Abonnement Premium active (simulation).');
+        return back()->with('success', 'Abonnement Premium activé (simulation).');
     }
 
     /**
@@ -50,6 +50,6 @@ class SubscriptionController extends Controller
             'expires_at' => now()->addYear(),
         ]);
 
-        return back()->with('success', 'Abonnement Pro renouvele (simulation).');
+        return back()->with('success', 'Abonnement Pro renouvelé (simulation).');
     }
 }

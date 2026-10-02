@@ -47,6 +47,6 @@ class AnnonceLoadTestSeeder extends Seeder
             ])
             ->create();
 
-        $this->command?->info('1000 annonces de test creees (20 proprietaires).');
+        $this->command?->info('1000 annonces de test créées (20 propriétaires).');
     }
 }

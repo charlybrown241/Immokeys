@@ -58,7 +58,7 @@ class CertificationController extends Controller
 
         $certification->user->notify(new CertificationApproved);
 
-        return back()->with('success', 'Certification approuvee.');
+        return back()->with('success', 'Certification approuvée.');
     }
 
     /**
@@ -72,6 +72,6 @@ class CertificationController extends Controller
 
         $certification->user->notify(new CertificationRejected);
 
-        return back()->with('success', 'Certification rejetee.');
+        return back()->with('success', 'Certification rejetée.');
     }
 }

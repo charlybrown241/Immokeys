@@ -222,7 +222,7 @@ class WhatsappContactTest extends TestCase
         $response = $this->get('/login?reason=contact-whatsapp');
 
         $response->assertInertia(fn ($page) => $page
-            ->where('status', 'Connectez-vous pour contacter ce proprietaire.')
+            ->where('status', 'Connectez-vous pour contacter ce propriétaire.')
         );
     }
 }

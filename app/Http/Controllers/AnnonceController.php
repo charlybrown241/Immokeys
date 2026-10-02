@@ -39,7 +39,7 @@ class AnnonceController extends Controller
         if ($request->user()->cannot('create', Annonce::class)) {
             return redirect()->route('dashboard')->with(
                 'error',
-                "Vous devez d'abord faire certifier votre identite (piece CIN) avant de pouvoir publier une annonce."
+                "Vous devez d'abord faire certifier votre identité (pièce CIN) avant de pouvoir publier une annonce."
             );
         }
 
@@ -70,7 +70,7 @@ class AnnonceController extends Controller
             }
         });
 
-        return redirect()->route('annonces.mine')->with('success', 'Annonce creee avec succes.');
+        return redirect()->route('annonces.mine')->with('success', 'Annonce créée avec succès.');
     }
 
     /**
@@ -93,7 +93,7 @@ class AnnonceController extends Controller
     {
         $annonce->update($request->validated());
 
-        return redirect()->route('annonces.mine')->with('success', 'Annonce mise a jour.');
+        return redirect()->route('annonces.mine')->with('success', 'Annonce mise à jour.');
     }
 
     /**
@@ -109,6 +109,6 @@ class AnnonceController extends Controller
 
         $annonce->delete();
 
-        return redirect()->route('annonces.mine')->with('success', 'Annonce supprimee.');
+        return redirect()->route('annonces.mine')->with('success', 'Annonce supprimée.');
     }
 }

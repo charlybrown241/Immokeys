@@ -66,7 +66,8 @@ export default function Login({ status, canResetPassword }) {
                 </div>
 
                 <div className="flex items-center justify-between gap-2 whitespace-nowrap text-xs">
-                    <label className="flex items-center">
+                    {/* -my-3 py-3: 40px touch targets without moving the layout */}
+                    <label className="-my-3 flex cursor-pointer items-center py-3">
                         <Checkbox
                             name="remember"
                             checked={data.remember}
@@ -82,7 +83,7 @@ export default function Login({ status, canResetPassword }) {
                     {canResetPassword && (
                         <Link
                             href={route('password.request')}
-                            className="rounded text-ink underline underline-offset-2 hover:text-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+                            className="-my-3 inline-flex items-center rounded py-3 text-ink underline underline-offset-2 hover:text-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
                         >
                             Mot de passe oublié ?
                         </Link>

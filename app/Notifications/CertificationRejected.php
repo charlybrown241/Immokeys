@@ -27,7 +27,7 @@ class CertificationRejected extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'message' => 'Votre certification a ete refusee, merci de soumettre un nouveau document.',
+            'message' => 'Votre certification a été refusée, merci de soumettre un nouveau document.',
         ];
     }
 }

@@ -24,7 +24,7 @@ class EnsureAccountIsActive
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
-            return redirect()->route('login')->with('error', 'Ce compte a ete desactive.');
+            return redirect()->route('login')->with('error', 'Ce compte a été désactivé.');
         }
 
         return $next($request);

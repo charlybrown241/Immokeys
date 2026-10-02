@@ -43,14 +43,14 @@ class UserController extends Controller
         abort_if(
             $user->id === $request->user()->id,
             403,
-            'Vous ne pouvez pas desactiver votre propre compte.'
+            'Vous ne pouvez pas désactiver votre propre compte.'
         );
 
         $user->update(['is_active' => ! $user->is_active]);
 
         return back()->with(
             'success',
-            $user->is_active ? 'Compte reactive.' : 'Compte desactive.'
+            $user->is_active ? 'Compte réactivé.' : 'Compte désactivé.'
         );
     }
 }

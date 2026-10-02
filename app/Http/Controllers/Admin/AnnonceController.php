@@ -60,7 +60,7 @@ class AnnonceController extends Controller
 
         return back()->with(
             'success',
-            $annonce->is_suspended ? 'Annonce suspendue.' : 'Annonce reactivee.'
+            $annonce->is_suspended ? 'Annonce suspendue.' : 'Annonce réactivée.'
         );
     }
 }

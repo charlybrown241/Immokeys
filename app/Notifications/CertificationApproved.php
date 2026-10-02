@@ -27,7 +27,7 @@ class CertificationApproved extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'message' => 'Votre compte a ete certifie, vous pouvez desormais publier des annonces.',
+            'message' => 'Votre compte a été certifié, vous pouvez désormais publier des annonces.',
         ];
     }
 }
