@@ -1,4 +1,3 @@
-import ApplicationLogo from '@/Components/ApplicationLogo';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link, usePage } from '@inertiajs/react';
@@ -6,14 +5,12 @@ import { useState } from 'react';
 
 export function BrandLogo({ className = '' }) {
     return (
-        <Link href="/" className={`flex items-center gap-2.5 ${className}`}>
-            <ApplicationLogo className="h-7 w-auto fill-current text-accent" />
-            <span
-                translate="no"
-                className="font-display text-[1.05rem] font-semibold tracking-tight text-navbar-ink"
-            >
-                ImmoKeys
-            </span>
+        <Link
+            href="/"
+            translate="no"
+            className={`font-display text-[1.15rem] font-semibold tracking-tight text-navbar-ink ${className}`}
+        >
+            ImmoKeys
         </Link>
     );
 }
