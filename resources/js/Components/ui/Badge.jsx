@@ -8,6 +8,8 @@ const variants = {
     info: 'bg-blue-50 text-blue-700 ring-blue-700/15',
     neutral: 'bg-ui-bg text-ui-text ring-ui-border',
     brand: 'bg-gold-50 text-gold-700 ring-gold-600/30',
+    // For badges laid over photos.
+    navy: 'bg-navy-900 text-gold-300 ring-navy-900',
 };
 
 const sizes = {

@@ -161,12 +161,16 @@ class PublicAnnonceSearchTest extends TestCase
     public function test_results_are_paginated_by_12_and_sorted_by_most_recent(): void
     {
         $first = $this->annonce(['title' => 'Ancienne']);
-        sleep(1);
         $second = $this->annonce(['title' => 'Recente']);
 
         for ($i = 0; $i < 11; $i++) {
             $this->annonce();
         }
+
+        // Explicit timestamps: relying on sleep() made the order flaky when
+        // the loop above crossed a second boundary.
+        $first->forceFill(['created_at' => now()->subDay()])->save();
+        $second->forceFill(['created_at' => now()->addMinute()])->save();
 
         $response = $this->get('/annonces');
 

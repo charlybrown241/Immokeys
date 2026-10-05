@@ -6,9 +6,9 @@ use App\Http\Requests\AnnonceFilterRequest;
 use App\Models\Annonce;
 use App\Models\Category;
 use App\Models\ContactLog;
+use App\Support\WhatsappContact;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\URL;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -39,7 +39,7 @@ class PublicAnnonceController extends Controller
                 'price' => $annonce->price,
                 'main_photo' => $annonce->mainPhoto,
                 'category' => $annonce->category,
-                'is_certified_pro' => $this->isCertifiedPro($annonce),
+                'is_certified_pro' => $annonce->ownerIsCertifiedPro(),
             ]);
 
         return Inertia::render('Annonces/Index', [
@@ -82,9 +82,9 @@ class PublicAnnonceController extends Controller
                 'status' => $annonce->status,
                 'category' => $annonce->category,
                 'photos' => $annonce->photos,
-                'is_certified_pro' => $this->isCertifiedPro($annonce),
+                'is_certified_pro' => $annonce->ownerIsCertifiedPro(),
                 'owner_name' => $this->publicOwnerName($annonce),
-                'whatsapp_contact' => $this->whatsappContactState($request, $annonce),
+                'whatsapp_contact' => WhatsappContact::stateFor($request->user(), $annonce),
             ],
         ]);
     }
@@ -130,53 +130,5 @@ class PublicAnnonceController extends Controller
         return $parts === []
             ? $firstName
             : $firstName.' '.mb_strtoupper(mb_substr(end($parts), 0, 1)).'.';
-    }
-
-    /**
-     * A landlord is shown as certified once their identity is verified
-     * and they hold an active (non-expired) "pro" subscription.
-     */
-    private function isCertifiedPro(Annonce $annonce): bool
-    {
-        $subscription = $annonce->user?->subscription;
-
-        return (bool) $annonce->user?->is_verified
-            && $subscription?->type === 'pro'
-            && $subscription->isActive();
-    }
-
-    /**
-     * Decide what the "Contacter sur WhatsApp" button should do: generate
-     * a short-lived signed link when everything checks out, or report why
-     * it can't (guest, wrong role, unavailable annonce, missing phone).
-     */
-    private function whatsappContactState(Request $request, Annonce $annonce): array
-    {
-        $user = $request->user();
-
-        if (! $user) {
-            return ['status' => 'guest'];
-        }
-
-        if ($user->role?->name !== 'etudiant') {
-            return ['status' => 'wrong_role'];
-        }
-
-        if ($annonce->status !== 'disponible' || $annonce->is_suspended) {
-            return ['status' => 'unavailable'];
-        }
-
-        if (blank($annonce->user?->phone)) {
-            return ['status' => 'missing_phone'];
-        }
-
-        return [
-            'status' => 'ready',
-            'url' => URL::temporarySignedRoute(
-                'annonces.contact-whatsapp',
-                now()->addMinutes(5),
-                ['annonce' => $annonce->id],
-            ),
-        ];
     }
 }

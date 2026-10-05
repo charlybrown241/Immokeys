@@ -8,7 +8,7 @@ import { useState } from 'react';
 
 function useNavLinks() {
     return [
-        { label: 'Accueil', href: '/', active: false },
+        { label: 'Accueil', href: route('home'), active: route().current('home') },
         {
             label: 'Logements',
             href: route('annonces.index'),
