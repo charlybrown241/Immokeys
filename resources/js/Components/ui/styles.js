@@ -10,12 +10,14 @@ export const focusRing =
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-600 focus-visible:ring-offset-2';
 
 // Text fields and selects: 12px radius, gold focus, red when invalid.
-export function fieldClasses(hasError, hasIcon = false) {
+// `hasTrailing` reserves room on the right for a button or a chevron.
+export function fieldClasses(hasError, hasIcon = false, hasTrailing = false) {
     return cx(
         'block w-full rounded-field border bg-white py-2.5 font-body text-sm text-ui-text placeholder:text-ui-muted',
         'focus:outline-none focus:ring-2 focus:ring-offset-0',
         'disabled:cursor-not-allowed disabled:bg-ui-bg disabled:text-ui-muted',
-        hasIcon ? 'pl-10 pr-3.5' : 'px-3.5',
+        hasIcon ? 'pl-10' : 'pl-3.5',
+        hasTrailing ? 'pr-12' : 'pr-3.5',
         hasError
             ? 'border-danger focus:border-danger focus:ring-danger/30'
             : 'border-ui-border focus:border-gold-600 focus:ring-gold-600/30',

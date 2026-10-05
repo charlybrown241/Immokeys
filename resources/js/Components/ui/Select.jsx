@@ -29,7 +29,7 @@ export default forwardRef(function Select(
                     required={required}
                     aria-invalid={error ? true : undefined}
                     aria-describedby={describedBy(selectId, error, hint)}
-                    className={`${fieldClasses(Boolean(error), Boolean(Icon))} pr-10`}
+                    className={fieldClasses(Boolean(error), Boolean(Icon), true)}
                     {...props}
                 >
                     {placeholder && <option value="">{placeholder}</option>}

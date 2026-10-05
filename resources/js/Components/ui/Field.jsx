@@ -1,18 +1,28 @@
 import { cx } from './styles';
 
 // Label + control + hint/error wrapper shared by Input and Select.
-export default function Field({ id, label, hint, error, required, className = '', children }) {
+// `labelAside` renders next to the label, right-aligned (e.g. a help link).
+export default function Field({ id, label, labelAside, hint, error, required, className = '', children }) {
+    const labelElement = label && (
+        <label htmlFor={id} className="block text-sm font-medium text-ui-text">
+            {label}
+            {required && (
+                <span className="ml-0.5 text-danger-700" aria-hidden="true">
+                    *
+                </span>
+            )}
+        </label>
+    );
+
     return (
         <div className={cx('font-body', className)}>
-            {label && (
-                <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-ui-text">
-                    {label}
-                    {required && (
-                        <span className="ml-0.5 text-danger-700" aria-hidden="true">
-                            *
-                        </span>
-                    )}
-                </label>
+            {labelAside ? (
+                <div className="mb-1.5 flex items-center justify-between gap-3">
+                    {labelElement}
+                    {labelAside}
+                </div>
+            ) : (
+                labelElement && <div className="mb-1.5">{labelElement}</div>
             )}
             {children}
             {error ? (
