@@ -1,6 +1,6 @@
 import DangerButton from '@/Components/DangerButton';
 import SecondaryButton from '@/Components/SecondaryButton';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, router, usePage } from '@inertiajs/react';
 
 const STATUS_STYLES = {
@@ -65,7 +65,7 @@ export default function Index({ annonces, filters }) {
     };
 
     return (
-        <AuthenticatedLayout
+        <DashboardLayout
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800">
                     Annonces
@@ -232,6 +232,6 @@ export default function Index({ annonces, filters }) {
                     )}
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </DashboardLayout>
     );
 }

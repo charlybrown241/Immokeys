@@ -1,4 +1,5 @@
 import PriceRangeSlider from '@/Components/PriceRangeSlider';
+import { QUARTIERS } from '@/Constants/quartiers';
 import { badgeCertified } from '@/Constants/theme';
 import PublicLayout from '@/Layouts/PublicLayout';
 import { Head, Link, router } from '@inertiajs/react';
@@ -8,14 +9,7 @@ const MIN_PRICE = 0;
 const MAX_PRICE = 15000;
 const PRICE_STEP = 100;
 
-const POPULAR_QUARTIERS = [
-    'Maarif',
-    'Gauthier',
-    'Racine',
-    'Bourgogne',
-    'CIL',
-    'Sidi Belyout',
-];
+const POPULAR_QUARTIERS = QUARTIERS;
 
 function buildQuery(values) {
     const query = { ...values };

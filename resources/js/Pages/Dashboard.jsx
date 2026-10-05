@@ -7,7 +7,7 @@ import {
     badgeNeutral,
     badgePending,
 } from '@/Constants/theme';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
@@ -132,7 +132,7 @@ export default function Dashboard({ certification, stats, annonces }) {
     };
 
     return (
-        <AuthenticatedLayout
+        <DashboardLayout
             header={
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
@@ -460,6 +460,6 @@ export default function Dashboard({ certification, stats, annonces }) {
                     </div>
                 </div>
             </Modal>
-        </AuthenticatedLayout>
+        </DashboardLayout>
     );
 }

@@ -1,6 +1,6 @@
 import DangerButton from '@/Components/DangerButton';
 import SecondaryButton from '@/Components/SecondaryButton';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, router, usePage } from '@inertiajs/react';
 
 const ROLE_LABELS = {
@@ -17,7 +17,7 @@ export default function Index({ users }) {
     };
 
     return (
-        <AuthenticatedLayout
+        <DashboardLayout
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800">
                     Utilisateurs
@@ -144,6 +144,6 @@ export default function Index({ users }) {
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </DashboardLayout>
     );
 }

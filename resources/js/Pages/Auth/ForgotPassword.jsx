@@ -2,7 +2,7 @@ import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
-import GuestLayout from '@/Layouts/GuestLayout';
+import AuthLayout from '@/Layouts/AuthLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 
 export default function ForgotPassword({ status }) {
@@ -17,7 +17,7 @@ export default function ForgotPassword({ status }) {
     };
 
     return (
-        <GuestLayout>
+        <AuthLayout>
             <Head title="Mot de passe oublié" />
 
             <div className="mb-4 text-sm text-ink-soft">
@@ -60,6 +60,6 @@ export default function ForgotPassword({ status }) {
                     </Link>
                 </p>
             </form>
-        </GuestLayout>
+        </AuthLayout>
     );
 }

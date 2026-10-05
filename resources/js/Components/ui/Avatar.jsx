@@ -7,7 +7,7 @@ const sizes = {
     lg: 'h-14 w-14 text-lg',
 };
 
-function initials(name = '') {
+export function initials(name = '') {
     return name
         .trim()
         .split(/\s+/)

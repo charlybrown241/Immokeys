@@ -7,7 +7,7 @@ import {
     badgeNeutral,
     badgePending,
 } from '@/Constants/theme';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
@@ -55,7 +55,7 @@ export default function Index({ annonces }) {
     };
 
     return (
-        <AuthenticatedLayout
+        <DashboardLayout
             header={
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <h2 className="font-display text-xl font-semibold leading-tight text-ink sm:text-2xl">
@@ -183,6 +183,6 @@ export default function Index({ annonces }) {
                     </div>
                 </div>
             </Modal>
-        </AuthenticatedLayout>
+        </DashboardLayout>
     );
 }

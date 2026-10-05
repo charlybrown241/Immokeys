@@ -2,7 +2,7 @@ import Modal from '@/Components/Modal';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import { badgePending } from '@/Constants/theme';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
@@ -106,7 +106,7 @@ export default function Show({ subscription }) {
     };
 
     return (
-        <AuthenticatedLayout
+        <DashboardLayout
             header={
                 <h2 className="font-display text-2xl font-semibold leading-tight text-ink">
                     Mon abonnement
@@ -195,6 +195,6 @@ export default function Show({ subscription }) {
                     </div>
                 </div>
             </Modal>
-        </AuthenticatedLayout>
+        </DashboardLayout>
     );
 }

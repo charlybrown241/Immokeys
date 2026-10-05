@@ -3,7 +3,7 @@ import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
-import GuestLayout from '@/Layouts/GuestLayout';
+import AuthLayout from '@/Layouts/AuthLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 
 export default function Login({ status, canResetPassword }) {
@@ -22,7 +22,7 @@ export default function Login({ status, canResetPassword }) {
     };
 
     return (
-        <GuestLayout>
+        <AuthLayout>
             <Head title="Connexion" />
 
             {status && (
@@ -94,6 +94,6 @@ export default function Login({ status, canResetPassword }) {
                     Se connecter
                 </PrimaryButton>
             </form>
-        </GuestLayout>
+        </AuthLayout>
     );
 }

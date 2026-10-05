@@ -2,7 +2,7 @@ import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
-import GuestLayout from '@/Layouts/GuestLayout';
+import AuthLayout from '@/Layouts/AuthLayout';
 import { Head, useForm } from '@inertiajs/react';
 
 export default function ResetPassword({ token, email }) {
@@ -22,7 +22,7 @@ export default function ResetPassword({ token, email }) {
     };
 
     return (
-        <GuestLayout>
+        <AuthLayout>
             <Head title="Nouveau mot de passe" />
 
             <form onSubmit={submit}>
@@ -87,6 +87,6 @@ export default function ResetPassword({ token, email }) {
                     Réinitialiser le mot de passe
                 </PrimaryButton>
             </form>
-        </GuestLayout>
+        </AuthLayout>
     );
 }

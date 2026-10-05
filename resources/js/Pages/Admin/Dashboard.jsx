@@ -1,4 +1,4 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, Link } from '@inertiajs/react';
 
 const ROLE_LABELS = {
@@ -37,7 +37,7 @@ function StatCard({ label, value, href }) {
 
 export default function Dashboard({ stats }) {
     return (
-        <AuthenticatedLayout
+        <DashboardLayout
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800">
                     Espace administrateur
@@ -72,6 +72,6 @@ export default function Dashboard({ stats }) {
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </DashboardLayout>
     );
 }

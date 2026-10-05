@@ -2,7 +2,7 @@ import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
-import GuestLayout from '@/Layouts/GuestLayout';
+import AuthLayout from '@/Layouts/AuthLayout';
 import { Head, useForm } from '@inertiajs/react';
 
 export default function ConfirmPassword() {
@@ -19,7 +19,7 @@ export default function ConfirmPassword() {
     };
 
     return (
-        <GuestLayout>
+        <AuthLayout>
             <Head title="Confirmer le mot de passe" />
 
             <div className="mb-4 text-sm text-ink-soft">
@@ -48,6 +48,6 @@ export default function ConfirmPassword() {
                     Confirmer
                 </PrimaryButton>
             </form>
-        </GuestLayout>
+        </AuthLayout>
     );
 }

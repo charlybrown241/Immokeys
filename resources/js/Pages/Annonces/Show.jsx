@@ -1,5 +1,5 @@
 import AdBanner from '@/Components/AdBanner';
-import { initials } from '@/Components/PublicNavbar';
+import { initials } from '@/Components/ui/Avatar';
 import { badgeCertified } from '@/Constants/theme';
 import PublicLayout from '@/Layouts/PublicLayout';
 import { Head, Link } from '@inertiajs/react';
