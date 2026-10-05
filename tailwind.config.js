@@ -79,7 +79,7 @@ export default {
                     600: '#D49533',
                     700: '#9A6700',
                 },
-                // Data visualisation only (charts, sparklines), never UI chrome.
+                // Charts only: secondary series (the main series is gold), never UI chrome.
                 indigo: {
                     50: '#EEEBFC',
                     500: '#5B45D6',

@@ -2,7 +2,8 @@ import { TrendingDown, TrendingUp } from 'lucide-react';
 import Card from './Card';
 import { cx } from './styles';
 
-// Minimal SVG line chart; indigo is reserved for data.
+// Minimal SVG line chart. Main series in gold; navy/indigo are kept for
+// secondary series in fuller charts.
 function Sparkline({ data }) {
     if (!data || data.length < 2) return null;
 
@@ -18,13 +19,13 @@ function Sparkline({ data }) {
 
     return (
         <svg viewBox="0 0 100 32" preserveAspectRatio="none" className="h-10 w-full" aria-hidden="true" focusable="false">
-            <polygon points={`0,32 ${points} 100,32`} className="fill-indigo-50" />
+            <polygon points={`0,32 ${points} 100,32`} className="fill-gold-50" />
             <polyline
                 points={points}
                 vectorEffect="non-scaling-stroke"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="fill-none stroke-indigo-500 stroke-2"
+                className="fill-none stroke-gold-600 stroke-2"
             />
         </svg>
     );

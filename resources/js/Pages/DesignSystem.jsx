@@ -54,7 +54,7 @@ const colorGroups = [
         ],
     },
     {
-        name: 'Indigo (données uniquement)',
+        name: 'Indigo (séries secondaires des graphiques)',
         swatches: [
             { token: 'indigo-50', hex: '#EEEBFC', className: 'bg-indigo-50' },
             { token: 'indigo-500', hex: '#5B45D6', className: 'bg-indigo-500' },
@@ -247,7 +247,7 @@ export default function DesignSystem() {
 
                     <Section title="Badges">
                         <Card className="flex flex-wrap items-center gap-3">
-                            <Badge variant="success" icon={BadgeCheck}>
+                            <Badge variant="brand" icon={BadgeCheck}>
                                 Certifié
                             </Badge>
                             <Badge variant="warning" icon={Clock}>
@@ -259,6 +259,7 @@ export default function DesignSystem() {
                             <Badge variant="info" icon={Info}>
                                 Nouveau
                             </Badge>
+                            <Badge variant="success">Publiée</Badge>
                             <Badge variant="neutral">Brouillon</Badge>
                             <Badge variant="brand" icon={Star}>
                                 Pro
@@ -276,7 +277,7 @@ export default function DesignSystem() {
                                 <div>
                                     <p className="font-heading text-lg font-bold">Salma Bennani</p>
                                     <p className="text-sm text-ui-muted">Propriétaire depuis 2024</p>
-                                    <Badge variant="success" icon={BadgeCheck} className="mt-2">
+                                    <Badge variant="brand" icon={BadgeCheck} className="mt-2">
                                         Identité certifiée
                                     </Badge>
                                 </div>
@@ -290,7 +291,7 @@ export default function DesignSystem() {
                         </div>
                     </Section>
 
-                    <Section title="Statistiques" description="La sparkline utilise l'indigo, réservé aux données.">
+                    <Section title="Statistiques" description="Série principale en or ; navy et indigo pour les séries secondaires.">
                         <div className="grid gap-4 md:grid-cols-3">
                             <StatCard
                                 icon={MessageCircle}
