@@ -80,4 +80,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// Dev-only showcase of the design tokens and ui/ component kit.
+if (app()->environment('local')) {
+    Route::inertia('/design-system', 'DesignSystem')->name('design-system');
+}
+
 require __DIR__.'/auth.php';

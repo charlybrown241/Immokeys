@@ -9,6 +9,35 @@
     --color-accent: #c2652e;
     --color-success-ink: #55682f;
     --color-line: #eae3d6;
+
+    /* Charte "navy + or" — keep in sync with tailwind.config.js. */
+    --color-navy-950: #0a1128;
+    --color-navy-900: #0f1b3d;
+    --color-navy-800: #16254f;
+    --color-gold-50: #fdf6e3;
+    --color-gold-100: #fbebc0;
+    --color-gold-300: #f8da6a;
+    --color-gold-500: #e0a82e;
+    --color-gold-600: #d49533;
+    --color-gold-700: #9a6700;
+    --gradient-gold: linear-gradient(180deg, #f8da6a 0%, #d49533 100%);
+    --color-indigo-50: #eeebfc;
+    --color-indigo-500: #5b45d6;
+    --color-success: #16a34a;
+    --color-warning: #f59e0b;
+    --color-danger: #dc2626;
+    --color-whatsapp: #25d366;
+    --color-ui-bg: #f5f7fb;
+    --color-ui-border: #e5e9f2;
+    --color-ui-text: #0f172a;
+    --color-ui-muted: #64748b;
+    --radius-field: 12px;
+    --radius-card: 16px;
+    --radius-full: 9999px;
+    --shadow-card: 0 1px 2px rgba(15, 27, 61, 0.04), 0 4px 16px -4px rgba(15, 27, 61, 0.08);
+    --shadow-float: 0 2px 4px rgba(15, 27, 61, 0.06), 0 16px 40px -8px rgba(15, 27, 61, 0.18);
+    --font-heading: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
 }
 
 /*
