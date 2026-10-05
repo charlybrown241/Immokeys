@@ -20,9 +20,6 @@ export default function HomeSearchBar({ categories, quartiers }) {
                 .map(([key, value]) => [key, String(value).trim()])
                 .filter(([, value]) => value !== ''),
         );
-        // The search request validates max_price with "gte:min_price", which
-        // rejects a max without a min: send the slider's lower bound too.
-        if (query.max_price) query.min_price = '0';
         router.get(route('annonces.index'), query);
     };
 

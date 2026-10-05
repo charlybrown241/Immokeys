@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class AnnonceFilterRequest extends FormRequest
 {
@@ -17,6 +18,10 @@ class AnnonceFilterRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
+     * A max bound is only compared to its min bound when the min is given:
+     * "gte" fails against a missing field, which used to reject a lone
+     * max_price / max_surface.
+     *
      * @return array<string, mixed>
      */
     public function rules(): array
@@ -26,9 +31,9 @@ class AnnonceFilterRequest extends FormRequest
             'search' => ['nullable', 'string', 'max:150'],
             'category_id' => ['nullable', 'integer', 'exists:categories,id'],
             'min_price' => ['nullable', 'numeric', 'min:0'],
-            'max_price' => ['nullable', 'numeric', 'min:0', 'gte:min_price'],
+            'max_price' => ['nullable', 'numeric', 'min:0', Rule::when($this->filled('min_price'), 'gte:min_price')],
             'min_surface' => ['nullable', 'integer', 'min:0'],
-            'max_surface' => ['nullable', 'integer', 'min:0', 'gte:min_surface'],
+            'max_surface' => ['nullable', 'integer', 'min:0', Rule::when($this->filled('min_surface'), 'gte:min_surface')],
         ];
     }
 }

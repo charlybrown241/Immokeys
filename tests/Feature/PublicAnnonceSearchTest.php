@@ -115,6 +115,39 @@ class PublicAnnonceSearchTest extends TestCase
         );
     }
 
+    public function test_max_price_alone_filters_without_a_min_price(): void
+    {
+        $this->annonce(['title' => 'Trop cher', 'price' => 9000]);
+        $inBudget = $this->annonce(['title' => 'Dans le budget', 'price' => 3000]);
+
+        $response = $this->get('/annonces?max_price=5000');
+
+        $response->assertOk()->assertInertia(fn ($page) => $page
+            ->has('annonces.data', 1)
+            ->where('annonces.data.0.id', $inBudget->id)
+        );
+    }
+
+    public function test_max_surface_alone_filters_without_a_min_surface(): void
+    {
+        $this->annonce(['title' => 'Trop grand', 'surface' => 100]);
+        $small = $this->annonce(['title' => 'Petit', 'surface' => 20]);
+
+        $response = $this->get('/annonces?max_surface=50');
+
+        $response->assertOk()->assertInertia(fn ($page) => $page
+            ->has('annonces.data', 1)
+            ->where('annonces.data.0.id', $small->id)
+        );
+    }
+
+    public function test_an_inverted_range_is_still_rejected(): void
+    {
+        $this->from('/annonces')
+            ->get('/annonces?min_price=5000&max_price=1000&min_surface=50&max_surface=20')
+            ->assertSessionHasErrors(['max_price', 'max_surface']);
+    }
+
     public function test_surface_range_filter(): void
     {
         $this->annonce(['title' => 'Trop petit', 'surface' => 10]);
