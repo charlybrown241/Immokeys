@@ -73,6 +73,8 @@ class StudentDashboardTest extends TestCase
         $this->actingAs($student)->get('/mon-espace')->assertInertia(fn (Assert $page) => $page
             ->has('favorites', 2)
             ->where('favorites.0.id', $newer->id)
-            ->where('favorites.1.id', $older->id));
+            ->where('favorites.1.id', $older->id)
+            // The shared ids must not be shadowed by the page's cards.
+            ->has('favoriteIds', 3));
     }
 }

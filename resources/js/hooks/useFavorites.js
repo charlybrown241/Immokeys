@@ -2,7 +2,7 @@ import { router, usePage } from '@inertiajs/react';
 import { useCallback, useSyncExternalStore } from 'react';
 
 // Signed-in students: favourites live on the server (shared prop
-// "favorites", array of ids), toggled with an optimistic update.
+// "favoriteIds", array of ids), toggled with an optimistic update.
 // Everyone else: favourites are kept in this browser (localStorage) and
 // merged into the account at the student's next sign-in (FavoritesSync).
 
@@ -62,7 +62,7 @@ export function clearLocalFavorites() {
 }
 
 export default function useFavorites() {
-    const serverIds = usePage().props.favorites;
+    const serverIds = usePage().props.favoriteIds;
     const localIds = useSyncExternalStore(subscribe, readLocal, () => emptyIds);
     const optimistic = useSyncExternalStore(subscribe, readPending, () => emptyPending);
     const onServer = Array.isArray(serverIds);

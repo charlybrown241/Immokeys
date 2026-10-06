@@ -50,7 +50,7 @@ class HandleInertiaRequests extends Middleware
             ],
             // Ids of the signed-in student's favourites (null for others:
             // guests and other roles keep favourites in the browser).
-            'favorites' => fn () => $user?->role?->name === 'etudiant'
+            'favoriteIds' => fn () => $user?->role?->name === 'etudiant'
                 ? $user->favoriteAnnonces()->pluck('annonces.id')
                 : null,
             'notifications' => [

@@ -9,12 +9,12 @@ const MAX_SYNC = 50;
  * (as a guest) to the account, then forget the local copy. Renders nothing.
  */
 export default function FavoritesSync() {
-    const { favorites } = usePage().props;
-    const signedInStudent = Array.isArray(favorites);
+    const { favoriteIds } = usePage().props;
+    const signedInStudent = Array.isArray(favoriteIds);
 
     useEffect(() => {
         if (!signedInStudent) return;
-        const missing = localFavoriteIds().filter((id) => !favorites.includes(id));
+        const missing = localFavoriteIds().filter((id) => !favoriteIds.includes(id));
         clearLocalFavorites();
         if (missing.length) {
             router.put(route('favorites.sync'), { ids: missing.slice(0, MAX_SYNC) }, { preserveScroll: true, preserveState: true });

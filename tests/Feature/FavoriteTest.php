@@ -72,8 +72,8 @@ class FavoriteTest extends TestCase
         $student->favoriteAnnonces()->attach($annonce->id);
 
         // Guest first: actingAs() keeps the user for the following requests.
-        $this->get('/annonces')->assertInertia(fn (Assert $page) => $page->where('favorites', null));
+        $this->get('/annonces')->assertInertia(fn (Assert $page) => $page->where('favoriteIds', null));
         $this->actingAs($student)->get('/annonces')
-            ->assertInertia(fn (Assert $page) => $page->where('favorites', [$annonce->id]));
+            ->assertInertia(fn (Assert $page) => $page->where('favoriteIds', [$annonce->id]));
     }
 }
