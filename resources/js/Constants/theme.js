@@ -1,17 +1,17 @@
-// Recurring Tailwind class strings from the "Maquette pro" design, shared
-// so status badges look identical on every page.
+// Class strings shared by the pages not yet rebuilt on Components/ui
+// (Badge, Input...). Same tokens as the kit, so both look identical.
 
-const pill = 'inline-flex items-center gap-1 rounded-full font-semibold';
+const pill = 'inline-flex items-center gap-1 rounded-full font-semibold ring-1 ring-inset';
 
-export const badgeCertified = `${pill} bg-success-bg text-success-ink`;
+export const badgeSuccess = `${pill} bg-success-50 text-success-700 ring-success/20`;
 
-export const badgePending = `${pill} bg-pending-bg text-pending-ink`;
+export const badgeWarning = `${pill} bg-warning-50 text-warning-700 ring-warning/30`;
 
-export const badgeNeutral = `${pill} bg-line text-ink`;
+export const badgeNeutral = `${pill} bg-ui-bg text-ui-text ring-ui-border`;
 
-export const badgeDanger = `${pill} bg-red-100 text-red-800`;
+export const badgeDanger = `${pill} bg-danger-50 text-danger-700 ring-danger/20`;
 
-// Text inputs, selects and textareas: line border, 10px radius, greyed when
+// Text inputs, selects and textareas: 12px radius, gold focus, greyed when
 // disabled. Callers add layout classes (mt-1 block w-full...).
 export const inputClasses =
-    'rounded-input border-line px-[13px] py-[11px] text-sm text-ink placeholder:text-ink-soft focus:border-accent focus:ring-accent disabled:cursor-not-allowed disabled:bg-surface-muted disabled:text-ink-soft';
+    'rounded-field border-ui-border bg-white px-3.5 py-2.5 font-body text-sm text-ui-text placeholder:text-ui-muted focus:border-gold-600 focus:ring-gold-600/30 disabled:cursor-not-allowed disabled:bg-ui-bg disabled:text-ui-muted';

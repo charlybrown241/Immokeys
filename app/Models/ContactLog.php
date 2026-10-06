@@ -11,9 +11,13 @@ class ContactLog extends Model
 
     protected $table = 'contacts_logs';
 
+    /** Owner-side follow-up states, in workflow order. */
+    public const STATUSES = ['nouveau', 'traite', 'archive'];
+
     protected $fillable = [
         'user_id',
         'annonce_id',
+        'status',
     ];
 
     public function user(): BelongsTo

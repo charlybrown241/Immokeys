@@ -5,6 +5,7 @@ namespace Tests\Feature\Auth;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
@@ -15,7 +16,11 @@ class AuthenticationTest extends TestCase
     {
         $response = $this->get('/login');
 
-        $response->assertStatus(200);
+        $response->assertStatus(200)
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Auth/Login')
+                ->has('canResetPassword')
+                ->where('status', null));
     }
 
     public function test_users_can_authenticate_using_the_login_screen(): void
@@ -35,12 +40,16 @@ class AuthenticationTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $this->post('/login', [
+        $response = $this->from('/login')->post('/login', [
             'email' => $user->email,
             'password' => 'wrong-password',
         ]);
 
         $this->assertGuest();
+        $response->assertRedirect('/login')
+            ->assertSessionHasErrors(['email' => __('auth.failed')])
+            ->assertSessionDoesntHaveErrors('password');
+        $this->assertSame('Ces identifiants ne correspondent à aucun compte.', __('auth.failed'));
     }
 
     public function test_login_attempts_are_rate_limited_per_ip(): void

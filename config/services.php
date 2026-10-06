@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    // Platform contact shown in the public info bar (international format,
+    // digits only, e.g. 212600000000). Hidden when empty.
+    'immokeys' => [
+        'whatsapp' => env('IMMOKEYS_WHATSAPP_NUMBER'),
+    ],
+
 ];

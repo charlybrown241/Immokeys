@@ -1,8 +1,8 @@
 import Modal from '@/Components/Modal';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
-import { badgePending } from '@/Constants/theme';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { badgeWarning } from '@/Constants/theme';
+import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
@@ -27,37 +27,37 @@ function formatDate(value) {
  */
 function PlanCard({ plan, expiresAt, badge, benefits, action }) {
     return (
-        <div className="rounded-card bg-surface p-[22px] shadow-card">
+        <div className="rounded-card bg-white p-[22px] shadow-card">
             <div className="flex items-start justify-between gap-4">
                 <div>
-                    <span className="text-sm text-ink-soft">Statut actuel</span>
-                    <p className="mt-1 font-display text-3xl font-semibold text-ink">
+                    <span className="text-sm text-ui-muted">Statut actuel</span>
+                    <p className="mt-1 font-heading text-3xl font-semibold text-ui-text">
                         {plan}
                     </p>
                     {expiresAt && (
-                        <p className="mt-1 text-sm text-ink-soft">
+                        <p className="mt-1 text-sm text-ui-muted">
                             Valable jusqu'au {formatDate(expiresAt)}
                         </p>
                     )}
                 </div>
                 {badge && (
-                    <span className={`px-3 py-1 text-xs ${badgePending}`}>
+                    <span className={`px-3 py-1 text-xs ${badgeWarning}`}>
                         {badge}
                     </span>
                 )}
             </div>
 
             {(benefits || action) && (
-                <div className="mt-5 border-t border-line pt-5">
+                <div className="mt-5 border-t border-ui-border pt-5">
                     {benefits && (
-                        <ul className="space-y-2.5 text-sm text-ink">
+                        <ul className="space-y-2.5 text-sm text-ui-text">
                             {benefits.map((benefit) => (
                                 <li
                                     key={benefit}
                                     className="flex items-center gap-2.5"
                                 >
                                     <svg
-                                        className="h-4 w-4 shrink-0 text-accent"
+                                        className="h-4 w-4 shrink-0 text-gold-700"
                                         fill="none"
                                         stroke="currentColor"
                                         strokeWidth="3"
@@ -106,9 +106,9 @@ export default function Show({ subscription }) {
     };
 
     return (
-        <AuthenticatedLayout
+        <DashboardLayout
             header={
-                <h2 className="font-display text-2xl font-semibold leading-tight text-ink">
+                <h2 className="font-heading text-2xl font-semibold leading-tight text-ui-text">
                     Mon abonnement
                 </h2>
             }
@@ -118,7 +118,7 @@ export default function Show({ subscription }) {
             <div className="py-10">
                 <div className="mx-auto max-w-md space-y-4 px-4">
                     {flash?.success && (
-                        <div className="rounded-input bg-success-bg p-4 text-sm text-success-ink">
+                        <div className="rounded-field bg-success-50 p-4 text-sm text-success-700">
                             {flash.success}
                         </div>
                     )}
@@ -169,13 +169,13 @@ export default function Show({ subscription }) {
                 onClose={() => setConfirming(false)}
             >
                 <div className="p-6">
-                    <h2 className="font-display text-lg font-semibold text-ink">
+                    <h2 className="font-heading text-lg font-semibold text-ui-text">
                         {isEtudiant
                             ? "Passer à l'abonnement Premium"
                             : "Renouveler l'abonnement Pro"}
                     </h2>
 
-                    <div className="mt-4 rounded-input bg-pending-bg p-4 text-sm text-pending-ink">
+                    <div className="mt-4 rounded-field bg-warning-50 p-4 text-sm text-warning-700">
                         Paiement simulé à des fins pédagogiques — aucune
                         transaction réelle n'est effectuée.
                     </div>
@@ -195,6 +195,6 @@ export default function Show({ subscription }) {
                     </div>
                 </div>
             </Modal>
-        </AuthenticatedLayout>
+        </DashboardLayout>
     );
 }

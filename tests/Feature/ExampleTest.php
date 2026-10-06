@@ -11,11 +11,11 @@ class ExampleTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_a_guest_visiting_the_root_url_is_redirected_to_the_public_search_page(): void
+    public function test_a_guest_visiting_the_root_url_sees_the_home_page(): void
     {
         $response = $this->get('/');
 
-        $response->assertRedirect(route('annonces.index'));
+        $response->assertOk();
     }
 
     public function test_an_authenticated_user_visiting_the_root_url_is_redirected_to_their_role_home(): void

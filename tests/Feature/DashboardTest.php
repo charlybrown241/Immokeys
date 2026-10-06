@@ -48,34 +48,60 @@ class DashboardTest extends TestCase
             'role_id' => Role::where('name', 'etudiant')->firstOrFail()->id,
         ]);
 
-        // Owner's annonces: 1 en_attente, 1 disponible, 2 loue.
-        $this->annonceFor($owner, ['status' => 'en_attente', 'price' => 1000]);
-        $this->annonceFor($owner, ['status' => 'disponible', 'price' => 2000]);
-        $loue1 = $this->annonceFor($owner, ['status' => 'loue', 'price' => 3000]);
-        $loue2 = $this->annonceFor($owner, ['status' => 'loue', 'price' => 4500]);
+        // Owner's annonces: 1 en_attente, 1 disponible, 2 loue, 1 suspended.
+        $this->annonceFor($owner, ['status' => 'en_attente', 'views_count' => 5]);
+        $this->annonceFor($owner, ['status' => 'disponible', 'views_count' => 40]);
+        $loue1 = $this->annonceFor($owner, ['status' => 'loue', 'views_count' => 10]);
+        $loue2 = $this->annonceFor($owner, ['status' => 'loue']);
+        $this->annonceFor($owner, ['status' => 'disponible', 'is_suspended' => true]);
 
-        // Recent + old contact logs on the owner's annonces.
         // "created_at" isn't mass-assignable, so forceCreate() to backdate it.
         ContactLog::forceCreate(['user_id' => $student->id, 'annonce_id' => $loue1->id, 'created_at' => now()->subDays(2)]);
         ContactLog::forceCreate(['user_id' => $student->id, 'annonce_id' => $loue2->id, 'created_at' => now()->subDays(10)]);
+        ContactLog::forceCreate(['user_id' => $student->id, 'annonce_id' => $loue2->id, 'created_at' => now()->subDays(45)]);
 
         // Another owner's data must never leak into these stats.
-        $otherAnnonce = $this->annonceFor($other, ['status' => 'loue', 'price' => 9999]);
+        $otherAnnonce = $this->annonceFor($other, ['status' => 'loue', 'views_count' => 999]);
         ContactLog::create(['user_id' => $student->id, 'annonce_id' => $otherAnnonce->id]);
 
         $response = $this->actingAs($owner)->get('/dashboard');
 
         $response->assertOk();
         $response->assertInertia(fn ($page) => $page
-            ->where('stats.activeAnnoncesCount', 3) // disponible + 2 loue
-            ->where('stats.occupancyRate', 67) // round(2/3 * 100)
-            ->where('stats.newLeadsCount', 1) // only the 2-day-old log
-            ->where('stats.monthlyRevenue', 7500) // 3000 + 4500
-            ->has('annonces', 4)
+            ->component('Dashboard')
+            ->where('stats.activeAnnoncesCount', 1) // disponible and not suspended
+            ->where('stats.contactsCount', 3)
+            ->where('stats.contactsLast30', 2)
+            ->where('stats.contactsDelta', 100) // 2 vs 1 over the previous 30 days
+            ->where('stats.viewsTotal', 55)
+            ->where('annoncesByStatus.disponible', 1)
+            ->where('annoncesByStatus.loue', 2)
+            ->where('annoncesByStatus.en_attente', 1)
+            ->where('annoncesByStatus.suspendue', 1)
+            ->has('contactsSeries', 90)
         );
     }
 
-    public function test_registry_exposes_main_photo_views_and_leads_count(): void
+    public function test_contacts_series_counts_contacts_per_day(): void
+    {
+        $owner = $this->verifiedProprietaire();
+        $student = User::factory()->create([
+            'role_id' => Role::where('name', 'etudiant')->firstOrFail()->id,
+        ]);
+        $annonce = $this->annonceFor($owner, ['status' => 'disponible']);
+        ContactLog::forceCreate(['user_id' => $student->id, 'annonce_id' => $annonce->id, 'created_at' => now()->subDays(3)]);
+        ContactLog::forceCreate(['user_id' => $student->id, 'annonce_id' => $annonce->id, 'created_at' => now()->subDays(3)]);
+        ContactLog::create(['user_id' => $student->id, 'annonce_id' => $annonce->id]);
+
+        $this->actingAs($owner)->get('/dashboard')->assertInertia(fn ($page) => $page
+            ->where('contactsSeries.89.date', now()->toDateString())
+            ->where('contactsSeries.89.count', 1)
+            ->where('contactsSeries.86.date', now()->subDays(3)->toDateString())
+            ->where('contactsSeries.86.count', 2)
+            ->where('contactsSeries.0.count', 0));
+    }
+
+    public function test_recent_contacts_and_top_viewed_annonces(): void
     {
         $owner = $this->verifiedProprietaire();
         $student = User::factory()->create([
@@ -83,19 +109,22 @@ class DashboardTest extends TestCase
             'name' => 'Amine Etudiant',
         ]);
 
-        $annonce = $this->annonceFor($owner, ['views_count' => 42]);
-        Photo::create(['annonce_id' => $annonce->id, 'path' => 'annonces/second.jpg', 'ordre' => 1]);
-        Photo::create(['annonce_id' => $annonce->id, 'path' => 'annonces/first.jpg', 'ordre' => 0]);
-        ContactLog::create(['user_id' => $student->id, 'annonce_id' => $annonce->id]);
+        $popular = $this->annonceFor($owner, ['title' => 'Populaire', 'views_count' => 42]);
+        $this->annonceFor($owner, ['title' => 'Discrete', 'views_count' => 3]);
+        ContactLog::forceCreate(['user_id' => $student->id, 'annonce_id' => $popular->id, 'created_at' => now()->subDays(20), 'status' => 'traite']);
+        ContactLog::forceCreate(['user_id' => $student->id, 'annonce_id' => $popular->id, 'created_at' => now()->subDays(30), 'status' => 'archive']);
+        ContactLog::create(['user_id' => $student->id, 'annonce_id' => $popular->id]);
 
-        $response = $this->actingAs($owner)->get('/dashboard');
-
-        $response->assertInertia(fn ($page) => $page
-            ->where('annonces.0.views_count', 42)
-            ->where('annonces.0.contact_logs_count', 1)
-            ->where('annonces.0.main_photo.path', 'annonces/first.jpg')
-            ->where('annonces.0.contact_logs.0.user.name', 'Amine Etudiant')
-        );
+        $this->actingAs($owner)->get('/dashboard')->assertInertia(fn ($page) => $page
+            ->has('recentContacts', 2)
+            ->where('recentContacts.0.student', 'Amine Etudiant')
+            ->where('recentContacts.0.annonce.title', 'Populaire')
+            ->where('recentContacts.0.status', 'nouveau')
+            ->where('recentContacts.1.status', 'traite')
+            ->where('topViewed.0.title', 'Populaire')
+            ->where('topViewed.0.views_count', 42)
+            ->where('topViewed.0.contacts_count', 3) // archived contacts still count
+            ->where('topViewed.1.title', 'Discrete'));
     }
 
     public function test_dashboard_query_count_does_not_grow_with_the_number_of_annonces(): void

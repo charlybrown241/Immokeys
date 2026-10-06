@@ -1,3 +1,9 @@
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+import '@fontsource/inter/600.css';
+import '@fontsource/inter/700.css';
+import '@fontsource/plus-jakarta-sans/700.css';
+import '@fontsource/plus-jakarta-sans/800.css';
 import '../css/app.css';
 import './bootstrap';
 
@@ -20,6 +26,7 @@ createInertiaApp({
         root.render(<App {...props} />);
     },
     progress: {
-        color: '#4B5563',
+        // Gold progress bar (gold-600) under the navy/white bars.
+        color: '#D49533',
     },
 });

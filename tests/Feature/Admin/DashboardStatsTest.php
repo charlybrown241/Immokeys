@@ -4,6 +4,7 @@ namespace Tests\Feature\Admin;
 
 use App\Models\Annonce;
 use App\Models\Category;
+use App\Models\Certification;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -50,6 +51,32 @@ class DashboardStatsTest extends TestCase
             ->where('stats.usersByRole.proprietaire', 2) // 1 seeded + 1 created
             ->where('stats.usersByRole.admin', 2) // 1 seeded + this test's admin
             ->where('stats.pendingCertificationsCount', 0)
+            ->where('stats.usersCount', 7)
         );
+    }
+
+    public function test_dashboard_lists_the_certification_queue_pending_first_and_moderation(): void
+    {
+        $admin = $this->admin();
+        $proprietaire = Role::where('name', 'proprietaire')->firstOrFail()->id;
+
+        $approved = User::factory()->create(['role_id' => $proprietaire]);
+        Certification::create(['user_id' => $approved->id, 'document_path' => 'certifications/a.pdf', 'status' => 'approuve']);
+        $pending = User::factory()->create(['role_id' => $proprietaire, 'name' => 'Karim Benali']);
+        Certification::create(['user_id' => $pending->id, 'document_path' => 'certifications/b.pdf', 'status' => 'en_attente']);
+
+        Annonce::factory()->pending()->create();
+        Annonce::factory()->create(['is_suspended' => true]);
+
+        $this->actingAs($admin)->get('/admin/dashboard')->assertInertia(fn ($page) => $page
+            ->where('stats.pendingCertificationsCount', 1)
+            ->where('stats.pendingAnnoncesCount', 1)
+            ->where('stats.suspendedAnnoncesCount', 1)
+            ->has('certifications', 2)
+            ->where('certifications.0.status', 'en_attente')
+            ->where('certifications.0.user.name', 'Karim Benali')
+            ->where('certifications.1.status', 'approuve')
+            ->has('annonces', 2)
+            ->has('annonces.0.owner'));
     }
 }

@@ -115,6 +115,74 @@ class PublicAnnonceSearchTest extends TestCase
         );
     }
 
+    public function test_max_price_alone_filters_without_a_min_price(): void
+    {
+        $this->annonce(['title' => 'Trop cher', 'price' => 9000]);
+        $inBudget = $this->annonce(['title' => 'Dans le budget', 'price' => 3000]);
+
+        $response = $this->get('/annonces?max_price=5000');
+
+        $response->assertOk()->assertInertia(fn ($page) => $page
+            ->has('annonces.data', 1)
+            ->where('annonces.data.0.id', $inBudget->id)
+        );
+    }
+
+    public function test_max_surface_alone_filters_without_a_min_surface(): void
+    {
+        $this->annonce(['title' => 'Trop grand', 'surface' => 100]);
+        $small = $this->annonce(['title' => 'Petit', 'surface' => 20]);
+
+        $response = $this->get('/annonces?max_surface=50');
+
+        $response->assertOk()->assertInertia(fn ($page) => $page
+            ->has('annonces.data', 1)
+            ->where('annonces.data.0.id', $small->id)
+        );
+    }
+
+    public function test_results_can_be_sorted(): void
+    {
+        $mid = $this->annonce(['title' => 'Moyen', 'price' => 3000, 'surface' => 40]);
+        $cheap = $this->annonce(['title' => 'Pas cher', 'price' => 1500, 'surface' => 15]);
+        $expensive = $this->annonce(['title' => 'Cher', 'price' => 6000, 'surface' => 25]);
+
+        $this->get('/annonces?sort=price_asc')->assertInertia(fn ($page) => $page
+            ->where('annonces.data.0.id', $cheap->id)
+            ->where('annonces.data.2.id', $expensive->id));
+
+        $this->get('/annonces?sort=price_desc')->assertInertia(fn ($page) => $page
+            ->where('annonces.data.0.id', $expensive->id)
+            ->where('annonces.data.2.id', $cheap->id));
+
+        $this->get('/annonces?sort=surface_desc')->assertInertia(fn ($page) => $page
+            ->where('annonces.data.0.id', $mid->id)
+            ->where('annonces.data.2.id', $cheap->id));
+    }
+
+    public function test_an_unknown_sort_is_rejected(): void
+    {
+        $this->from('/annonces')
+            ->get('/annonces?sort=views')
+            ->assertSessionHasErrors('sort');
+    }
+
+    public function test_result_cards_carry_the_whatsapp_contact_state(): void
+    {
+        $this->annonce();
+
+        $this->get('/annonces')->assertInertia(fn ($page) => $page
+            ->where('annonces.data.0.whatsapp_contact.status', 'guest')
+            ->has('annonces.data.0.is_new'));
+    }
+
+    public function test_an_inverted_range_is_still_rejected(): void
+    {
+        $this->from('/annonces')
+            ->get('/annonces?min_price=5000&max_price=1000&min_surface=50&max_surface=20')
+            ->assertSessionHasErrors(['max_price', 'max_surface']);
+    }
+
     public function test_surface_range_filter(): void
     {
         $this->annonce(['title' => 'Trop petit', 'surface' => 10]);
@@ -161,12 +229,16 @@ class PublicAnnonceSearchTest extends TestCase
     public function test_results_are_paginated_by_12_and_sorted_by_most_recent(): void
     {
         $first = $this->annonce(['title' => 'Ancienne']);
-        sleep(1);
         $second = $this->annonce(['title' => 'Recente']);
 
         for ($i = 0; $i < 11; $i++) {
             $this->annonce();
         }
+
+        // Explicit timestamps: relying on sleep() made the order flaky when
+        // the loop above crossed a second boundary.
+        $first->forceFill(['created_at' => now()->subDay()])->save();
+        $second->forceFill(['created_at' => now()->addMinute()])->save();
 
         $response = $this->get('/annonces');
 

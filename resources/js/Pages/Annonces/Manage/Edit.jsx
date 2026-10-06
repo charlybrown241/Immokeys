@@ -3,7 +3,7 @@ import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import { inputClasses } from '@/Constants/theme';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 
 const STATUS_OPTIONS = [
@@ -30,9 +30,9 @@ export default function Edit({ annonce, categories }) {
     };
 
     return (
-        <AuthenticatedLayout
+        <DashboardLayout
             header={
-                <h2 className="font-display text-2xl font-semibold leading-tight text-ink">
+                <h2 className="font-heading text-2xl font-semibold leading-tight text-ui-text">
                     Modifier l'annonce
                 </h2>
             }
@@ -41,13 +41,13 @@ export default function Edit({ annonce, categories }) {
 
             <div className="py-10">
                 <div className="mx-auto max-w-3xl px-4 md:px-7">
-                    <div className="rounded-card bg-surface p-6 shadow-card sm:p-8">
+                    <div className="rounded-card bg-white p-6 shadow-card sm:p-8">
                         {annonce.photos?.length > 0 && (
                             <div className="mb-6">
-                                <p className="text-sm font-semibold text-ink">
+                                <p className="text-sm font-semibold text-ui-text">
                                     Photos
                                 </p>
-                                <p className="mt-0.5 text-xs text-ink-soft">
+                                <p className="mt-0.5 text-xs text-ui-muted">
                                     Les photos ne peuvent pas encore être
                                     modifiées après la publication.
                                 </p>
@@ -57,7 +57,7 @@ export default function Edit({ annonce, categories }) {
                                             key={photo.id}
                                             src={`/storage/${photo.path}`}
                                             alt=""
-                                            className="aspect-square w-full rounded-lg object-cover"
+                                            className="aspect-square w-full rounded-field object-cover"
                                         />
                                     ))}
                                 </div>
@@ -225,10 +225,10 @@ export default function Edit({ annonce, categories }) {
                                 />
                             </div>
 
-                            <div className="flex items-center gap-3 border-t border-line pt-6 sm:justify-between">
+                            <div className="flex items-center gap-3 border-t border-ui-border pt-6 sm:justify-between">
                                 <Link
                                     href={route('annonces.mine')}
-                                    className="inline-flex min-h-10 flex-1 items-center justify-center rounded-input border border-line px-5 py-2.5 text-sm font-semibold text-ink transition hover:border-ink/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 sm:flex-none"
+                                    className="inline-flex min-h-10 flex-1 items-center justify-center rounded-field border border-ui-border px-5 py-2.5 text-sm font-semibold text-ui-text transition hover:border-ui-text/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-600 focus-visible:ring-offset-2 sm:flex-none"
                                 >
                                     Annuler
                                 </Link>
@@ -243,6 +243,6 @@ export default function Edit({ annonce, categories }) {
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </DashboardLayout>
     );
 }

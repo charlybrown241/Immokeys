@@ -69,6 +69,19 @@ class Annonce extends Model
     }
 
     /**
+     * A landlord is shown as certified once their identity is verified
+     * and they hold an active (non-expired) "pro" subscription.
+     */
+    public function ownerIsCertifiedPro(): bool
+    {
+        $subscription = $this->user?->subscription;
+
+        return (bool) $this->user?->is_verified
+            && $subscription?->type === 'pro'
+            && $subscription->isActive();
+    }
+
+    /**
      * Apply the public search engine's combinable filters (city, free-text
      * search on quartier/title, category, price range, surface range).
      * Extracted onto the model so it can be unit-tested independently of

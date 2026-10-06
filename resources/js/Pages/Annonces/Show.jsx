@@ -1,275 +1,121 @@
 import AdBanner from '@/Components/AdBanner';
-import { initials } from '@/Components/PublicNavbar';
-import { badgeCertified } from '@/Constants/theme';
+import ListingCard from '@/Components/ListingCard';
+import OwnerCard from '@/Components/listings/OwnerCard';
+import PhotoGallery from '@/Components/listings/PhotoGallery';
+import { Badge, cx, focusRing } from '@/Components/ui';
 import PublicLayout from '@/Layouts/PublicLayout';
 import { Head, Link } from '@inertiajs/react';
-import { useState } from 'react';
-
-function WhatsappIcon() {
-    return (
-        <svg
-            className="h-5 w-5"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-        >
-            <path d="M21 11.5a8.5 8.5 0 0 1-12.3 7.6L4 20l1.1-4.5A8.5 8.5 0 1 1 21 11.5Z" />
-            <path d="M8.5 10.5c0 3 2.5 5.5 5.5 5.5" />
-        </svg>
-    );
-}
-
-const WHATSAPP_UNAVAILABLE_MESSAGES = {
-    wrong_role:
-        'Seuls les étudiants peuvent contacter les propriétaires via WhatsApp.',
-    missing_phone:
-        "Le propriétaire n'a pas encore renseigné de numéro de téléphone.",
-    unavailable: "Cette annonce n'est plus disponible.",
-};
-
-function WhatsappButton({ contact }) {
-    const buttonClasses =
-        'flex w-full items-center justify-center gap-2 rounded-[12px] px-5 py-3 text-sm font-bold text-accent-ink';
-    const enabledClasses =
-        'bg-accent-strong transition hover:bg-terracotta-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-terracotta-300 focus-visible:ring-offset-2';
-
-    if (contact.status === 'ready') {
-        return (
-            <a
-                href={contact.url}
-                className={`${buttonClasses} ${enabledClasses}`}
-            >
-                <WhatsappIcon />
-                Contacter sur WhatsApp
-            </a>
-        );
-    }
-
-    if (contact.status === 'guest') {
-        return (
-            <Link
-                href={`${route('login')}?reason=contact-whatsapp`}
-                className={`${buttonClasses} ${enabledClasses}`}
-            >
-                <WhatsappIcon />
-                Contacter sur WhatsApp
-            </Link>
-        );
-    }
-
-    return (
-        <div>
-            <button
-                type="button"
-                disabled
-                className={`${buttonClasses} cursor-not-allowed bg-accent/50`}
-            >
-                <WhatsappIcon />
-                Contacter sur WhatsApp
-            </button>
-            <p className="mt-2 text-xs text-ink-soft">
-                {WHATSAPP_UNAVAILABLE_MESSAGES[contact.status]}
-            </p>
-        </div>
-    );
-}
+import { ArrowLeft, BadgeCheck, CalendarDays, CircleCheck, House, MapPin, Maximize2 } from 'lucide-react';
 
 const STATUS_LABELS = {
     disponible: 'Disponible',
-    loue: 'Loué',
+    loue: 'Déjà loué',
 };
 
-function CheckIcon({ className = 'h-3.5 w-3.5' }) {
-    return (
-        <svg
-            className={className}
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-        >
-            <path d="m5 12 5 5L20 7" />
-        </svg>
-    );
+function formatDate(value) {
+    return value ? new Date(value).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : null;
 }
 
-export default function Show({ annonce }) {
-    const [activePhoto, setActivePhoto] = useState(0);
-    const photos = annonce.photos ?? [];
-    const mainPhoto = photos[activePhoto] ?? null;
-
+export default function Show({ annonce, similar }) {
     const features = [
-        ['Surface', annonce.surface ? `${annonce.surface} m²` : '—'],
-        ['Type', annonce.category?.name ?? '—'],
-        ['Quartier', annonce.quartier],
-        ['Disponibilité', STATUS_LABELS[annonce.status] ?? '—'],
-    ];
+        { icon: Maximize2, label: 'Surface', value: annonce.surface ? `${annonce.surface} m²` : null },
+        { icon: House, label: 'Type', value: annonce.category?.name },
+        { icon: MapPin, label: 'Quartier', value: annonce.quartier },
+        { icon: CircleCheck, label: 'Statut', value: STATUS_LABELS[annonce.status] },
+        { icon: CalendarDays, label: 'Publiée le', value: formatDate(annonce.published_at) },
+    ].filter((feature) => feature.value);
 
     return (
         <PublicLayout>
             <Head title={annonce.title} />
 
-            <div className="mx-auto max-w-7xl px-4 pb-16 pt-8 md:px-7 sm:pt-10">
+            <div className="mx-auto max-w-7xl px-4 pb-20 pt-8 md:px-7">
                 <Link
                     href={route('annonces.index')}
-                    className="text-sm font-semibold text-ink-soft transition hover:text-ink"
+                    className={cx('inline-flex items-center gap-1.5 rounded-md text-sm font-semibold text-ui-muted hover:text-navy-900', focusRing)}
                 >
-                    ← Retour aux annonces
+                    <ArrowLeft size={16} aria-hidden="true" />
+                    Retour aux logements
                 </Link>
 
-                <div className="mt-4">
-                    <AdBanner />
-                </div>
+                <AdBanner className="mt-4" />
 
-                {/* DOM order is gallery, summary card, details so phones see the
-                    price and contact button right after the photos; on desktop
-                    the card moves to a sticky right column spanning both rows. */}
-                <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:grid-rows-[auto_1fr]">
+                {/* DOM order: gallery, owner card, details, so phones see the
+                    price and the contact button right after the photos. On
+                    desktop the card is a sticky right column over both rows. */}
+                <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:grid-rows-[auto_1fr]">
                     <div className="min-w-0 lg:col-start-1 lg:row-start-1">
-                        <div className="relative aspect-[16/10] w-full overflow-hidden rounded-[14px] bg-gradient-to-br from-line to-pending-bg">
-                            {mainPhoto ? (
-                                <img
-                                    src={`/storage/${mainPhoto.path}`}
-                                    alt={annonce.title}
-                                    className="h-full w-full object-cover"
-                                />
-                            ) : (
-                                <div className="flex h-full items-center justify-center text-sm text-ink-soft">
-                                    Aucune photo disponible
-                                </div>
-                            )}
-
-                            {annonce.is_certified_pro && (
-                                <span
-                                    className={`absolute left-3 top-3 px-2.5 py-1 text-xs ${badgeCertified}`}
-                                >
-                                    <CheckIcon className="h-3 w-3" />
-                                    Certifié Pro
-                                </span>
-                            )}
-                        </div>
-
-                        {photos.length > 1 && (
-                            <div className="mt-3 grid grid-cols-4 gap-3">
-                                {photos.map((photo, index) => (
-                                    <button
-                                        key={photo.id}
-                                        type="button"
-                                        onClick={() => setActivePhoto(index)}
-                                        aria-label={`Photo ${index + 1}`}
-                                        aria-pressed={index === activePhoto}
-                                        className={`aspect-square overflow-hidden rounded-lg ring-2 ring-offset-2 ring-offset-bg transition focus:outline-none focus-visible:ring-accent ${
-                                            index === activePhoto
-                                                ? 'ring-accent'
-                                                : 'ring-transparent hover:opacity-90'
-                                        }`}
-                                    >
-                                        <img
-                                            src={`/storage/${photo.path}`}
-                                            alt=""
-                                            className="h-full w-full object-cover"
-                                        />
-                                    </button>
-                                ))}
+                        <PhotoGallery photos={annonce.photos ?? []} title={annonce.title}>
+                            <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
+                                {annonce.is_certified_pro && (
+                                    <Badge variant="brand" size="md" icon={BadgeCheck}>
+                                        Certifié
+                                    </Badge>
+                                )}
+                                {annonce.status === 'loue' && (
+                                    <Badge variant="navy" size="md">
+                                        Déjà loué
+                                    </Badge>
+                                )}
                             </div>
-                        )}
-                    </div>
+                        </PhotoGallery>
 
-                    <aside className="self-start rounded-card bg-surface p-[22px] shadow-card lg:sticky lg:top-6 lg:col-start-2 lg:row-span-2 lg:row-start-1">
-                        <h1 className="font-display text-2xl font-semibold leading-tight text-ink">
+                        <h1 className="mt-6 font-heading text-3xl font-extrabold tracking-tight text-navy-900 sm:text-4xl">
                             {annonce.title}
                         </h1>
-                        <p className="mt-1 text-sm text-ink-soft">
+                        <p className="mt-2 inline-flex items-center gap-1.5 text-ui-muted">
+                            <MapPin size={18} aria-hidden="true" />
                             {annonce.quartier}, {annonce.city}
                         </p>
+                    </div>
 
-                        <p className="mt-4 text-[1.5rem] font-bold text-accent">
-                            {Number(annonce.price).toLocaleString('fr-FR')} MAD
-                            <span className="text-sm font-medium text-ink-soft">
-                                {' '}
-                                /mois
-                            </span>
-                        </p>
-
-                        <div className="mt-5 flex items-center gap-3 border-y border-line py-4">
-                            <span
-                                aria-hidden="true"
-                                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-navbar text-sm font-bold text-navbar-ink"
-                            >
-                                {annonce.owner_name ? (
-                                    initials(annonce.owner_name)
-                                ) : (
-                                    <svg
-                                        className="h-5 w-5"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="1.8"
-                                        strokeLinecap="round"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <circle cx="12" cy="8" r="4" />
-                                        <path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6" />
-                                    </svg>
-                                )}
-                            </span>
-                            <div>
-                                <p className="text-sm font-semibold text-ink">
-                                    {annonce.owner_name ?? 'Propriétaire'}
-                                </p>
-                                {annonce.is_certified_pro ? (
-                                    <p className="flex items-center gap-1 text-xs font-semibold text-success-ink">
-                                        <CheckIcon />
-                                        Propriétaire certifié
-                                    </p>
-                                ) : (
-                                    <p className="text-xs text-ink-soft">
-                                        Particulier
-                                    </p>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="mt-5">
-                            <WhatsappButton
-                                contact={annonce.whatsapp_contact}
-                            />
-                        </div>
+                    <aside aria-label="Contact" className="self-start lg:sticky lg:top-24 lg:col-start-2 lg:row-span-2 lg:row-start-1">
+                        <OwnerCard annonce={annonce} />
                     </aside>
 
-                    <div className="min-w-0 lg:col-start-1 lg:row-start-2">
-                        <section>
-                            <h2 className="font-display text-base font-semibold text-ink">
-                                Description
+                    <div className="min-w-0 space-y-10 lg:col-start-1 lg:row-start-2">
+                        <section aria-labelledby="caracteristiques">
+                            <h2 id="caracteristiques" className="font-heading text-xl font-bold text-navy-900">
+                                Caractéristiques
                             </h2>
-                            <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-ink/80">
-                                {annonce.description}
-                            </p>
+                            <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                                {features.map(({ icon: Icon, label, value }) => (
+                                    <li key={label} className="flex items-center gap-3 rounded-card border border-ui-border bg-white p-3.5">
+                                        <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-field bg-gold-50 text-gold-700">
+                                            <Icon size={20} aria-hidden="true" />
+                                        </span>
+                                        <p className="min-w-0">
+                                            <span className="block text-xs text-ui-muted">{label}</span>
+                                            <span className="block text-sm font-semibold text-ui-text">{value}</span>
+                                        </p>
+                                    </li>
+                                ))}
+                            </ul>
                         </section>
 
-                        <dl className="mt-8 grid grid-cols-1 gap-x-8 sm:grid-cols-2">
-                            {features.map(([label, value]) => (
-                                <div
-                                    key={label}
-                                    className="flex items-baseline justify-between gap-4 border-b border-dotted border-ink-soft/40 py-3"
-                                >
-                                    <dt className="text-sm text-ink-soft">
-                                        {label}
-                                    </dt>
-                                    <dd className="text-sm font-bold text-ink">
-                                        {value}
-                                    </dd>
-                                </div>
-                            ))}
-                        </dl>
+                        <section aria-labelledby="description">
+                            <h2 id="description" className="font-heading text-xl font-bold text-navy-900">
+                                Description
+                            </h2>
+                            <p className="mt-3 whitespace-pre-line leading-relaxed text-ui-text">{annonce.description}</p>
+                        </section>
                     </div>
                 </div>
+
+                {similar.length > 0 && (
+                    <section aria-labelledby="similaires" className="mt-20">
+                        <h2 id="similaires" className="font-heading text-2xl font-extrabold tracking-tight text-navy-900">
+                            Annonces similaires
+                        </h2>
+                        <ul className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                            {similar.map((item) => (
+                                <li key={item.id}>
+                                    <ListingCard annonce={item} />
+                                </li>
+                            ))}
+                        </ul>
+                    </section>
+                )}
             </div>
         </PublicLayout>
     );

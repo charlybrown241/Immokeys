@@ -47,11 +47,11 @@ export default function UpdatePasswordForm({ className = '' }) {
     return (
         <section className={className}>
             <header>
-                <h2 className="font-display text-lg font-semibold text-ink">
+                <h2 className="font-heading text-lg font-semibold text-ui-text">
                     Mot de passe
                 </h2>
 
-                <p className="mt-1 text-sm text-ink-soft">
+                <p className="mt-1 text-sm text-ui-muted">
                     Choisissez un mot de passe long et unique pour protéger
                     votre compte.
                 </p>
@@ -131,7 +131,7 @@ export default function UpdatePasswordForm({ className = '' }) {
                         leave="transition ease-in-out"
                         leaveTo="opacity-0"
                     >
-                        <p className="text-sm text-success-ink">
+                        <p className="text-sm text-success-700">
                             Enregistré.
                         </p>
                     </Transition>

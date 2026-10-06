@@ -6,10 +6,7 @@
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&display=swap" rel="stylesheet" />
+        <meta name="theme-color" content="#0F1B3D">
 
         <!-- Scripts -->
         @routes
@@ -17,7 +14,7 @@
         @vite(['resources/js/app.jsx', "resources/js/Pages/{$page['component']}.jsx"])
         @inertiaHead
     </head>
-    <body class="bg-bg font-sans text-ink antialiased">
+    <body class="bg-ui-bg font-body text-ui-text antialiased">
         @inertia
     </body>
 </html>

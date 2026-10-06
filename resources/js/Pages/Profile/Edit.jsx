@@ -1,4 +1,4 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head } from '@inertiajs/react';
 import DeleteUserForm from './Partials/DeleteUserForm';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm';
@@ -6,9 +6,9 @@ import UpdateProfileInformationForm from './Partials/UpdateProfileInformationFor
 
 export default function Edit({ mustVerifyEmail, status }) {
     return (
-        <AuthenticatedLayout
+        <DashboardLayout
             header={
-                <h2 className="font-display text-2xl font-semibold leading-tight text-ink">
+                <h2 className="font-heading text-2xl font-semibold leading-tight text-ui-text">
                     Mon profil
                 </h2>
             }
@@ -17,7 +17,7 @@ export default function Edit({ mustVerifyEmail, status }) {
 
             <div className="py-10">
                 <div className="mx-auto max-w-3xl space-y-6 px-4 md:px-7">
-                    <div className="rounded-card bg-surface p-5 shadow-card sm:p-8">
+                    <div className="rounded-card bg-white p-5 shadow-card sm:p-8">
                         <UpdateProfileInformationForm
                             mustVerifyEmail={mustVerifyEmail}
                             status={status}
@@ -25,15 +25,15 @@ export default function Edit({ mustVerifyEmail, status }) {
                         />
                     </div>
 
-                    <div className="rounded-card bg-surface p-5 shadow-card sm:p-8">
+                    <div className="rounded-card bg-white p-5 shadow-card sm:p-8">
                         <UpdatePasswordForm className="max-w-xl" />
                     </div>
 
-                    <div className="rounded-card border border-red-200 bg-surface p-5 shadow-card sm:p-8">
+                    <div className="rounded-card border border-danger bg-white p-5 shadow-card sm:p-8">
                         <DeleteUserForm className="max-w-xl" />
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </DashboardLayout>
     );
 }
