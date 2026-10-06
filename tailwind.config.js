@@ -21,8 +21,8 @@ export default {
                 heading: ['"Plus Jakarta Sans"', ...defaultTheme.fontFamily.sans],
                 body: ['Inter', ...defaultTheme.fontFamily.sans],
             },
-            // "Maquette pro" design tokens — mirrored as CSS custom properties
-            // in app.css for the few rules written outside Tailwind (price slider).
+            // "Maquette pro" design tokens (terracotta), still used by the pages
+            // not yet migrated to the navy + gold kit.
             colors: {
                 bg: '#FAF6EF',
                 surface: '#FFFFFF',

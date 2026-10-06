@@ -53,11 +53,13 @@ class AnnonceDetailTest extends TestCase
 
         $response = $this->get('/annonces');
 
+        // Newest first (ties broken by id): the certified annonce, created
+        // first, comes last.
         $response->assertInertia(fn ($page) => $page
-            ->where('annonces.data.0.title', 'Certifiee')
-            ->where('annonces.data.0.is_certified_pro', true)
+            ->where('annonces.data.0.is_certified_pro', false)
             ->where('annonces.data.1.is_certified_pro', false)
-            ->where('annonces.data.2.is_certified_pro', false)
+            ->where('annonces.data.2.title', 'Certifiee')
+            ->where('annonces.data.2.is_certified_pro', true)
         );
     }
 
@@ -93,6 +95,37 @@ class AnnonceDetailTest extends TestCase
             ->where('annonce.description', 'Une belle description complete.')
             ->where('annonce.is_certified_pro', true)
         );
+    }
+
+    public function test_detail_page_exposes_owner_identity_certification(): void
+    {
+        $verified = $this->annonce($this->owner(['is_verified' => true]));
+        $unverified = $this->annonce($this->owner(['is_verified' => false]));
+
+        $this->get("/annonces/{$verified->id}")->assertInertia(fn ($page) => $page
+            ->where('annonce.owner_is_verified', true)
+            ->where('annonce.published_at', $verified->created_at->toDateString()));
+        $this->get("/annonces/{$unverified->id}")->assertInertia(fn ($page) => $page
+            ->where('annonce.owner_is_verified', false));
+    }
+
+    public function test_similar_annonces_prefer_the_same_quartier_and_exclude_hidden_ones(): void
+    {
+        $owner = $this->owner(['is_verified' => true]);
+        $current = $this->annonce($owner, ['quartier' => 'Maarif', 'price' => 2500]);
+        $sameQuartier = $this->annonce($owner, ['quartier' => 'Maarif', 'price' => 4000]);
+        $sameCategory = $this->annonce($owner, ['quartier' => 'Gauthier', 'price' => 2600]);
+        $this->annonce($owner, ['quartier' => 'Maarif', 'is_suspended' => true]);
+        $this->annonce($owner, ['quartier' => 'Maarif', 'status' => 'en_attente']);
+        $this->annonce($owner, [
+            'quartier' => 'Oasis',
+            'category_id' => Category::factory()->create()->id,
+        ]);
+
+        $this->get("/annonces/{$current->id}")->assertInertia(fn ($page) => $page
+            ->has('similar', 2)
+            ->where('similar.0.id', $sameQuartier->id)
+            ->where('similar.1.id', $sameCategory->id));
     }
 
     public function test_detail_page_shows_only_the_owner_first_name_and_last_initial(): void

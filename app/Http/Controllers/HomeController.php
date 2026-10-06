@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Annonce;
 use App\Models\Category;
-use App\Support\WhatsappContact;
+use App\Models\User;
+use App\Support\AnnonceCard;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,9 +18,6 @@ class HomeController extends Controller
     private const FEATURED_COUNT = 8;
 
     private const QUARTIER_COUNT = 6;
-
-    /** Annonces published within this many days get the "Nouveau" badge. */
-    private const NEW_FOR_DAYS = 14;
 
     /**
      * Public home page for guests and students. Owners and admins keep
@@ -56,25 +54,14 @@ class HomeController extends Controller
      *
      * @return array<int, array<string, mixed>>
      */
-    private function featured($user): array
+    private function featured(?User $user): array
     {
         return $this->visible()
-            ->with(['mainPhoto', 'category:id,name', 'user:id,is_verified,phone', 'user.subscription:id,user_id,type,expires_at'])
+            ->with(AnnonceCard::RELATIONS)
             ->latest()
             ->limit(self::FEATURED_COUNT)
             ->get()
-            ->map(fn (Annonce $annonce) => [
-                'id' => $annonce->id,
-                'title' => $annonce->title,
-                'quartier' => $annonce->quartier,
-                'price' => $annonce->price,
-                'surface' => $annonce->surface,
-                'category' => $annonce->category?->name,
-                'main_photo' => $annonce->mainPhoto?->path,
-                'is_new' => $annonce->created_at?->gte(now()->subDays(self::NEW_FOR_DAYS)) ?? false,
-                'is_certified_pro' => $annonce->ownerIsCertifiedPro(),
-                'whatsapp_contact' => WhatsappContact::stateFor($user, $annonce),
-            ])
+            ->map(fn (Annonce $annonce) => AnnonceCard::toArray($annonce, $user))
             ->all();
     }
 

@@ -141,6 +141,41 @@ class PublicAnnonceSearchTest extends TestCase
         );
     }
 
+    public function test_results_can_be_sorted(): void
+    {
+        $mid = $this->annonce(['title' => 'Moyen', 'price' => 3000, 'surface' => 40]);
+        $cheap = $this->annonce(['title' => 'Pas cher', 'price' => 1500, 'surface' => 15]);
+        $expensive = $this->annonce(['title' => 'Cher', 'price' => 6000, 'surface' => 25]);
+
+        $this->get('/annonces?sort=price_asc')->assertInertia(fn ($page) => $page
+            ->where('annonces.data.0.id', $cheap->id)
+            ->where('annonces.data.2.id', $expensive->id));
+
+        $this->get('/annonces?sort=price_desc')->assertInertia(fn ($page) => $page
+            ->where('annonces.data.0.id', $expensive->id)
+            ->where('annonces.data.2.id', $cheap->id));
+
+        $this->get('/annonces?sort=surface_desc')->assertInertia(fn ($page) => $page
+            ->where('annonces.data.0.id', $mid->id)
+            ->where('annonces.data.2.id', $cheap->id));
+    }
+
+    public function test_an_unknown_sort_is_rejected(): void
+    {
+        $this->from('/annonces')
+            ->get('/annonces?sort=views')
+            ->assertSessionHasErrors('sort');
+    }
+
+    public function test_result_cards_carry_the_whatsapp_contact_state(): void
+    {
+        $this->annonce();
+
+        $this->get('/annonces')->assertInertia(fn ($page) => $page
+            ->where('annonces.data.0.whatsapp_contact.status', 'guest')
+            ->has('annonces.data.0.is_new'));
+    }
+
     public function test_an_inverted_range_is_still_rejected(): void
     {
         $this->from('/annonces')

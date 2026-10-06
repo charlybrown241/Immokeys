@@ -34,6 +34,7 @@ class AnnonceFilterRequest extends FormRequest
             'max_price' => ['nullable', 'numeric', 'min:0', Rule::when($this->filled('min_price'), 'gte:min_price')],
             'min_surface' => ['nullable', 'integer', 'min:0'],
             'max_surface' => ['nullable', 'integer', 'min:0', Rule::when($this->filled('min_surface'), 'gte:min_surface')],
+            'sort' => ['nullable', Rule::in(['recent', 'price_asc', 'price_desc', 'surface_desc'])],
         ];
     }
 }

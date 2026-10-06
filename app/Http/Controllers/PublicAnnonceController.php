@@ -6,7 +6,10 @@ use App\Http\Requests\AnnonceFilterRequest;
 use App\Models\Annonce;
 use App\Models\Category;
 use App\Models\ContactLog;
+use App\Models\User;
+use App\Support\AnnonceCard;
 use App\Support\WhatsappContact;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -22,25 +25,17 @@ class PublicAnnonceController extends Controller
         $filters = $request->validated();
         $filters['city'] = $filters['city'] ?? 'Casablanca';
 
+        $user = $request->user();
+
         $annonces = Annonce::query()
             ->where('status', 'disponible')
             ->where('is_suspended', false)
-            ->with(['mainPhoto', 'category:id,name', 'user:id,is_verified', 'user.subscription:id,user_id,type,expires_at'])
+            ->with(AnnonceCard::RELATIONS)
             ->filter($filters)
-            ->latest()
+            ->tap(fn ($query) => $this->applySort($query, $filters['sort'] ?? 'recent'))
             ->paginate(12)
             ->withQueryString()
-            ->through(fn (Annonce $annonce) => [
-                'id' => $annonce->id,
-                'title' => $annonce->title,
-                'quartier' => $annonce->quartier,
-                'city' => $annonce->city,
-                'surface' => $annonce->surface,
-                'price' => $annonce->price,
-                'main_photo' => $annonce->mainPhoto,
-                'category' => $annonce->category,
-                'is_certified_pro' => $annonce->ownerIsCertifiedPro(),
-            ]);
+            ->through(fn (Annonce $annonce) => AnnonceCard::toArray($annonce, $user));
 
         return Inertia::render('Annonces/Index', [
             'annonces' => $annonces,
@@ -82,11 +77,54 @@ class PublicAnnonceController extends Controller
                 'status' => $annonce->status,
                 'category' => $annonce->category,
                 'photos' => $annonce->photos,
+                'published_at' => $annonce->created_at?->toDateString(),
                 'is_certified_pro' => $annonce->ownerIsCertifiedPro(),
                 'owner_name' => $this->publicOwnerName($annonce),
+                'owner_is_verified' => (bool) $annonce->user?->is_verified,
                 'whatsapp_contact' => WhatsappContact::stateFor($request->user(), $annonce),
             ],
+            'similar' => $this->similar($annonce, $request->user()),
         ]);
+    }
+
+    /**
+     * Sort options of the search page; ties fall back to the newest first.
+     */
+    private function applySort(Builder $query, string $sort): void
+    {
+        match ($sort) {
+            'price_asc' => $query->orderBy('price'),
+            'price_desc' => $query->orderByDesc('price'),
+            'surface_desc' => $query->orderByRaw('surface IS NULL')->orderByDesc('surface'),
+            default => null,
+        };
+
+        $query->latest()->orderByDesc('id');
+    }
+
+    /**
+     * Up to four other visible annonces: same quartier first, then same
+     * category, closest in price.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function similar(Annonce $annonce, ?User $viewer): array
+    {
+        return Annonce::query()
+            ->where('status', 'disponible')
+            ->where('is_suspended', false)
+            ->where('city', $annonce->city)
+            ->whereKeyNot($annonce->id)
+            ->where(fn ($query) => $query
+                ->where('quartier', $annonce->quartier)
+                ->orWhere('category_id', $annonce->category_id))
+            ->with(AnnonceCard::RELATIONS)
+            ->orderByRaw('CASE WHEN quartier = ? THEN 0 ELSE 1 END', [$annonce->quartier])
+            ->orderByRaw('ABS(price - ?)', [$annonce->price])
+            ->limit(4)
+            ->get()
+            ->map(fn (Annonce $similar) => AnnonceCard::toArray($similar, $viewer))
+            ->all();
     }
 
     /**
