@@ -4,9 +4,8 @@ import HomeSearchBar from '@/Components/home/HomeSearchBar';
 import { Badge, Button, cx, EmptyState, focusRing, Input } from '@/Components/ui';
 import PublicLayout from '@/Layouts/PublicLayout';
 import { formatMad } from '@/utils/format';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { ArrowRight, BadgeCheck, Building2, Headset, Mail, MapPin, MessageCircle, ShieldCheck } from 'lucide-react';
-import { useState } from 'react';
 
 const container = 'mx-auto max-w-7xl px-4 md:px-7';
 
@@ -202,10 +201,14 @@ function Quartiers({ quartiers }) {
     );
 }
 
-// No newsletter backend yet (no subscribers table): the form validates the
-// address but does not store it, and says so.
 function Newsletter() {
-    const [submitted, setSubmitted] = useState(false);
+    const { flash } = usePage().props;
+    const { data, setData, post, processing, errors, reset, clearErrors } = useForm({ email: '' });
+
+    const submit = (event) => {
+        event.preventDefault();
+        post(route('newsletter.store'), { preserveScroll: true, onSuccess: () => reset('email') });
+    };
 
     return (
         <section className={cx(container, 'my-20')}>
@@ -221,35 +224,33 @@ function Newsletter() {
                         </p>
                     </div>
                 </div>
-                <form
-                    onSubmit={(event) => {
-                        event.preventDefault();
-                        setSubmitted(true);
-                    }}
-                    className="flex flex-col gap-3 sm:flex-row sm:items-end"
-                >
-                    <Input
-                        type="email"
-                        required
-                        label="Adresse email"
-                        icon={Mail}
-                        placeholder="toi@exemple.ma"
-                        autoComplete="email"
-                        className="flex-1"
-                    />
-                    <Button type="submit" variant="secondary" size="lg">
-                        S'inscrire
-                    </Button>
-                </form>
-                {submitted && (
-                    <p role="status" className="text-sm text-ui-text lg:col-start-2">
-                        La newsletter n'est pas encore ouverte : ton adresse n'a pas été enregistrée. Écris-nous à{' '}
-                        <a href="mailto:contact@immokeys.ma" className={cx('rounded-md font-semibold text-gold-700 underline', focusRing)}>
-                            contact@immokeys.ma
-                        </a>{' '}
-                        pour être prévenu·e.
+                <div>
+                    <form onSubmit={submit} noValidate className="flex flex-col gap-3 sm:flex-row sm:items-start">
+                        <Input
+                            id="newsletter-email"
+                            type="email"
+                            required
+                            label="Adresse email"
+                            icon={Mail}
+                            placeholder="toi@exemple.ma"
+                            autoComplete="email"
+                            className="flex-1"
+                            value={data.email}
+                            onChange={(e) => {
+                                setData('email', e.target.value);
+                                clearErrors('email');
+                            }}
+                            error={errors.email}
+                        />
+                        <Button type="submit" variant="secondary" size="lg" loading={processing} className="sm:mt-[1.625rem]">
+                            S'inscrire
+                        </Button>
+                    </form>
+                    <p role="status" className="mt-2 min-h-5 text-sm font-medium text-success-700">
+                        {flash?.newsletter}
                     </p>
-                )}
+                    <p className="text-xs text-ui-muted">Ton adresse sert uniquement à t'envoyer la newsletter ImmoKeys.</p>
+                </div>
             </div>
         </section>
     );

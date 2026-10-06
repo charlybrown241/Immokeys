@@ -12,6 +12,7 @@ use App\Http\Controllers\ContactLogStatusController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicAnnonceController;
 use App\Http\Controllers\ReportController;
@@ -60,6 +61,10 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('ad
 });
 
 Route::get('/annonces', [PublicAnnonceController::class, 'index'])->name('annonces.index');
+
+Route::post('/newsletter', [NewsletterController::class, 'store'])
+    ->middleware('throttle:5,1')
+    ->name('newsletter.store');
 
 // Static information pages linked from the footer.
 Route::inertia('/comment-ca-marche', 'Static/CommentCaMarche')->name('pages.how-it-works');
