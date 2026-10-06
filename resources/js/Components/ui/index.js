@@ -7,6 +7,7 @@ export { default as Checkbox } from './Checkbox';
 export { default as Dialog } from './Dialog';
 export { default as Drawer } from './Drawer';
 export { default as EmptyState } from './EmptyState';
+export { default as FilterTabs } from './FilterTabs';
 export { default as Input } from './Input';
 export { default as PasswordInput } from './PasswordInput';
 export { default as Select } from './Select';

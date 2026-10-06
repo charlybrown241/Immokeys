@@ -1,207 +1,118 @@
-import DangerButton from '@/Components/DangerButton';
-import SecondaryButton from '@/Components/SecondaryButton';
-import Pagination from '@/Components/listings/Pagination';
+import AnnonceModerationList from '@/Components/admin/AnnonceModerationList';
+import FlashMessages from '@/Components/dashboard/FlashMessages';
 import PageHeading from '@/Components/dashboard/PageHeading';
+import Pagination from '@/Components/listings/Pagination';
+import { Button, Card, EmptyState, FilterTabs, Skeleton } from '@/Components/ui';
 import DashboardLayout from '@/Layouts/DashboardLayout';
-import { Head, router, usePage } from '@inertiajs/react';
+import { formatNumber } from '@/utils/format';
+import { Head, router } from '@inertiajs/react';
+import { SearchX } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
-const STATUS_STYLES = {
-    en_attente: 'bg-warning-50 text-warning-700',
-    disponible: 'bg-success-50 text-success-700',
-    loue: 'bg-ui-border text-ui-text',
-};
-
-const STATUS_LABELS = {
-    en_attente: 'En attente',
-    disponible: 'Disponible',
-    loue: 'Louée',
-};
-
-function StatusBadge({ annonce }) {
-    if (annonce.is_suspended) {
-        return (
-            <span className="inline-flex items-center rounded-full bg-danger-50 px-2.5 py-0.5 text-xs font-medium text-danger-700">
-                Suspendue
-            </span>
-        );
-    }
-
-    return (
-        <span
-            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_STYLES[annonce.status]}`}
-        >
-            {STATUS_LABELS[annonce.status]}
-        </span>
-    );
-}
-
-const FILTER_OPTIONS = [
-    { value: '', label: 'Toutes' },
-    { value: 'en_attente', label: 'En attente' },
-    { value: 'disponible', label: 'Disponible' },
-    { value: 'loue', label: 'Louée' },
-    { value: 'suspendu', label: 'Suspendues' },
+// Server-side filter values (AnnonceIndexRequest); '' = all.
+const FILTERS = [
+    { key: '', label: 'Toutes' },
+    { key: 'en_attente', label: 'En attente' },
+    { key: 'disponible', label: 'Disponibles' },
+    { key: 'loue', label: 'Louées' },
+    { key: 'suspendu', label: 'Suspendues' },
 ];
 
+function useListLoading() {
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const path = new URL(route('admin.annonces.index')).pathname;
+        const stopStart = router.on('start', (event) => {
+            if (event.detail.visit.url.pathname === path && event.detail.visit.method === 'get') setLoading(true);
+        });
+        const stopFinish = router.on('finish', () => setLoading(false));
+        return () => {
+            stopStart();
+            stopFinish();
+        };
+    }, []);
+
+    return loading;
+}
+
 export default function Index({ annonces, filters }) {
-    const { flash } = usePage().props;
+    const current = filters.status ?? '';
+    const loading = useListLoading();
 
-    const applyFilter = (status) => {
-        router.get(
-            route('admin.annonces.index'),
-            status ? { status } : {},
-            { preserveState: true, preserveScroll: true, only: ['annonces', 'filters'] },
-        );
-    };
+    const applyFilter = (status) =>
+        router.get(route('admin.annonces.index'), status ? { status } : {}, {
+            preserveState: true,
+            preserveScroll: true,
+            only: ['annonces', 'filters'],
+        });
 
-    const toggleSuspension = (annonce) => {
-        router.post(route('admin.annonces.toggle-suspension', annonce.id));
-    };
+    const items = annonces.data.map((annonce) => ({
+        id: annonce.id,
+        title: annonce.title,
+        quartier: annonce.quartier,
+        status: annonce.status,
+        is_suspended: annonce.is_suspended,
+        created_at: annonce.created_at,
+        owner: annonce.owner?.name,
+        owner_email: annonce.owner?.email,
+        photo: annonce.main_photo?.path,
+        price: annonce.price,
+    }));
 
     return (
         <DashboardLayout
-            header={<PageHeading title="Annonces" subtitle="Modération des annonces publiées" />}
+            header={
+                <PageHeading
+                    title="Annonces"
+                    subtitle={`${formatNumber(annonces.total)} annonce${annonces.total > 1 ? 's' : ''}${current ? ' dans ce filtre' : ' au total'}`}
+                />
+            }
         >
             <Head title="Annonces" />
 
-            <div className="py-8">
-                <div className="mx-auto max-w-7xl space-y-4 px-4 sm:px-6 lg:px-8">
-                    {flash?.success && (
-                        <div className="rounded-field bg-success-50 p-4 text-sm text-success-700">
-                            {flash.success}
-                        </div>
-                    )}
+            <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+                <FlashMessages />
 
-                    <div className="flex items-center gap-2">
-                        <label htmlFor="filtre-statut" className="text-sm font-medium text-ui-muted">
-                            Statut
-                        </label>
-                        <select
-                            id="filtre-statut"
-                            value={filters.status ?? ''}
-                            onChange={(e) => applyFilter(e.target.value)}
-                            className="rounded-field border-ui-border bg-white text-sm focus:border-gold-600 focus:ring-gold-600/30"
-                        >
-                            {FILTER_OPTIONS.map((option) => (
-                                <option key={option.value} value={option.value}>
-                                    {option.label}
-                                </option>
+                <FilterTabs label="Filtrer par statut" value={current} onChange={applyFilter} items={FILTERS} />
+
+                <Card aria-busy={loading}>
+                    {loading ? (
+                        <ul className="divide-y divide-ui-border" aria-hidden="true">
+                            {Array.from({ length: 5 }, (_, index) => (
+                                <li key={index} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
+                                    <Skeleton className="h-14 w-20 rounded-field" />
+                                    <div className="flex-1 space-y-2">
+                                        <Skeleton className="w-1/2" />
+                                        <Skeleton className="h-3 w-1/3" />
+                                    </div>
+                                    <Skeleton className="h-9 w-28 rounded-field" />
+                                </li>
                             ))}
-                        </select>
-                    </div>
+                        </ul>
+                    ) : (
+                        <AnnonceModerationList
+                            annonces={items}
+                            withPhotos
+                            empty={
+                                <EmptyState
+                                    icon={SearchX}
+                                    title="Aucune annonce dans ce filtre"
+                                    action={
+                                        current && (
+                                            <Button variant="outline" onClick={() => applyFilter('')}>
+                                                Voir toutes les annonces
+                                            </Button>
+                                        )
+                                    }
+                                    className="border-0 py-8"
+                                />
+                            }
+                        />
+                    )}
+                </Card>
 
-                    <div className="overflow-x-auto bg-white shadow-sm sm:rounded-card">
-                        <table className="min-w-full divide-y divide-ui-border">
-                            <thead className="bg-ui-bg">
-                                <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-ui-muted">
-                                        Photo
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-ui-muted">
-                                        Titre & quartier
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-ui-muted">
-                                        Propriétaire
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-ui-muted">
-                                        Prix
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-ui-muted">
-                                        Statut
-                                    </th>
-                                    <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-ui-muted">
-                                        Actions
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-ui-border bg-white">
-                                {annonces.data.map((annonce) => (
-                                    <tr key={annonce.id}>
-                                        <td className="whitespace-nowrap px-6 py-4">
-                                            <div className="h-12 w-16 overflow-hidden rounded bg-ui-bg">
-                                                {annonce.main_photo ? (
-                                                    <img
-                                                        src={`/storage/${annonce.main_photo.path}`}
-                                                        loading="lazy"
-                                                        alt=""
-                                                        className="h-full w-full object-cover"
-                                                    />
-                                                ) : (
-                                                    <div className="flex h-full items-center justify-center text-xs text-ui-muted">
-                                                        Aucune
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="font-medium text-ui-text">
-                                                {annonce.title}
-                                            </div>
-                                            <div className="text-sm text-ui-muted">
-                                                {annonce.quartier},{' '}
-                                                {annonce.city}
-                                            </div>
-                                        </td>
-                                        <td className="whitespace-nowrap px-6 py-4">
-                                            <div className="text-sm text-ui-text">
-                                                {annonce.owner?.name}
-                                            </div>
-                                            <div className="text-sm text-ui-muted">
-                                                {annonce.owner?.email}
-                                            </div>
-                                        </td>
-                                        <td className="whitespace-nowrap px-6 py-4 text-sm text-ui-text">
-                                            {Number(
-                                                annonce.price,
-                                            ).toLocaleString('fr-FR')}{' '}
-                                            MAD
-                                        </td>
-                                        <td className="whitespace-nowrap px-6 py-4">
-                                            <StatusBadge annonce={annonce} />
-                                        </td>
-                                        <td className="whitespace-nowrap px-6 py-4 text-right">
-                                            {annonce.is_suspended ? (
-                                                <SecondaryButton
-                                                    onClick={() =>
-                                                        toggleSuspension(
-                                                            annonce,
-                                                        )
-                                                    }
-                                                >
-                                                    Réactiver
-                                                </SecondaryButton>
-                                            ) : (
-                                                <DangerButton
-                                                    onClick={() =>
-                                                        toggleSuspension(
-                                                            annonce,
-                                                        )
-                                                    }
-                                                >
-                                                    Suspendre
-                                                </DangerButton>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
-
-                                {annonces.data.length === 0 && (
-                                    <tr>
-                                        <td
-                                            colSpan={6}
-                                            className="px-6 py-4 text-center text-sm text-ui-muted"
-                                        >
-                                            Aucune annonce ne correspond a ce
-                                            filtre.
-                                        </td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <Pagination links={annonces.links} />
-                </div>
+                <Pagination links={annonces.links} />
             </div>
         </DashboardLayout>
     );
