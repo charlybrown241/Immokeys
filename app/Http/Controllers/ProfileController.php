@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileDestroyRequest;
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\Photo;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -48,9 +50,19 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
+        // Files are not covered by the database cascades: collect them first
+        // (annonce photos on the public disk, the private CIN document).
+        $photoPaths = Photo::whereIn('annonce_id', $user->annonces()->pluck('id'))->pluck('path');
+        $documentPath = $user->certification?->document_path;
+
         Auth::logout();
 
         $user->delete();
+
+        Storage::disk('public')->delete($photoPaths->all());
+        if ($documentPath) {
+            Storage::disk('local')->delete($documentPath);
+        }
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
