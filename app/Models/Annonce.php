@@ -98,6 +98,11 @@ class Annonce extends Model
         return $this->hasMany(ContactLog::class);
     }
 
+    public function reports(): HasMany
+    {
+        return $this->hasMany(Report::class);
+    }
+
     /**
      * A landlord is shown as certified once their identity is verified
      * and they hold an active (non-expired) "pro" subscription.

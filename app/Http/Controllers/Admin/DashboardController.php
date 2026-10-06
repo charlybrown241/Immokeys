@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Annonce;
 use App\Models\Certification;
+use App\Models\Report;
 use App\Models\Role;
 use App\Models\User;
 use Inertia\Inertia;
@@ -30,6 +31,7 @@ class DashboardController extends Controller
                 'pendingAnnoncesCount' => Annonce::where('status', 'en_attente')->count(),
                 'pendingCertificationsCount' => Certification::where('status', 'en_attente')->count(),
                 'suspendedAnnoncesCount' => Annonce::where('is_suspended', true)->count(),
+                'pendingReportsCount' => Report::where('status', 'nouveau')->count(),
             ],
             // Pending requests first, then the latest decisions.
             'certifications' => Certification::query()

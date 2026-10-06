@@ -7,7 +7,7 @@ import { Button, StatCard } from '@/Components/ui';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { formatNumber } from '@/utils/format';
 import { Head, Link } from '@inertiajs/react';
-import { ArrowRight, Building2, FileCheck2, ShieldAlert, Users } from 'lucide-react';
+import { ArrowRight, Building2, FileCheck2, Flag, Users } from 'lucide-react';
 
 export default function AdminDashboard({ stats, certifications, annonces }) {
     const students = stats.usersByRole?.etudiant ?? 0;
@@ -40,10 +40,10 @@ export default function AdminDashboard({ stats, certifications, annonces }) {
                         hint="Pièces d'identité à vérifier"
                     />
                     <StatCard
-                        icon={ShieldAlert}
-                        label="Annonces suspendues"
-                        value={formatNumber(stats.suspendedAnnoncesCount)}
-                        hint="Masquées aux étudiants"
+                        icon={Flag}
+                        label="Signalements à traiter"
+                        value={formatNumber(stats.pendingReportsCount)}
+                        hint={`${formatNumber(stats.suspendedAnnoncesCount)} annonce${stats.suspendedAnnoncesCount > 1 ? 's' : ''} suspendue${stats.suspendedAnnoncesCount > 1 ? 's' : ''}`}
                     />
                 </div>
 

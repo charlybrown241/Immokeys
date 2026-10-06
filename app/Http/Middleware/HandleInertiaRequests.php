@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Models\Annonce;
 use App\Models\Certification;
+use App\Models\Report;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -55,6 +56,9 @@ class HandleInertiaRequests extends Middleware
             'notifications' => [
                 'pending_certifications' => fn () => $user?->role?->name === 'admin'
                     ? Certification::where('status', 'en_attente')->count()
+                    : 0,
+                'pending_reports' => fn () => $user?->role?->name === 'admin'
+                    ? Report::where('status', 'nouveau')->count()
                     : 0,
             ],
             'flash' => [

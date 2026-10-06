@@ -6,6 +6,7 @@ use App\Http\Requests\AnnonceFilterRequest;
 use App\Models\Annonce;
 use App\Models\Category;
 use App\Models\ContactLog;
+use App\Models\Report;
 use App\Models\User;
 use App\Support\AnnonceCard;
 use App\Support\WhatsappContact;
@@ -93,6 +94,10 @@ class PublicAnnonceController extends Controller
                 'whatsapp_contact' => WhatsappContact::stateFor($request->user(), $annonce),
             ],
             'similar' => $this->similar($annonce, $request->user()),
+            // Owners cannot report their own annonce; admins moderate directly.
+            'canReport' => ! $request->user()
+                || ($request->user()->id !== $annonce->user_id && $request->user()->role?->name !== 'admin'),
+            'reportReasons' => Report::REASONS,
         ]);
     }
 

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AnnonceController as AdminAnnonceController;
 use App\Http\Controllers\Admin\CertificationController as AdminCertificationController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\ReportController as AdminReportController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\AnnonceController;
 use App\Http\Controllers\AnnoncePhotoController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicAnnonceController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StudentDashboardController;
 use App\Http\Controllers\SubscriptionController;
 use Illuminate\Support\Facades\Route;
@@ -50,6 +52,9 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('ad
     Route::get('/annonces', [AdminAnnonceController::class, 'index'])->name('annonces.index');
     Route::post('/annonces/{annonce}/toggle-suspension', [AdminAnnonceController::class, 'toggleSuspension'])->name('annonces.toggle-suspension');
 
+    Route::get('/signalements', [AdminReportController::class, 'index'])->name('reports.index');
+    Route::patch('/signalements/{report}', [AdminReportController::class, 'update'])->name('reports.update');
+
     Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
     Route::post('/users/{user}/toggle-active', [AdminUserController::class, 'toggleActive'])->name('users.toggle-active');
 });
@@ -64,6 +69,11 @@ Route::inertia('/confidentialite', 'Static/Confidentialite')->name('pages.privac
 Route::get('/annonces/{annonce}', [PublicAnnonceController::class, 'show'])
     ->whereNumber('annonce')
     ->name('annonces.show');
+
+Route::post('/annonces/{annonce}/signaler', [ReportController::class, 'store'])
+    ->whereNumber('annonce')
+    ->middleware(['auth', 'throttle:5,10'])
+    ->name('annonces.report');
 
 Route::get('/annonces/{annonce}/contact-whatsapp', [PublicAnnonceController::class, 'contactWhatsapp'])
     ->whereNumber('annonce')

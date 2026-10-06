@@ -1,6 +1,8 @@
 import AdBanner from '@/Components/AdBanner';
 import ListingCard from '@/Components/ListingCard';
+import FlashMessages from '@/Components/dashboard/FlashMessages';
 import OwnerCard from '@/Components/listings/OwnerCard';
+import ReportButton from '@/Components/listings/ReportButton';
 import PhotoGallery from '@/Components/listings/PhotoGallery';
 import { Badge, cx, focusRing } from '@/Components/ui';
 import PublicLayout from '@/Layouts/PublicLayout';
@@ -16,7 +18,7 @@ function formatDate(value) {
     return value ? new Date(value).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : null;
 }
 
-export default function Show({ annonce, similar }) {
+export default function Show({ annonce, similar, canReport, reportReasons }) {
     const availability = !annonce.available_from || new Date(annonce.available_from) <= new Date()
         ? 'Dès maintenant'
         : formatDate(annonce.available_from);
@@ -51,6 +53,10 @@ export default function Show({ annonce, similar }) {
 
                 <AdBanner className="mt-4" />
 
+                <div className="mt-4 empty:hidden">
+                    <FlashMessages />
+                </div>
+
                 {/* DOM order: gallery, owner card, details, so phones see the
                     price and the contact button right after the photos. On
                     desktop the card is a sticky right column over both rows. */}
@@ -82,6 +88,11 @@ export default function Show({ annonce, similar }) {
 
                     <aside aria-label="Contact" className="self-start lg:sticky lg:top-24 lg:col-start-2 lg:row-span-2 lg:row-start-1">
                         <OwnerCard annonce={annonce} />
+                        {canReport && (
+                            <div className="mt-3 text-center">
+                                <ReportButton annonceId={annonce.id} reasons={reportReasons} />
+                            </div>
+                        )}
                     </aside>
 
                     <div className="min-w-0 space-y-10 lg:col-start-1 lg:row-start-2">
