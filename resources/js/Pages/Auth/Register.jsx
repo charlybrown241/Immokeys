@@ -34,7 +34,7 @@ function RoleCards({ value, onChange, error, firstRef }) {
                             <span
                                 className={cx(
                                     'flex h-full flex-col gap-2 rounded-card border-2 bg-white p-4 transition',
-                                    'peer-focus-visible:ring-2 peer-focus-visible:ring-gold-600 peer-focus-visible:ring-offset-2',
+                                    'peer-focus-visible:ring-2 peer-focus-visible:ring-gold-700 peer-focus-visible:ring-offset-2',
                                     checked ? 'border-navy-900 bg-gold-50' : 'border-ui-border hover:border-navy-900/40',
                                     error && !checked && 'border-danger',
                                 )}

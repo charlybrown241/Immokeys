@@ -117,7 +117,7 @@ function DocumentField({ file, onChange, error, inputRef }) {
                     htmlFor={id}
                     className={cx(
                         'flex cursor-pointer flex-col items-center justify-center gap-2 rounded-card border-2 border-dashed bg-white px-6 py-8 text-center transition hover:border-navy-900 hover:bg-ui-bg',
-                        'focus-within:ring-2 focus-within:ring-gold-600 focus-within:ring-offset-2',
+                        'focus-within:ring-2 focus-within:ring-gold-700 focus-within:ring-offset-2',
                         message ? 'border-danger' : 'border-ui-border',
                     )}
                 >

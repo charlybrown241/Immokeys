@@ -103,7 +103,7 @@ export default function ListingCard({ annonce, className = '' }) {
                 <h3 className="mt-1 line-clamp-2 font-semibold leading-snug text-ui-text">
                     <Link
                         href={route('annonces.show', annonce.id)}
-                        className="after:absolute after:inset-0 after:rounded-card focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-gold-600"
+                        className="after:absolute after:inset-0 after:rounded-card focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-gold-700"
                     >
                         {annonce.title}
                     </Link>

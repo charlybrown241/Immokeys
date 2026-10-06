@@ -20,7 +20,7 @@ export default forwardRef(function Checkbox(
                 aria-describedby={helpId}
                 className={cx(
                     'mt-0.5 h-5 w-5 shrink-0 cursor-pointer rounded-md text-navy-900',
-                    'focus:ring-2 focus:ring-gold-600 focus:ring-offset-2',
+                    'focus:ring-2 focus:ring-gold-700 focus:ring-offset-2',
                     'disabled:cursor-not-allowed disabled:opacity-50',
                     error ? 'border-danger' : 'border-ui-border',
                 )}

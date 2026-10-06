@@ -58,7 +58,7 @@ export default function PhotoPicker({ files, onChange, serverErrors = [] }) {
                     htmlFor={inputId}
                     className={cx(
                         'flex flex-col items-center justify-center gap-2 rounded-card border-2 border-dashed px-6 py-10 text-center transition',
-                        'focus-within:ring-2 focus-within:ring-gold-600 focus-within:ring-offset-2',
+                        'focus-within:ring-2 focus-within:ring-gold-700 focus-within:ring-offset-2',
                         full ? 'cursor-not-allowed border-ui-border bg-ui-bg opacity-60' : 'cursor-pointer border-ui-border bg-white hover:border-navy-900 hover:bg-ui-bg',
                     )}
                 >
@@ -103,7 +103,7 @@ export default function PhotoPicker({ files, onChange, serverErrors = [] }) {
                                 type="button"
                                 onClick={() => remove(index)}
                                 aria-label={`Retirer la photo ${index + 1} (${file.name})`}
-                                className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-danger-700 shadow-card transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-600"
+                                className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-danger-700 shadow-card transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-700"
                             >
                                 <X size={16} aria-hidden="true" />
                             </button>
