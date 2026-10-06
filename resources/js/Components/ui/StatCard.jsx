@@ -33,9 +33,10 @@ function Sparkline({ data }) {
 
 /**
  * KPI tile: icon chip, label, value, optional variation (in %) and sparkline.
- * `deltaLabel` explains the variation period ("vs mois dernier").
+ * `deltaLabel` explains the variation period ("vs mois dernier"); `hint`
+ * is a short line of context under the value.
  */
-export default function StatCard({ icon: Icon, label, value, delta, deltaLabel, sparkline, className = '' }) {
+export default function StatCard({ icon: Icon, label, value, delta, deltaLabel, hint, sparkline, className = '' }) {
     const hasDelta = typeof delta === 'number';
     const positive = hasDelta && delta >= 0;
     const DeltaIcon = positive ? TrendingUp : TrendingDown;
@@ -69,6 +70,8 @@ export default function StatCard({ icon: Icon, label, value, delta, deltaLabel, 
                     </p>
                 )}
             </div>
+
+            {hint && <p className="-mt-2 font-body text-sm text-ui-muted">{hint}</p>}
 
             <Sparkline data={sparkline} />
         </Card>

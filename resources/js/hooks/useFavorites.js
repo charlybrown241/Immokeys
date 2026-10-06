@@ -32,6 +32,11 @@ function subscribe(listener) {
     return () => listeners.delete(listener);
 }
 
+/** Current favourite ids, outside React (e.g. to send them to the server). */
+export function favoriteIds() {
+    return read();
+}
+
 const emptyServerSnapshot = [];
 
 export default function useFavorites() {

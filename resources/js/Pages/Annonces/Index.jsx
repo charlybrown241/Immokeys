@@ -1,6 +1,7 @@
 import ListingCard from '@/Components/ListingCard';
 import Pagination from '@/Components/listings/Pagination';
 import { Badge, Button, Card, cx, EmptyState, focusRing, Input, Select, Skeleton } from '@/Components/ui';
+import useRecentSearches from '@/hooks/useRecentSearches';
 import PublicLayout from '@/Layouts/PublicLayout';
 import { Head, router } from '@inertiajs/react';
 import { ArrowUpDown, House, MapPin, RotateCcw, SearchX, SlidersHorizontal, Wallet } from 'lucide-react';
@@ -59,6 +60,13 @@ export default function Index({ annonces, categories, filters }) {
     const [filtersOpen, setFiltersOpen] = useState(false);
     const loading = useResultsLoading();
     const isFirstRender = useRef(true);
+    const { remember } = useRecentSearches();
+
+    // Remember each search that returned to this page with filters, for
+    // the student space ("Recherches récentes").
+    useEffect(() => {
+        remember(filters);
+    }, [filters, remember]);
 
     const visit = (query) =>
         router.get(route('annonces.index'), query, {

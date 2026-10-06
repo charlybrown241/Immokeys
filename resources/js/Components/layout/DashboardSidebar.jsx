@@ -30,6 +30,7 @@ const MENUS = {
         profileItem,
     ],
     etudiant: [
+        { label: 'Mon espace', route: 'student.dashboard', icon: LayoutDashboard },
         { label: 'Logements', route: 'annonces.index', icon: House },
         { label: 'Abonnement', route: 'subscription.show', icon: CreditCard },
         profileItem,

@@ -10,6 +10,8 @@ const variants = {
     ghost: 'text-navy-900 hover:bg-ui-bg',
     // Navy text: white on #25D366 only reaches 2:1.
     whatsapp: 'bg-whatsapp text-navy-950 hover:brightness-95',
+    // Destructive confirmations only (white on #B91C1C: 6.5:1).
+    danger: 'bg-danger-700 text-white hover:bg-danger',
 };
 
 const sizes = {

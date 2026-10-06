@@ -1,465 +1,217 @@
-import DangerButton from '@/Components/DangerButton';
-import Modal from '@/Components/Modal';
-import SecondaryButton from '@/Components/SecondaryButton';
-import {
-    badgeCertified,
-    badgeDanger,
-    badgeNeutral,
-    badgePending,
-} from '@/Constants/theme';
+import ContactsAreaChart from '@/Components/charts/ContactsAreaChart';
+import RankingBars from '@/Components/charts/RankingBars';
+import StatusDonut from '@/Components/charts/StatusDonut';
+import FlashMessages from '@/Components/dashboard/FlashMessages';
+import PageHeading from '@/Components/dashboard/PageHeading';
+import Panel from '@/Components/dashboard/Panel';
+import { Alert, Avatar, Badge, Button, cx, EmptyState, focusRing, StatCard } from '@/Components/ui';
+import { CHART } from '@/Constants/chart';
 import DashboardLayout from '@/Layouts/DashboardLayout';
-import { Head, Link, router, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import { formatNumber, formatRelative } from '@/utils/format';
+import { Head, Link, usePage } from '@inertiajs/react';
+import { ArrowRight, Building2, Eye, MessageCircle, MessageCircleOff, Plus, ShieldCheck, Sparkles } from 'lucide-react';
 
-const STATUS_STYLES = {
-    en_attente: badgePending,
-    disponible: badgeCertified,
-    loue: badgeNeutral,
+const CERTIFICATION_LABELS = {
+    verified: { value: 'Certifiée', hint: 'Ton badge est visible sur tes annonces.' },
+    en_attente: { value: 'En attente', hint: 'Notre équipe vérifie ta pièce.' },
+    rejete: { value: 'Refusée', hint: 'Envoie un nouveau document.' },
+    none: { value: 'À faire', hint: 'Nécessaire pour publier.' },
 };
 
-const STATUS_LABELS = {
-    en_attente: 'En attente',
-    disponible: 'Disponible',
-    loue: 'Louée',
-};
+// Weekly totals of the last 8 weeks, for the contacts sparkline.
+function weeklyTotals(series) {
+    const weeks = [];
+    for (let end = series.length; end > 0 && weeks.length < 8; end -= 7) {
+        weeks.unshift(series.slice(Math.max(end - 7, 0), end).reduce((sum, point) => sum + point.count, 0));
+    }
+    return weeks;
+}
 
-function StatusBadge({ annonce }) {
-    if (annonce.is_suspended) {
+function CertificationBanner({ isVerified, certification }) {
+    if (isVerified) return null;
+
+    if (certification?.status === 'en_attente') {
+        return <Alert variant="info">Ta pièce d'identité est en cours de vérification par notre équipe.</Alert>;
+    }
+
+    const rejected = certification?.status === 'rejete';
+
+    return (
+        <Alert variant={rejected ? 'danger' : 'info'} icon={ShieldCheck} title={rejected ? 'Certification refusée' : 'Certifie ton identité'}>
+            {rejected
+                ? 'Ta pièce n’a pas pu être validée. Envoie un nouveau document pour pouvoir publier.'
+                : 'Envoie ta pièce d’identité (CIN) pour publier tes annonces avec le badge « Identité certifiée ».'}{' '}
+            <Link href={route('certification.create')} className={cx('rounded-md font-semibold underline', focusRing)}>
+                {rejected ? 'Envoyer un nouveau document' : 'Compléter ma certification'}
+            </Link>
+        </Alert>
+    );
+}
+
+function RecentContacts({ contacts }) {
+    if (contacts.length === 0) {
         return (
-            <span className={`px-2.5 py-0.5 text-xs ${badgeDanger}`}>
-                Suspendue par l'administrateur
-            </span>
+            <EmptyState
+                icon={MessageCircleOff}
+                title="Aucune demande pour le moment"
+                description="Les étudiants qui te contactent sur WhatsApp apparaîtront ici."
+                className="border-0 py-8"
+            />
         );
     }
 
     return (
-        <span
-            className={`px-2.5 py-0.5 text-xs ${STATUS_STYLES[annonce.status]}`}
-        >
-            {STATUS_LABELS[annonce.status]}
-        </span>
+        <ul className="divide-y divide-ui-border">
+            {contacts.map((contact) => (
+                <li key={contact.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
+                    <Avatar name={contact.student} size="md" />
+                    <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-ui-text">{contact.student}</p>
+                        <p className="truncate text-sm text-ui-muted">
+                            {contact.annonce ? (
+                                <Link href={route('annonces.edit', contact.annonce.id)} className={cx('rounded-md hover:underline', focusRing)}>
+                                    {contact.annonce.title}
+                                </Link>
+                            ) : (
+                                'Annonce supprimée'
+                            )}
+                        </p>
+                    </div>
+                    <div className="flex shrink-0 flex-col items-end gap-1">
+                        {contact.is_new && (
+                            <Badge variant="brand" icon={Sparkles}>
+                                Nouveau
+                            </Badge>
+                        )}
+                        <time dateTime={contact.created_at} className="text-xs text-ui-muted">
+                            {formatRelative(contact.created_at)}
+                        </time>
+                    </div>
+                </li>
+            ))}
+        </ul>
     );
 }
 
-function StatCard({ label, value, hint }) {
-    return (
-        <div className="rounded-xl border border-l-[3px] border-line border-l-accent bg-surface p-4 sm:p-5">
-            <span className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
-                {label}
-            </span>
-            <p className="mt-2 font-display text-[1.35rem] font-semibold leading-none text-ink sm:text-[1.6rem]">
-                {value}
-            </p>
-            {hint && <p className="mt-2 text-xs text-ink-soft">{hint}</p>}
-        </div>
-    );
-}
+export default function Dashboard({ certification, stats, contactsSeries, recentContacts, annoncesByStatus, topViewed }) {
+    const { user } = usePage().props.auth;
+    const isVerified = user.is_verified;
+    const certificationState = CERTIFICATION_LABELS[isVerified ? 'verified' : certification?.status ?? 'none'];
+    const hasContacts = contactsSeries.some((point) => point.count > 0);
 
-function Thumbnail({ annonce, className }) {
-    return (
-        <div
-            className={`shrink-0 overflow-hidden rounded-lg bg-gradient-to-br from-line to-pending-bg ${className}`}
-        >
-            {annonce.main_photo ? (
-                <img
-                    src={`/storage/${annonce.main_photo.path}`}
-                    alt=""
-                    className="h-full w-full object-cover"
-                />
-            ) : (
-                <div className="flex h-full items-center justify-center text-[10px] text-ink-soft">
-                    Aucune
-                </div>
-            )}
-        </div>
-    );
-}
-
-const iconButtonClasses =
-    'inline-flex h-10 w-10 items-center justify-center rounded-full text-ink-soft transition hover:bg-bg hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-accent';
-
-function RowActions({ annonce, onContacts, onDelete }) {
-    return (
-        <div className="flex items-center gap-1">
-            <Link
-                href={route('annonces.edit', annonce.id)}
-                aria-label="Modifier"
-                title="Modifier"
-                className={iconButtonClasses}
-            >
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M12 20h9" />
-                    <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
-                </svg>
-            </Link>
-            <button
-                type="button"
-                onClick={onContacts}
-                aria-label="Contacts reçus"
-                title="Contacts reçus"
-                className={iconButtonClasses}
-            >
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M21 11.5a8.5 8.5 0 0 1-12.3 7.6L4 20l1.1-4.5A8.5 8.5 0 1 1 21 11.5Z" />
-                </svg>
-            </button>
-            <button
-                type="button"
-                onClick={onDelete}
-                aria-label="Supprimer"
-                title="Supprimer"
-                className={`${iconButtonClasses} hover:bg-red-50 hover:text-red-700`}
-            >
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" />
-                </svg>
-            </button>
-        </div>
-    );
-}
-
-export default function Dashboard({ certification, stats, annonces }) {
-    const { auth, flash } = usePage().props;
-    const isVerified = auth.user.is_verified;
-
-    const [contactsAnnonce, setContactsAnnonce] = useState(null);
-    const [annonceToDelete, setAnnonceToDelete] = useState(null);
-
-    const destroy = () => {
-        router.delete(route('annonces.destroy', annonceToDelete.id), {
-            onFinish: () => setAnnonceToDelete(null),
-        });
-    };
+    const statusItems = [
+        { key: 'disponible', label: 'Disponibles', value: annoncesByStatus.disponible, color: CHART.gold },
+        { key: 'loue', label: 'Louées', value: annoncesByStatus.loue, color: CHART.indigo },
+        { key: 'en_attente', label: 'En attente', value: annoncesByStatus.en_attente, color: CHART.neutral },
+    ];
+    const annoncesTotal = statusItems.reduce((sum, item) => sum + item.value, 0) + annoncesByStatus.suspendue;
 
     return (
         <DashboardLayout
             header={
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                        <h2 className="font-display text-2xl font-semibold leading-tight text-ink">
-                            Dashboard
-                        </h2>
-                        {isVerified && (
-                            <span
-                                className={`mt-2 px-3 py-1 text-xs font-bold ${badgeCertified}`}
-                            >
-                                ✓ Compte certifié
-                            </span>
-                        )}
-                        {!isVerified &&
-                            certification?.status === 'en_attente' && (
-                                <span
-                                    className={`mt-2 px-3 py-1 text-xs font-bold ${badgeNeutral}`}
-                                >
-                                    Certification en attente
-                                </span>
-                            )}
-                    </div>
-                    <Link
-                        href={route('annonces.create')}
-                        className="inline-flex items-center rounded-input bg-navbar px-4 py-2.5 text-sm font-semibold text-navbar-ink transition hover:bg-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-                    >
-                        Publier une annonce
-                    </Link>
-                </div>
+                <PageHeading
+                    title="Tableau de bord"
+                    subtitle={`Bonjour ${user.name.split(' ')[0]}, voici l'activité de tes annonces.`}
+                    actions={
+                        isVerified && (
+                            <Button as={Link} href={route('annonces.create')} icon={Plus}>
+                                Publier une annonce
+                            </Button>
+                        )
+                    }
+                />
             }
         >
-            <Head title="Dashboard" />
+            <Head title="Tableau de bord" />
 
-            <div className="py-10">
-                <div className="mx-auto max-w-7xl space-y-6 px-4 md:px-7">
-                    {flash?.success && (
-                        <div className="rounded-input bg-success-bg p-4 text-sm text-success-ink">
-                            {flash.success}
-                        </div>
-                    )}
+            <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+                <FlashMessages />
+                <CertificationBanner isVerified={isVerified} certification={certification} />
 
-                    {flash?.error && (
-                        <div className="rounded-input bg-red-50 p-4 text-sm text-red-700">
-                            {flash.error}
-                        </div>
-                    )}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                    <StatCard icon={Building2} label="Annonces actives" value={stats.activeAnnoncesCount} hint="Disponibles et visibles" />
+                    <StatCard
+                        icon={MessageCircle}
+                        label="Contacts WhatsApp reçus"
+                        value={formatNumber(stats.contactsCount)}
+                        delta={stats.contactsDelta ?? undefined}
+                        deltaLabel="sur 30 j"
+                        hint={stats.contactsDelta === null ? `${stats.contactsLast30} ces 30 derniers jours` : undefined}
+                        sparkline={hasContacts ? weeklyTotals(contactsSeries) : undefined}
+                    />
+                    <StatCard icon={Eye} label="Vues totales" value={formatNumber(stats.viewsTotal)} hint="Depuis la publication" />
+                    <StatCard icon={ShieldCheck} label="Certification" value={certificationState.value} hint={certificationState.hint} />
+                </div>
 
-                    {!isVerified && !certification && (
-                        <div className="rounded-input bg-pending-bg p-4 text-sm text-pending-ink">
-                            Complétez votre profil et soumettez votre pièce
-                            d'identité pour pouvoir publier des annonces.{' '}
-                            <Link
-                                href={route('certification.create')}
-                                className="font-semibold underline"
-                            >
-                                Compléter mon profil
-                            </Link>
-                        </div>
-                    )}
-
-                    {!isVerified && certification?.status === 'en_attente' && (
-                        <div className="rounded-input border border-line bg-surface p-4 text-sm text-ink-soft">
-                            Votre pièce d'identité est en cours de
-                            vérification par notre équipe.
-                        </div>
-                    )}
-
-                    {!isVerified && certification?.status === 'rejete' && (
-                        <div className="rounded-input bg-red-50 p-4 text-sm text-red-800">
-                            Votre certification a été refusée, merci de
-                            soumettre un nouveau document.{' '}
-                            <Link
-                                href={route('certification.create')}
-                                className="font-semibold underline"
-                            >
-                                Soumettre un nouveau document
-                            </Link>
-                        </div>
-                    )}
-
-                    <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-                        <StatCard
-                            label="Annonces actives"
-                            value={stats.activeAnnoncesCount}
-                        />
-                        <StatCard
-                            label="Taux d'occupation"
-                            value={`${stats.occupancyRate}%`}
-                        />
-                        <StatCard
-                            label="Nouveaux leads (7 jours)"
-                            value={stats.newLeadsCount}
-                        />
-                        <StatCard
-                            label="Revenus mensuels"
-                            value={`${stats.monthlyRevenue.toLocaleString('fr-FR')} MAD`}
-                            hint="Estimation, aucun paiement réel"
-                        />
-                    </div>
-
-                    <div className="overflow-hidden rounded-card bg-surface shadow-card">
-                        <div className="border-b border-line px-6 py-4">
-                            <h3 className="font-display text-lg font-semibold text-ink">
-                                Registre de mes annonces
-                            </h3>
-                        </div>
-
-                        {annonces.length === 0 ? (
-                            <div className="p-10 text-center text-sm text-ink-soft">
-                                Vous n'avez pas encore publié d'annonce.
-                            </div>
+                <div className="grid gap-6 lg:grid-cols-3">
+                    <Panel title="Contacts WhatsApp reçus" description="Par jour, sur toutes tes annonces" className="lg:col-span-2">
+                        {hasContacts ? (
+                            <ContactsAreaChart series={contactsSeries} />
                         ) : (
-                            <>
-                                {/* Mobile: stacked cards (below md) */}
-                                <div className="divide-y divide-line md:hidden">
-                                    {annonces.map((annonce) => (
-                                        <div key={annonce.id} className="p-4">
-                                            <div className="flex gap-3">
-                                                <Thumbnail
-                                                    annonce={annonce}
-                                                    className="h-16 w-20"
-                                                />
-                                                <div className="min-w-0 flex-1">
-                                                    <div className="line-clamp-2 font-semibold text-ink">
-                                                        {annonce.title}
-                                                    </div>
-                                                    <div className="text-sm text-ink-soft">
-                                                        {annonce.quartier}
-                                                    </div>
-                                                    <div className="mt-2">
-                                                        <StatusBadge
-                                                            annonce={annonce}
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div className="mt-3 flex items-center justify-between">
-                                                <div className="flex gap-4 text-sm text-ink-soft">
-                                                    <span>
-                                                        {annonce.views_count}{' '}
-                                                        vues
-                                                    </span>
-                                                    <span>
-                                                        {
-                                                            annonce.contact_logs_count
-                                                        }{' '}
-                                                        leads
-                                                    </span>
-                                                </div>
-                                                <RowActions
-                                                    annonce={annonce}
-                                                    onContacts={() =>
-                                                        setContactsAnnonce(
-                                                            annonce,
-                                                        )
-                                                    }
-                                                    onDelete={() =>
-                                                        setAnnonceToDelete(
-                                                            annonce,
-                                                        )
-                                                    }
-                                                />
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-
-                                {/* Desktop: table (md and up) */}
-                                <div className="hidden overflow-x-auto md:block">
-                                    <table className="min-w-full divide-y divide-line">
-                                        <thead>
-                                            <tr className="text-left text-xs font-semibold uppercase tracking-wide text-ink-soft">
-                                                <th className="px-6 py-3">
-                                                    Annonce
-                                                </th>
-                                                <th className="px-6 py-3">
-                                                    Statut
-                                                </th>
-                                                <th className="px-6 py-3">
-                                                    Vues
-                                                </th>
-                                                <th className="px-6 py-3">
-                                                    Leads
-                                                </th>
-                                                <th className="px-6 py-3 text-right">
-                                                    Actions
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-line">
-                                            {annonces.map((annonce) => (
-                                                <tr key={annonce.id}>
-                                                    <td className="px-6 py-4">
-                                                        <div className="flex items-center gap-4">
-                                                            <Thumbnail
-                                                                annonce={
-                                                                    annonce
-                                                                }
-                                                                className="h-12 w-16"
-                                                            />
-                                                            <div className="min-w-0">
-                                                                <div className="font-semibold text-ink">
-                                                                    {
-                                                                        annonce.title
-                                                                    }
-                                                                </div>
-                                                                <div className="text-sm text-ink-soft">
-                                                                    {
-                                                                        annonce.quartier
-                                                                    }
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="whitespace-nowrap px-6 py-4">
-                                                        <StatusBadge
-                                                            annonce={annonce}
-                                                        />
-                                                    </td>
-                                                    <td className="whitespace-nowrap px-6 py-4 text-sm font-semibold text-ink">
-                                                        {annonce.views_count}
-                                                    </td>
-                                                    <td className="whitespace-nowrap px-6 py-4 text-sm font-semibold text-ink">
-                                                        {
-                                                            annonce.contact_logs_count
-                                                        }
-                                                    </td>
-                                                    <td className="whitespace-nowrap px-6 py-4">
-                                                        <div className="flex justify-end">
-                                                            <RowActions
-                                                                annonce={
-                                                                    annonce
-                                                                }
-                                                                onContacts={() =>
-                                                                    setContactsAnnonce(
-                                                                        annonce,
-                                                                    )
-                                                                }
-                                                                onDelete={() =>
-                                                                    setAnnonceToDelete(
-                                                                        annonce,
-                                                                    )
-                                                                }
-                                                            />
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </>
+                            <EmptyState
+                                icon={MessageCircleOff}
+                                title="Pas encore de contact"
+                                description="Dès qu'un étudiant te contacte, l'évolution s'affichera ici."
+                                className="border-0 py-10"
+                            />
                         )}
-                    </div>
+                    </Panel>
+
+                    <Panel title="Mes annonces" description="Répartition par statut">
+                        {annoncesTotal > 0 ? (
+                            <>
+                                <StatusDonut items={statusItems} />
+                                {annoncesByStatus.suspendue > 0 && (
+                                    <p className="mt-4 text-xs text-ui-muted">
+                                        + {annoncesByStatus.suspendue} suspendue{annoncesByStatus.suspendue > 1 ? 's' : ''} par l'administrateur
+                                    </p>
+                                )}
+                            </>
+                        ) : (
+                            <EmptyState
+                                icon={Building2}
+                                title="Aucune annonce"
+                                description="Publie ton premier logement."
+                                className="border-0 py-8"
+                            />
+                        )}
+                    </Panel>
+                </div>
+
+                <div className="grid gap-6 lg:grid-cols-3">
+                    <Panel
+                        title="Demandes récentes"
+                        description="Derniers étudiants qui t'ont contacté"
+                        className="lg:col-span-2"
+                    >
+                        <RecentContacts contacts={recentContacts} />
+                    </Panel>
+
+                    <Panel
+                        title="Annonces les plus vues"
+                        action={
+                            <Button as={Link} href={route('annonces.mine')} variant="ghost" size="sm" iconRight={ArrowRight}>
+                                Gérer
+                            </Button>
+                        }
+                    >
+                        {topViewed.length > 0 ? (
+                            <RankingBars
+                                unit="vues"
+                                items={topViewed.map((annonce) => ({
+                                    id: annonce.id,
+                                    label: annonce.title,
+                                    value: annonce.views_count,
+                                    href: route('annonces.edit', annonce.id),
+                                    meta: `${annonce.contacts_count} contact${annonce.contacts_count > 1 ? 's' : ''} WhatsApp`,
+                                }))}
+                            />
+                        ) : (
+                            <p className="text-sm text-ui-muted">Aucune annonce pour l'instant.</p>
+                        )}
+                    </Panel>
                 </div>
             </div>
-
-            <Modal
-                show={contactsAnnonce !== null}
-                onClose={() => setContactsAnnonce(null)}
-            >
-                <div className="p-6">
-                    <h2 className="font-display text-lg font-semibold text-ink">
-                        Contacts reçus — {contactsAnnonce?.title}
-                    </h2>
-
-                    {contactsAnnonce?.contact_logs?.length > 0 ? (
-                        <ul className="mt-4 divide-y divide-line">
-                            {contactsAnnonce.contact_logs.map((log) => (
-                                <li
-                                    key={log.id}
-                                    className="flex items-center justify-between py-2 text-sm"
-                                >
-                                    <span className="text-ink">
-                                        {log.user?.name ?? 'Étudiant'}
-                                    </span>
-                                    <span className="text-ink-soft">
-                                        {new Date(
-                                            log.created_at,
-                                        ).toLocaleDateString('fr-FR')}
-                                    </span>
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <p className="mt-4 text-sm text-ink-soft">
-                            Aucun contact reçu pour cette annonce pour le
-                            moment.
-                        </p>
-                    )}
-
-                    <div className="mt-6 flex justify-end">
-                        <SecondaryButton
-                            onClick={() => setContactsAnnonce(null)}
-                        >
-                            Fermer
-                        </SecondaryButton>
-                    </div>
-                </div>
-            </Modal>
-
-            <Modal
-                show={annonceToDelete !== null}
-                onClose={() => setAnnonceToDelete(null)}
-            >
-                <div className="p-6">
-                    <h2 className="font-display text-lg font-semibold text-ink">
-                        Supprimer cette annonce ?
-                    </h2>
-                    <p className="mt-1 text-sm text-ink-soft">
-                        Cette action est irréversible. L'annonce "
-                        {annonceToDelete?.title}" et ses photos seront
-                        définitivement supprimées.
-                    </p>
-                    <div className="mt-6 flex justify-end gap-3">
-                        <SecondaryButton
-                            onClick={() => setAnnonceToDelete(null)}
-                        >
-                            Annuler
-                        </SecondaryButton>
-                        <DangerButton onClick={destroy}>
-                            Supprimer
-                        </DangerButton>
-                    </div>
-                </div>
-            </Modal>
         </DashboardLayout>
     );
 }
