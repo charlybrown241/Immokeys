@@ -157,6 +157,54 @@ class AnnonceManagementTest extends TestCase
         $response->assertSessionHasErrors(['title', 'category_id', 'description', 'quartier', 'price']);
     }
 
+    public function test_owner_can_create_an_annonce_with_its_details(): void
+    {
+        $owner = $this->verifiedProprietaire();
+
+        $this->actingAs($owner)->post('/annonces', [
+            'title' => 'Studio détaillé',
+            'category_id' => Category::first()->id,
+            'description' => 'Avec tous les détails',
+            'quartier' => 'Maarif',
+            'price' => 3000,
+            'rooms' => 2,
+            'is_furnished' => '1',
+            'available_from' => '2026-11-01',
+            'charges' => 250,
+            'deposit' => 3000,
+            'amenities' => ['wifi', 'cuisine_equipee'],
+        ])->assertRedirect(route('annonces.mine'));
+
+        $annonce = Annonce::where('title', 'Studio détaillé')->firstOrFail();
+        $this->assertSame(2, $annonce->rooms);
+        $this->assertTrue($annonce->is_furnished);
+        $this->assertSame('2026-11-01', $annonce->available_from->toDateString());
+        $this->assertSame('250.00', $annonce->charges);
+        $this->assertSame('3000.00', $annonce->deposit);
+        $this->assertSame(['wifi', 'cuisine_equipee'], $annonce->amenities);
+    }
+
+    public function test_details_are_optional_and_unknown_amenities_are_rejected(): void
+    {
+        $owner = $this->verifiedProprietaire();
+        $base = [
+            'title' => 'Sans détails',
+            'category_id' => Category::first()->id,
+            'description' => 'Minimal',
+            'quartier' => 'Maarif',
+            'price' => 2000,
+        ];
+
+        $this->actingAs($owner)->post('/annonces', $base)->assertSessionHasNoErrors();
+        $annonce = Annonce::where('title', 'Sans détails')->firstOrFail();
+        $this->assertNull($annonce->rooms);
+        $this->assertNull($annonce->is_furnished);
+
+        $this->actingAs($owner)
+            ->post('/annonces', [...$base, 'title' => 'Mauvais équipement', 'amenities' => ['piscine'], 'rooms' => 0])
+            ->assertSessionHasErrors(['amenities.0', 'rooms']);
+    }
+
     public function test_owner_can_update_their_own_annonce_including_status(): void
     {
         $owner = $this->verifiedProprietaire();

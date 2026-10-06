@@ -35,6 +35,8 @@ class AnnonceCard
             'city' => $annonce->city,
             'price' => $annonce->price,
             'surface' => $annonce->surface,
+            'rooms' => $annonce->rooms,
+            'is_furnished' => $annonce->is_furnished,
             'category' => $annonce->category?->name,
             'main_photo' => $annonce->mainPhoto?->path,
             'is_new' => $annonce->created_at?->gte(now()->subDays(self::NEW_FOR_DAYS)) ?? false,

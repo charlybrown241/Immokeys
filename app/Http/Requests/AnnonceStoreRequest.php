@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Models\Annonce;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\File;
 
 class AnnonceStoreRequest extends FormRequest
@@ -29,7 +30,14 @@ class AnnonceStoreRequest extends FormRequest
             'description' => ['required', 'string'],
             'quartier' => ['required', 'string', 'max:100'],
             'surface' => ['nullable', 'integer', 'min:1'],
+            'rooms' => ['nullable', 'integer', 'min:1', 'max:20'],
+            'is_furnished' => ['nullable', 'boolean'],
+            'available_from' => ['nullable', 'date'],
             'price' => ['required', 'numeric', 'min:0'],
+            'charges' => ['nullable', 'numeric', 'min:0'],
+            'deposit' => ['nullable', 'numeric', 'min:0'],
+            'amenities' => ['nullable', 'array'],
+            'amenities.*' => ['distinct', Rule::in(array_keys(Annonce::AMENITIES))],
             'photos' => ['nullable', 'array', 'max:10'],
             'photos.*' => File::types(['jpg', 'jpeg', 'png', 'webp'])->max(5 * 1024),
         ];

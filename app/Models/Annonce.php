@@ -15,6 +15,24 @@ class Annonce extends Model
     /** @use HasFactory<AnnonceFactory> */
     use HasFactory;
 
+    /**
+     * Amenities an owner can tick, key => label. Keys are stored in the
+     * "amenities" JSON column; labels are sent to the pages.
+     */
+    public const AMENITIES = [
+        'wifi' => 'Wi-Fi',
+        'cuisine_equipee' => 'Cuisine équipée',
+        'machine_a_laver' => 'Machine à laver',
+        'climatisation' => 'Climatisation',
+        'chauffage' => 'Chauffage',
+        'eau_chaude' => 'Eau chaude',
+        'espace_travail' => 'Espace de travail',
+        'ascenseur' => 'Ascenseur',
+        'balcon' => 'Balcon ou terrasse',
+        'parking' => 'Parking',
+        'gardien' => 'Gardien ou sécurité',
+    ];
+
     protected $fillable = [
         'user_id',
         'category_id',
@@ -24,6 +42,12 @@ class Annonce extends Model
         'city',
         'quartier',
         'surface',
+        'rooms',
+        'is_furnished',
+        'available_from',
+        'charges',
+        'deposit',
+        'amenities',
         'status',
         'views_count',
         'is_suspended',
@@ -34,6 +58,12 @@ class Annonce extends Model
         return [
             'price' => 'decimal:2',
             'surface' => 'integer',
+            'rooms' => 'integer',
+            'is_furnished' => 'boolean',
+            'available_from' => 'date',
+            'charges' => 'decimal:2',
+            'deposit' => 'decimal:2',
+            'amenities' => 'array',
             'views_count' => 'integer',
             'is_suspended' => 'boolean',
         ];

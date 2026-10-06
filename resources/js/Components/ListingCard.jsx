@@ -2,7 +2,7 @@ import { Badge, Button, cx, focusRing } from '@/Components/ui';
 import useFavorites from '@/hooks/useFavorites';
 import { formatMad } from '@/utils/format';
 import { Link } from '@inertiajs/react';
-import { BadgeCheck, Heart, House, MapPin, Maximize2, MessageCircle, Sparkles } from 'lucide-react';
+import { BadgeCheck, BedDouble, Heart, House, MapPin, Maximize2, MessageCircle, Sofa, Sparkles } from 'lucide-react';
 
 // Same rules as the detail page: a signed link for students, the login
 // page for guests, the detail page otherwise (missing phone, wrong role).
@@ -118,6 +118,18 @@ export default function ListingCard({ annonce, className = '' }) {
                         <li className="inline-flex items-center gap-1.5">
                             <Maximize2 size={15} className="text-gold-700" aria-hidden="true" />
                             {annonce.surface} m²
+                        </li>
+                    )}
+                    {annonce.rooms && (
+                        <li className="inline-flex items-center gap-1.5">
+                            <BedDouble size={15} className="text-gold-700" aria-hidden="true" />
+                            {annonce.rooms} pièce{annonce.rooms > 1 ? 's' : ''}
+                        </li>
+                    )}
+                    {annonce.is_furnished && (
+                        <li className="inline-flex items-center gap-1.5">
+                            <Sofa size={15} className="text-gold-700" aria-hidden="true" />
+                            Meublé
                         </li>
                     )}
                     {annonce.category && (

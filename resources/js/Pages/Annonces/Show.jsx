@@ -5,7 +5,7 @@ import PhotoGallery from '@/Components/listings/PhotoGallery';
 import { Badge, cx, focusRing } from '@/Components/ui';
 import PublicLayout from '@/Layouts/PublicLayout';
 import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft, BadgeCheck, CalendarDays, CircleCheck, House, MapPin, Maximize2 } from 'lucide-react';
+import { ArrowLeft, BadgeCheck, BedDouble, CalendarCheck, CalendarDays, Check, CircleCheck, House, MapPin, Maximize2, Sofa } from 'lucide-react';
 
 const STATUS_LABELS = {
     disponible: 'Disponible',
@@ -17,9 +17,20 @@ function formatDate(value) {
 }
 
 export default function Show({ annonce, similar }) {
+    const availability = !annonce.available_from || new Date(annonce.available_from) <= new Date()
+        ? 'Dès maintenant'
+        : formatDate(annonce.available_from);
+
     const features = [
         { icon: Maximize2, label: 'Surface', value: annonce.surface ? `${annonce.surface} m²` : null },
         { icon: House, label: 'Type', value: annonce.category?.name },
+        { icon: BedDouble, label: 'Pièces', value: annonce.rooms ? String(annonce.rooms) : null },
+        {
+            icon: Sofa,
+            label: 'Ameublement',
+            value: annonce.is_furnished === null || annonce.is_furnished === undefined ? null : annonce.is_furnished ? 'Meublé' : 'Non meublé',
+        },
+        { icon: CalendarCheck, label: 'Disponible', value: annonce.status === 'disponible' ? availability : null },
         { icon: MapPin, label: 'Quartier', value: annonce.quartier },
         { icon: CircleCheck, label: 'Statut', value: STATUS_LABELS[annonce.status] },
         { icon: CalendarDays, label: 'Publiée le', value: formatDate(annonce.published_at) },
@@ -92,6 +103,25 @@ export default function Show({ annonce, similar }) {
                                 ))}
                             </ul>
                         </section>
+
+                        {annonce.amenities?.length > 0 && (
+                            <section aria-labelledby="equipements">
+                                <h2 id="equipements" className="font-heading text-xl font-bold text-navy-900">
+                                    Équipements
+                                </h2>
+                                <ul className="mt-4 flex flex-wrap gap-2">
+                                    {annonce.amenities.map((amenity) => (
+                                        <li
+                                            key={amenity}
+                                            className="inline-flex items-center gap-1.5 rounded-full border border-ui-border bg-white px-3.5 py-1.5 text-sm font-medium text-ui-text"
+                                        >
+                                            <Check size={15} className="text-gold-700" aria-hidden="true" />
+                                            {amenity}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </section>
+                        )}
 
                         <section aria-labelledby="description">
                             <h2 id="description" className="font-heading text-xl font-bold text-navy-900">

@@ -97,6 +97,26 @@ class AnnonceDetailTest extends TestCase
         );
     }
 
+    public function test_detail_page_exposes_listing_details_with_amenity_labels(): void
+    {
+        $annonce = $this->annonce($this->owner(['is_verified' => true]), [
+            'rooms' => 3,
+            'is_furnished' => false,
+            'available_from' => '2026-12-01',
+            'charges' => 300,
+            'deposit' => 5000,
+            'amenities' => ['wifi', 'parking', 'inconnu'],
+        ]);
+
+        $this->get("/annonces/{$annonce->id}")->assertInertia(fn ($page) => $page
+            ->where('annonce.rooms', 3)
+            ->where('annonce.is_furnished', false)
+            ->where('annonce.available_from', '2026-12-01')
+            ->where('annonce.charges', '300.00')
+            ->where('annonce.deposit', '5000.00')
+            ->where('annonce.amenities', ['Wi-Fi', 'Parking']));
+    }
+
     public function test_detail_page_exposes_owner_identity_certification(): void
     {
         $verified = $this->annonce($this->owner(['is_verified' => true]));

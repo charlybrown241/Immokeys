@@ -64,6 +64,12 @@ export default function OwnerCard({ annonce, className = '' }) {
                 {formatMad(annonce.price)}
                 <span className="font-body text-base font-medium text-ui-muted">/mois</span>
             </p>
+            {(Number(annonce.charges) > 0 || Number(annonce.deposit) > 0) && (
+                <ul className="mt-1 space-y-0.5 text-sm text-ui-muted">
+                    {Number(annonce.charges) > 0 && <li>+ {formatMad(annonce.charges)} de charges par mois</li>}
+                    {Number(annonce.deposit) > 0 && <li>Caution : {formatMad(annonce.deposit)}</li>}
+                </ul>
+            )}
 
             <div className="mt-5 flex items-center gap-3 border-y border-ui-border py-4">
                 <Avatar name={annonce.owner_name ?? 'Propriétaire'} size="lg" />

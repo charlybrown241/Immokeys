@@ -73,7 +73,16 @@ class PublicAnnonceController extends Controller
                 'quartier' => $annonce->quartier,
                 'city' => $annonce->city,
                 'surface' => $annonce->surface,
+                'rooms' => $annonce->rooms,
+                'is_furnished' => $annonce->is_furnished,
+                'available_from' => $annonce->available_from?->toDateString(),
                 'price' => $annonce->price,
+                'charges' => $annonce->charges,
+                'deposit' => $annonce->deposit,
+                'amenities' => collect($annonce->amenities ?? [])
+                    ->filter(fn ($key) => isset(Annonce::AMENITIES[$key]))
+                    ->map(fn ($key) => Annonce::AMENITIES[$key])
+                    ->values(),
                 'status' => $annonce->status,
                 'category' => $annonce->category,
                 'photos' => $annonce->photos,
