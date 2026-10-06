@@ -11,7 +11,9 @@ const PERIODS = [
     { days: 90, label: '90 jours' },
 ];
 
-function ChartTooltip({ active, payload }) {
+const plural = (count, unit) => (count > 1 ? unit.other : unit.one);
+
+function ChartTooltip({ active, payload, unit }) {
     if (!active || !payload?.length) return null;
     const point = payload[0].payload;
 
@@ -22,20 +24,21 @@ function ChartTooltip({ active, payload }) {
                 {formatDate(point.date, { weekday: point.week ? undefined : 'short', day: 'numeric', month: 'long' })}
             </p>
             <p className="font-semibold text-ui-text">
-                {point.count} contact{point.count > 1 ? 's' : ''} WhatsApp
+                {point.count} {plural(point.count, unit)}
             </p>
         </div>
     );
 }
 
 /**
- * Single-series area chart of WhatsApp contacts per day, with a period
- * selector, crosshair tooltip and a data table for screen readers.
+ * Single-series area chart of a daily count (views, WhatsApp contacts...),
+ * with a period selector, crosshair tooltip and a data table for screen
+ * readers. `unit`: { one, other } labels, e.g. { one: 'vue', other: 'vues' }.
  */
-export default function ContactsAreaChart({ series }) {
+export default function ActivityAreaChart({ series, unit }) {
     const [days, setDays] = useState(30);
     const reducedMotion = usePrefersReducedMotion();
-    const gradientId = `contacts-${useId().replace(/:/g, '')}`;
+    const gradientId = `activity-${useId().replace(/:/g, '')}`;
 
     // Beyond a month, daily points are too noisy: group them by week.
     const data = useMemo(() => {
@@ -55,7 +58,7 @@ export default function ContactsAreaChart({ series }) {
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <p className="text-sm text-ui-muted">
                     <span className="font-heading text-2xl font-extrabold text-ui-text">{formatNumber(total)}</span>{' '}
-                    contact{total > 1 ? 's' : ''} sur {days} jours
+                    {plural(total, unit)} sur {days} jours
                 </p>
                 <div role="group" aria-label="Période" className="inline-flex rounded-field border border-ui-border bg-ui-bg p-1">
                     {PERIODS.map((period) => (
@@ -101,7 +104,7 @@ export default function ContactsAreaChart({ series }) {
                             tickLine={false}
                             width={40}
                         />
-                        <Tooltip content={<ChartTooltip />} cursor={{ stroke: CHART.axis, strokeDasharray: '4 4' }} />
+                        <Tooltip content={<ChartTooltip unit={unit} />} cursor={{ stroke: CHART.axis, strokeDasharray: '4 4' }} />
                         <Area
                             type="monotone"
                             dataKey="count"
@@ -122,12 +125,14 @@ export default function ContactsAreaChart({ series }) {
                 <div className="mt-3 max-h-60 overflow-y-auto rounded-field border border-ui-border">
                     <table className="w-full text-left">
                         <caption className="sr-only">
-                            Contacts WhatsApp par {days > 30 ? 'semaine' : 'jour'}, {days} derniers jours
+                            {unit.other} par {days > 30 ? 'semaine' : 'jour'}, {days} derniers jours
                         </caption>
                         <thead className="sticky top-0 bg-ui-bg text-xs uppercase tracking-wider text-ui-muted">
                             <tr>
                                 <th scope="col" className="px-3 py-2">{days > 30 ? 'Semaine du' : 'Jour'}</th>
-                                <th scope="col" className="px-3 py-2 text-right">Contacts</th>
+                                <th scope="col" className="px-3 py-2 text-right">
+                                    {unit.other.charAt(0).toUpperCase() + unit.other.slice(1)}
+                                </th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-ui-border">

@@ -1,16 +1,17 @@
-import ContactsAreaChart from '@/Components/charts/ContactsAreaChart';
+import ActivityAreaChart from '@/Components/charts/ActivityAreaChart';
 import RankingBars from '@/Components/charts/RankingBars';
 import StatusDonut from '@/Components/charts/StatusDonut';
 import ContactStatusMenu from '@/Components/dashboard/ContactStatusMenu';
 import FlashMessages from '@/Components/dashboard/FlashMessages';
 import PageHeading from '@/Components/dashboard/PageHeading';
 import Panel from '@/Components/dashboard/Panel';
-import { Alert, Avatar, Badge, Button, cx, EmptyState, focusRing, StatCard } from '@/Components/ui';
+import { Alert, Avatar, Badge, Button, cx, EmptyState, FilterTabs, focusRing, StatCard } from '@/Components/ui';
 import { CHART } from '@/Constants/chart';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { formatNumber, formatRelative } from '@/utils/format';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { ArrowRight, Building2, CircleCheck, Eye, MessageCircle, MessageCircleOff, Plus, ShieldCheck, Sparkles } from 'lucide-react';
+import { useState } from 'react';
 
 const CERTIFICATION_LABELS = {
     verified: { value: 'Certifiée', hint: 'Ton badge est visible sur tes annonces.' },
@@ -99,11 +100,23 @@ function RecentContacts({ contacts }) {
     );
 }
 
-export default function Dashboard({ certification, stats, contactsSeries, recentContacts, annoncesByStatus, topViewed }) {
+const METRICS = {
+    views: { label: 'Vues', unit: { one: 'vue', other: 'vues' }, empty: 'Les vues de tes annonces s’afficheront ici dès les premières visites.' },
+    contacts: {
+        label: 'Contacts WhatsApp',
+        unit: { one: 'contact WhatsApp', other: 'contacts WhatsApp' },
+        empty: 'Dès qu’un étudiant te contacte, l’évolution s’affichera ici.',
+    },
+};
+
+export default function Dashboard({ certification, stats, contactsSeries, viewsSeries, recentContacts, annoncesByStatus, topViewed }) {
+    const [metric, setMetric] = useState('views');
     const { user } = usePage().props.auth;
     const isVerified = user.is_verified;
     const certificationState = CERTIFICATION_LABELS[isVerified ? 'verified' : certification?.status ?? 'none'];
     const hasContacts = contactsSeries.some((point) => point.count > 0);
+    const activitySeries = metric === 'views' ? viewsSeries : contactsSeries;
+    const hasActivity = activitySeries.some((point) => point.count > 0);
 
     const statusItems = [
         { key: 'disponible', label: 'Disponibles', value: annoncesByStatus.disponible, color: CHART.gold },
@@ -145,19 +158,38 @@ export default function Dashboard({ certification, stats, contactsSeries, recent
                         hint={stats.contactsDelta === null ? `${stats.contactsLast30} ces 30 derniers jours` : undefined}
                         sparkline={hasContacts ? weeklyTotals(contactsSeries) : undefined}
                     />
-                    <StatCard icon={Eye} label="Vues totales" value={formatNumber(stats.viewsTotal)} hint="Depuis la publication" />
+                    <StatCard
+                        icon={Eye}
+                        label="Vues ce mois"
+                        value={formatNumber(stats.viewsThisMonth)}
+                        hint={`${formatNumber(stats.viewsTotal)} depuis la publication`}
+                        sparkline={viewsSeries.some((point) => point.count > 0) ? weeklyTotals(viewsSeries) : undefined}
+                    />
                     <StatCard icon={ShieldCheck} label="Certification" value={certificationState.value} hint={certificationState.hint} />
                 </div>
 
                 <div className="grid gap-6 lg:grid-cols-3">
-                    <Panel title="Contacts WhatsApp reçus" description="Par jour, sur toutes tes annonces" className="lg:col-span-2">
-                        {hasContacts ? (
-                            <ContactsAreaChart series={contactsSeries} />
+                    <Panel
+                        title="Activité de mes annonces"
+                        description="Par jour, sur toutes tes annonces"
+                        className="lg:col-span-2"
+                        action={
+                            <FilterTabs
+                                label="Mesure affichée"
+                                value={metric}
+                                onChange={setMetric}
+                                items={Object.entries(METRICS).map(([key, { label }]) => ({ key, label }))}
+                                className="mx-0 px-0"
+                            />
+                        }
+                    >
+                        {hasActivity ? (
+                            <ActivityAreaChart key={metric} series={activitySeries} unit={METRICS[metric].unit} />
                         ) : (
                             <EmptyState
-                                icon={MessageCircleOff}
-                                title="Pas encore de contact"
-                                description="Dès qu'un étudiant te contacte, l'évolution s'affichera ici."
+                                icon={metric === 'views' ? Eye : MessageCircleOff}
+                                title={metric === 'views' ? 'Pas encore de vue' : 'Pas encore de contact'}
+                                description={METRICS[metric].empty}
                                 className="border-0 py-10"
                             />
                         )}

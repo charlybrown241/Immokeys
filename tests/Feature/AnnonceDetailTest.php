@@ -179,6 +179,21 @@ class AnnonceDetailTest extends TestCase
         $this->assertSame(1, $annonce->fresh()->views_count);
     }
 
+    public function test_views_are_also_counted_per_day_once_per_session(): void
+    {
+        $annonce = $this->annonce($this->owner());
+
+        $this->get("/annonces/{$annonce->id}");
+        $this->get("/annonces/{$annonce->id}");
+        $this->assertDatabaseHas('annonce_views', ['annonce_id' => $annonce->id, 'day' => now()->toDateString(), 'count' => 1]);
+
+        // A new session the same day adds to the same row.
+        $this->flushSession();
+        $this->get("/annonces/{$annonce->id}");
+        $this->assertDatabaseHas('annonce_views', ['annonce_id' => $annonce->id, 'day' => now()->toDateString(), 'count' => 2]);
+        $this->assertDatabaseCount('annonce_views', 1);
+    }
+
     public function test_a_new_session_counts_as_a_new_view(): void
     {
         $annonce = $this->annonce($this->owner());

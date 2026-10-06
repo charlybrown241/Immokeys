@@ -101,6 +101,28 @@ class DashboardTest extends TestCase
             ->where('contactsSeries.0.count', 0));
     }
 
+    public function test_views_series_and_this_month_total(): void
+    {
+        $owner = $this->verifiedProprietaire();
+        $mine = $this->annonceFor($owner, ['status' => 'disponible']);
+        $other = $this->annonceFor($this->verifiedProprietaire(), ['status' => 'disponible']);
+
+        DB::table('annonce_views')->insert([
+            ['annonce_id' => $mine->id, 'day' => now()->toDateString(), 'count' => 4],
+            ['annonce_id' => $mine->id, 'day' => now()->subDays(2)->toDateString(), 'count' => 3],
+            ['annonce_id' => $mine->id, 'day' => now()->subDays(120)->toDateString(), 'count' => 50],
+            ['annonce_id' => $other->id, 'day' => now()->toDateString(), 'count' => 99],
+        ]);
+
+        $expectedMonth = 4 + (now()->subDays(2)->isSameMonth(now()) ? 3 : 0);
+
+        $this->actingAs($owner)->get('/dashboard')->assertInertia(fn ($page) => $page
+            ->has('viewsSeries', 90)
+            ->where('viewsSeries.89.count', 4)
+            ->where('viewsSeries.87.count', 3)
+            ->where('stats.viewsThisMonth', $expectedMonth));
+    }
+
     public function test_recent_contacts_and_top_viewed_annonces(): void
     {
         $owner = $this->verifiedProprietaire();
