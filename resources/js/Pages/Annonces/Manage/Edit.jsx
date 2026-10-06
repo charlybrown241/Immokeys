@@ -1,10 +1,11 @@
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
-import { inputClasses } from '@/Constants/theme';
+import { GENERAL_FIELDS, GeneralFields, LOCATION_FIELDS, LocationFields } from '@/Components/annonces/AnnonceFields';
+import PageHeading from '@/Components/dashboard/PageHeading';
+import Panel from '@/Components/dashboard/Panel';
+import { Alert, Badge, Button, Select } from '@/Components/ui';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
+import { Ban, Eye, Save, ToggleRight } from 'lucide-react';
+import { useRef } from 'react';
 
 const STATUS_OPTIONS = [
     { value: 'en_attente', label: 'En attente' },
@@ -12,8 +13,24 @@ const STATUS_OPTIONS = [
     { value: 'loue', label: 'Louée' },
 ];
 
+const STATUS_HINTS = {
+    en_attente: "Invisible pour les étudiants tant qu'elle n'est pas disponible.",
+    disponible: 'Visible dans la recherche, les étudiants peuvent te contacter.',
+    loue: 'Reste consultable, mais le contact WhatsApp est désactivé.',
+};
+
 export default function Edit({ annonce, categories }) {
-    const { data, setData, put, processing, errors } = useForm({
+    const refs = {
+        status: useRef(null),
+        title: useRef(null),
+        category_id: useRef(null),
+        description: useRef(null),
+        quartier: useRef(null),
+        surface: useRef(null),
+        price: useRef(null),
+    };
+
+    const { data, setData, put, processing, errors, clearErrors } = useForm({
         title: annonce.title,
         category_id: annonce.category_id,
         description: annonce.description,
@@ -23,226 +40,105 @@ export default function Edit({ annonce, categories }) {
         status: annonce.status,
     });
 
+    const update = (field, value) => {
+        setData(field, value);
+        clearErrors(field);
+    };
+
     const submit = (e) => {
         e.preventDefault();
 
-        put(route('annonces.update', annonce.id));
+        put(route('annonces.update', annonce.id), {
+            onError: (formErrors) => {
+                const first = ['status', ...GENERAL_FIELDS, ...LOCATION_FIELDS].find((field) => formErrors[field]);
+                refs[first]?.current?.focus();
+            },
+        });
     };
+
+    const isPublic = annonce.status !== 'en_attente' && !annonce.is_suspended;
+    const photos = [...(annonce.photos ?? [])].sort((a, b) => a.ordre - b.ordre);
 
     return (
         <DashboardLayout
             header={
-                <h2 className="font-heading text-2xl font-semibold leading-tight text-ui-text">
-                    Modifier l'annonce
-                </h2>
+                <PageHeading
+                    title="Modifier l'annonce"
+                    subtitle={annonce.title}
+                    actions={
+                        isPublic && (
+                            <Button as={Link} href={route('annonces.show', annonce.id)} variant="outline" icon={Eye}>
+                                Voir l'annonce
+                            </Button>
+                        )
+                    }
+                />
             }
         >
             <Head title="Modifier l'annonce" />
 
-            <div className="py-10">
-                <div className="mx-auto max-w-3xl px-4 md:px-7">
-                    <div className="rounded-card bg-white p-6 shadow-card sm:p-8">
-                        {annonce.photos?.length > 0 && (
-                            <div className="mb-6">
-                                <p className="text-sm font-semibold text-ui-text">
-                                    Photos
-                                </p>
-                                <p className="mt-0.5 text-xs text-ui-muted">
-                                    Les photos ne peuvent pas encore être
-                                    modifiées après la publication.
-                                </p>
-                                <div className="mt-3 grid grid-cols-4 gap-2">
-                                    {annonce.photos.map((photo) => (
-                                        <img
-                                            key={photo.id}
-                                            src={`/storage/${photo.path}`}
-                                            alt=""
-                                            className="aspect-square w-full rounded-field object-cover"
-                                        />
-                                    ))}
-                                </div>
-                            </div>
-                        )}
+            <form onSubmit={submit} noValidate className="mx-auto max-w-3xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+                {annonce.is_suspended && (
+                    <Alert variant="danger" icon={Ban} title="Annonce suspendue par l'administrateur">
+                        Elle reste masquée aux étudiants, même si tu la passes en « Disponible ». Contacte-nous pour en savoir plus.
+                    </Alert>
+                )}
 
-                        <form onSubmit={submit} className="space-y-4">
-                            <div>
-                                <InputLabel htmlFor="status" value="Statut" />
-                                <select
-                                    id="status"
-                                    value={data.status}
-                                    onChange={(e) =>
-                                        setData('status', e.target.value)
-                                    }
-                                    className={`mt-1 block w-full ${inputClasses}`}
-                                >
-                                    {STATUS_OPTIONS.map((option) => (
-                                        <option
-                                            key={option.value}
-                                            value={option.value}
-                                        >
-                                            {option.label}
-                                        </option>
-                                    ))}
-                                </select>
-                                <InputError
-                                    message={errors.status}
-                                    className="mt-2"
-                                />
-                            </div>
+                <Panel title="Statut" description="Contrôle la visibilité de l'annonce.">
+                    <Select
+                        ref={refs.status}
+                        id="status"
+                        label="Statut de l'annonce"
+                        icon={ToggleRight}
+                        options={STATUS_OPTIONS}
+                        value={data.status}
+                        onChange={(e) => update('status', e.target.value)}
+                        hint={STATUS_HINTS[data.status]}
+                        error={errors.status}
+                    />
+                </Panel>
 
-                            <div>
-                                <InputLabel
-                                    htmlFor="title"
-                                    value="Titre de l'annonce"
-                                />
-                                <TextInput
-                                    id="title"
-                                    value={data.title}
-                                    className="mt-1 block w-full"
-                                    onChange={(e) =>
-                                        setData('title', e.target.value)
-                                    }
-                                />
-                                <InputError
-                                    message={errors.title}
-                                    className="mt-2"
-                                />
-                            </div>
+                <Panel title="Infos générales">
+                    <GeneralFields data={data} setData={update} errors={errors} categories={categories} refs={refs} />
+                </Panel>
 
-                            <div>
-                                <InputLabel
-                                    htmlFor="category_id"
-                                    value="Catégorie"
-                                />
-                                <select
-                                    id="category_id"
-                                    value={data.category_id}
-                                    onChange={(e) =>
-                                        setData(
-                                            'category_id',
-                                            e.target.value,
-                                        )
-                                    }
-                                    className={`mt-1 block w-full ${inputClasses}`}
-                                >
-                                    {categories.map((category) => (
-                                        <option
-                                            key={category.id}
-                                            value={category.id}
-                                        >
-                                            {category.name}
-                                        </option>
-                                    ))}
-                                </select>
-                                <InputError
-                                    message={errors.category_id}
-                                    className="mt-2"
-                                />
-                            </div>
+                <Panel title="Localisation & prix">
+                    <LocationFields data={data} setData={update} errors={errors} refs={refs} />
+                </Panel>
 
-                            <div>
-                                <InputLabel
-                                    htmlFor="description"
-                                    value="Description"
-                                />
-                                <textarea
-                                    id="description"
-                                    value={data.description}
-                                    onChange={(e) =>
-                                        setData(
-                                            'description',
-                                            e.target.value,
-                                        )
-                                    }
-                                    rows={5}
-                                    className={`mt-1 block w-full ${inputClasses}`}
-                                />
-                                <InputError
-                                    message={errors.description}
-                                    className="mt-2"
-                                />
-                            </div>
+                <Panel title="Photos" description="Les photos ne peuvent pas encore être modifiées après la publication.">
+                    {photos.length > 0 ? (
+                        <ul className="grid grid-cols-3 gap-3 sm:grid-cols-4">
+                            {photos.map((photo, index) => (
+                                <li key={photo.id} className="relative overflow-hidden rounded-field border border-ui-border">
+                                    <img
+                                        src={`/storage/${photo.path}`}
+                                        alt={`Photo ${index + 1} de l'annonce`}
+                                        loading="lazy"
+                                        className="aspect-square w-full object-cover"
+                                    />
+                                    {index === 0 && (
+                                        <Badge variant="navy" className="absolute left-1.5 top-1.5">
+                                            Principale
+                                        </Badge>
+                                    )}
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p className="text-sm text-ui-muted">Cette annonce n'a pas de photo.</p>
+                    )}
+                </Panel>
 
-                            <div>
-                                <InputLabel
-                                    htmlFor="quartier"
-                                    value="Quartier"
-                                />
-                                <TextInput
-                                    id="quartier"
-                                    value={data.quartier}
-                                    className="mt-1 block w-full"
-                                    onChange={(e) =>
-                                        setData('quartier', e.target.value)
-                                    }
-                                />
-                                <InputError
-                                    message={errors.quartier}
-                                    className="mt-2"
-                                />
-                            </div>
-
-                            <div>
-                                <InputLabel
-                                    htmlFor="surface"
-                                    value="Surface (m², optionnel)"
-                                />
-                                <TextInput
-                                    id="surface"
-                                    type="number"
-                                    min="1"
-                                    value={data.surface}
-                                    className="mt-1 block w-full"
-                                    onChange={(e) =>
-                                        setData('surface', e.target.value)
-                                    }
-                                />
-                                <InputError
-                                    message={errors.surface}
-                                    className="mt-2"
-                                />
-                            </div>
-
-                            <div>
-                                <InputLabel
-                                    htmlFor="price"
-                                    value="Loyer mensuel (MAD)"
-                                />
-                                <TextInput
-                                    id="price"
-                                    type="number"
-                                    min="0"
-                                    step="0.01"
-                                    value={data.price}
-                                    className="mt-1 block w-full"
-                                    onChange={(e) =>
-                                        setData('price', e.target.value)
-                                    }
-                                />
-                                <InputError
-                                    message={errors.price}
-                                    className="mt-2"
-                                />
-                            </div>
-
-                            <div className="flex items-center gap-3 border-t border-ui-border pt-6 sm:justify-between">
-                                <Link
-                                    href={route('annonces.mine')}
-                                    className="inline-flex min-h-10 flex-1 items-center justify-center rounded-field border border-ui-border px-5 py-2.5 text-sm font-semibold text-ui-text transition hover:border-ui-text/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-600 focus-visible:ring-offset-2 sm:flex-none"
-                                >
-                                    Annuler
-                                </Link>
-                                <PrimaryButton
-                                    className="flex-1 sm:flex-none"
-                                    disabled={processing}
-                                >
-                                    Enregistrer
-                                </PrimaryButton>
-                            </div>
-                        </form>
-                    </div>
+                <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                    <Button as={Link} href={route('annonces.mine')} variant="ghost">
+                        Annuler
+                    </Button>
+                    <Button type="submit" icon={Save} loading={processing}>
+                        {processing ? 'Enregistrement…' : 'Enregistrer les modifications'}
+                    </Button>
                 </div>
-            </div>
+            </form>
         </DashboardLayout>
     );
 }

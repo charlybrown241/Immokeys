@@ -12,4 +12,5 @@ export { default as PasswordInput } from './PasswordInput';
 export { default as Select } from './Select';
 export { default as Skeleton } from './Skeleton';
 export { default as StatCard } from './StatCard';
+export { default as Textarea } from './Textarea';
 export { cx, focusRing } from './styles';
