@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\CertificationController as AdminCertificationCont
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\AnnonceController;
+use App\Http\Controllers\AnnoncePhotoController;
 use App\Http\Controllers\CertificationController;
 use App\Http\Controllers\ContactLogStatusController;
 use App\Http\Controllers\DashboardController;
@@ -70,6 +71,13 @@ Route::middleware(['auth', 'verified', 'role:proprietaire'])->group(function () 
     Route::get('/annonces/{annonce}/edit', [AnnonceController::class, 'edit'])->name('annonces.edit');
     Route::put('/annonces/{annonce}', [AnnonceController::class, 'update'])->name('annonces.update');
     Route::delete('/annonces/{annonce}', [AnnonceController::class, 'destroy'])->name('annonces.destroy');
+
+    // Photos of an existing annonce; scopeBindings() 404s a photo of another annonce.
+    Route::scopeBindings()->group(function () {
+        Route::post('/annonces/{annonce}/photos', [AnnoncePhotoController::class, 'store'])->name('annonces.photos.store');
+        Route::delete('/annonces/{annonce}/photos/{photo}', [AnnoncePhotoController::class, 'destroy'])->name('annonces.photos.destroy');
+        Route::patch('/annonces/{annonce}/photos/{photo}/principale', [AnnoncePhotoController::class, 'makeMain'])->name('annonces.photos.main');
+    });
 
     Route::patch('/demandes/{contactLog}/statut', ContactLogStatusController::class)->name('contacts.status');
 });

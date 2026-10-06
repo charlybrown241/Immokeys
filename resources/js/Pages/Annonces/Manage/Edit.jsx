@@ -7,9 +7,11 @@ import {
     LOCATION_FIELDS,
     LocationFields,
 } from '@/Components/annonces/AnnonceFields';
+import PhotoManager from '@/Components/annonces/PhotoManager';
+import FlashMessages from '@/Components/dashboard/FlashMessages';
 import PageHeading from '@/Components/dashboard/PageHeading';
 import Panel from '@/Components/dashboard/Panel';
-import { Alert, Badge, Button, Select } from '@/Components/ui';
+import { Alert, Button, Select } from '@/Components/ui';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Ban, Eye, Save, ToggleRight } from 'lucide-react';
@@ -95,6 +97,8 @@ export default function Edit({ annonce, categories, amenities }) {
             <Head title="Modifier l'annonce" />
 
             <form onSubmit={submit} noValidate className="mx-auto max-w-3xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+                <FlashMessages />
+
                 {annonce.is_suspended && (
                     <Alert variant="danger" icon={Ban} title="Annonce suspendue par l'administrateur">
                         Elle reste masquée aux étudiants, même si tu la passes en « Disponible ». Contacte-nous pour en savoir plus.
@@ -127,28 +131,8 @@ export default function Edit({ annonce, categories, amenities }) {
                     <LocationFields data={data} setData={update} errors={errors} refs={refs} />
                 </Panel>
 
-                <Panel title="Photos" description="Les photos ne peuvent pas encore être modifiées après la publication.">
-                    {photos.length > 0 ? (
-                        <ul className="grid grid-cols-3 gap-3 sm:grid-cols-4">
-                            {photos.map((photo, index) => (
-                                <li key={photo.id} className="relative overflow-hidden rounded-field border border-ui-border">
-                                    <img
-                                        src={`/storage/${photo.path}`}
-                                        alt={`Photo ${index + 1} de l'annonce`}
-                                        loading="lazy"
-                                        className="aspect-square w-full object-cover"
-                                    />
-                                    {index === 0 && (
-                                        <Badge variant="navy" className="absolute left-1.5 top-1.5">
-                                            Principale
-                                        </Badge>
-                                    )}
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <p className="text-sm text-ui-muted">Cette annonce n'a pas de photo.</p>
-                    )}
+                <Panel title="Photos" description="Les changements de photos sont enregistrés immédiatement.">
+                    <PhotoManager annonceId={annonce.id} photos={photos} />
                 </Panel>
 
                 <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
