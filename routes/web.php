@@ -9,6 +9,7 @@ use App\Http\Controllers\AnnoncePhotoController;
 use App\Http\Controllers\CertificationController;
 use App\Http\Controllers\ContactLogStatusController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicAnnonceController;
@@ -25,6 +26,16 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 Route::get('/mon-espace', [StudentDashboardController::class, 'index'])
     ->middleware(['auth', 'verified', 'role:etudiant'])
     ->name('student.dashboard');
+
+Route::middleware(['auth', 'verified', 'role:etudiant'])->group(function () {
+    Route::post('/favoris/{annonce}', [FavoriteController::class, 'toggle'])
+        ->whereNumber('annonce')
+        ->middleware('throttle:60,1')
+        ->name('favorites.toggle');
+    Route::put('/favoris', [FavoriteController::class, 'sync'])
+        ->middleware('throttle:10,1')
+        ->name('favorites.sync');
+});
 
 Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])
     ->middleware(['auth', 'verified', 'role:admin'])

@@ -13,12 +13,11 @@ use Inertia\Response;
 
 class StudentDashboardController extends Controller
 {
-    private const MAX_CARDS = 12;
+    private const MAX_CARDS = 24;
 
     /**
-     * Student space: recently viewed annonces (session), WhatsApp contact
-     * history (contact_logs) and favourites. Favourites live in the
-     * browser, so the page sends their ids back to fetch the cards.
+     * Student space: favourites, recently viewed annonces (session) and the
+     * WhatsApp contact history (contact_logs).
      */
     public function index(Request $request): Response
     {
@@ -51,11 +50,10 @@ class StudentDashboardController extends Controller
                 ]),
             'contactsCount' => ContactLog::where('user_id', $user->id)->count(),
             'categories' => Category::orderBy('name')->get(['id', 'name']),
-            // Only evaluated on the partial reload that sends the ids.
-            'favorites' => Inertia::optional(fn () => $this->cards(
-                collect((array) $request->input('favoris', []))->map(fn ($id) => (int) $id)->filter()->all(),
+            'favorites' => $this->cards(
+                $user->favoriteAnnonces()->orderByPivot('created_at', 'desc')->pluck('annonces.id')->all(),
                 $user,
-            )),
+            ),
         ]);
     }
 

@@ -1,3 +1,4 @@
+import FavoritesSync from '@/Components/FavoritesSync';
 import Footer from '@/Components/layout/Footer';
 import PublicInfoBar from '@/Components/layout/PublicInfoBar';
 import PublicNavbar from '@/Components/layout/PublicNavbar';
@@ -15,6 +16,7 @@ export default function PublicLayout({ children }) {
             >
                 Aller au contenu
             </a>
+            <FavoritesSync />
             <PublicInfoBar />
             <PublicNavbar />
             <main id="contenu" className="flex-1">

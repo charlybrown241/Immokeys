@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Http\Middleware\HandleInertiaRequests;
 use App\Models\Annonce;
 use App\Models\ContactLog;
 use App\Models\Role;
@@ -30,7 +29,7 @@ class StudentDashboardTest extends TestCase
         $this->actingAs($this->userWithRole('etudiant'))
             ->get('/mon-espace')
             ->assertOk()
-            ->assertInertia(fn (Assert $page) => $page->component('Student/Dashboard')->missing('favorites'));
+            ->assertInertia(fn (Assert $page) => $page->component('Student/Dashboard')->has('favorites', 0));
     }
 
     public function test_recently_viewed_annonces_come_from_the_session_newest_first(): void
@@ -62,21 +61,18 @@ class StudentDashboardTest extends TestCase
             ->where('contacts.0.annonce.available', true));
     }
 
-    public function test_favorites_are_loaded_on_demand_in_the_given_order(): void
+    public function test_favorites_come_from_the_account_newest_first_and_skip_hidden_ones(): void
     {
-        $a = Annonce::factory()->create();
-        $b = Annonce::factory()->create();
-        $pending = Annonce::factory()->pending()->create();
+        $student = $this->userWithRole('etudiant');
+        $older = Annonce::factory()->create();
+        $newer = Annonce::factory()->create();
+        $hidden = Annonce::factory()->create(['is_suspended' => true]);
+        $student->favoriteAnnonces()->attach($older->id, ['created_at' => now()->subDay(), 'updated_at' => now()->subDay()]);
+        $student->favoriteAnnonces()->attach([$newer->id, $hidden->id]);
 
-        $this->actingAs($this->userWithRole('etudiant'))
-            ->get('/mon-espace?'.http_build_query(['favoris' => [$b->id, $pending->id, $a->id]]), [
-                'X-Inertia' => 'true',
-                'X-Inertia-Version' => app(HandleInertiaRequests::class)->version(request()),
-                'X-Inertia-Partial-Component' => 'Student/Dashboard',
-                'X-Inertia-Partial-Data' => 'favorites',
-            ])
-            ->assertJsonCount(2, 'props.favorites')
-            ->assertJsonPath('props.favorites.0.id', $b->id)
-            ->assertJsonPath('props.favorites.1.id', $a->id);
+        $this->actingAs($student)->get('/mon-espace')->assertInertia(fn (Assert $page) => $page
+            ->has('favorites', 2)
+            ->where('favorites.0.id', $newer->id)
+            ->where('favorites.1.id', $older->id));
     }
 }

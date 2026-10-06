@@ -47,6 +47,11 @@ class HandleInertiaRequests extends Middleware
                     ->count(),
                 'whatsapp' => config('services.immokeys.whatsapp'),
             ],
+            // Ids of the signed-in student's favourites (null for others:
+            // guests and other roles keep favourites in the browser).
+            'favorites' => fn () => $user?->role?->name === 'etudiant'
+                ? $user->favoriteAnnonces()->pluck('annonces.id')
+                : null,
             'notifications' => [
                 'pending_certifications' => fn () => $user?->role?->name === 'admin'
                     ? Certification::where('status', 'en_attente')->count()
