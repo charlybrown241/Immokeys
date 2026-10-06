@@ -1,102 +1,84 @@
-import Modal from '@/Components/Modal';
-import PrimaryButton from '@/Components/PrimaryButton';
-import SecondaryButton from '@/Components/SecondaryButton';
-import { badgeWarning } from '@/Constants/theme';
+import FlashMessages from '@/Components/dashboard/FlashMessages';
+import PageHeading from '@/Components/dashboard/PageHeading';
+import { Alert, Badge, Button, Card, cx, Dialog } from '@/Components/ui';
 import DashboardLayout from '@/Layouts/DashboardLayout';
+import { formatDate } from '@/utils/format';
 import { Head, router, usePage } from '@inertiajs/react';
+import { BadgeCheck, Check, Clock, Crown, FlaskConical, RefreshCw, Sparkles } from 'lucide-react';
 import { useState } from 'react';
 
-const PREMIUM_BENEFITS = [
-    'Sans publicité',
-    'Annonces en tête de liste',
-    'Support prioritaire',
-];
+const FREE_BENEFITS = ['Toutes les annonces de Casablanca', 'Contact WhatsApp des propriétaires', 'Publicités affichées'];
+const PREMIUM_BENEFITS = ['Sans publicité', 'Annonces en tête de liste', 'Support prioritaire'];
+const PRO_BENEFITS = ['Badge de confiance sur vos annonces', 'Visibilité accrue auprès des étudiants'];
 
-const PRO_BENEFITS = [
-    'Badge de confiance sur vos annonces',
-    'Visibilité accrue auprès des étudiants',
-];
-
-function formatDate(value) {
-    return value ? new Date(value).toLocaleDateString('fr-FR') : null;
+function isActive(subscription) {
+    return !subscription.expires_at || new Date(subscription.expires_at) > new Date();
 }
 
-/**
- * Plan card shared by both roles: current status on top, then an optional
- * benefit list and call to action.
- */
-function PlanCard({ plan, expiresAt, badge, benefits, action }) {
+function PlanCard({ icon: Icon, name, benefits, current, status, action, highlight = false }) {
     return (
-        <div className="rounded-card bg-white p-[22px] shadow-card">
-            <div className="flex items-start justify-between gap-4">
-                <div>
-                    <span className="text-sm text-ui-muted">Statut actuel</span>
-                    <p className="mt-1 font-heading text-3xl font-semibold text-ui-text">
-                        {plan}
-                    </p>
-                    {expiresAt && (
-                        <p className="mt-1 text-sm text-ui-muted">
-                            Valable jusqu'au {formatDate(expiresAt)}
-                        </p>
+        <Card
+            as="section"
+            aria-label={`Formule ${name}`}
+            className={cx('flex h-full flex-col', highlight && 'ring-2 ring-gold-600 ring-offset-2 ring-offset-ui-bg')}
+        >
+            <div className="flex items-start justify-between gap-3">
+                <span
+                    className={cx(
+                        'inline-flex h-11 w-11 items-center justify-center rounded-field',
+                        highlight ? 'bg-gold-gradient text-navy-900' : 'bg-ui-bg text-ui-muted',
                     )}
-                </div>
-                {badge && (
-                    <span className={`px-3 py-1 text-xs ${badgeWarning}`}>
-                        {badge}
-                    </span>
-                )}
+                >
+                    <Icon size={22} aria-hidden="true" />
+                </span>
+                {current && <Badge variant="brand">Plan actuel</Badge>}
             </div>
+            <h2 className="mt-4 font-heading text-2xl font-extrabold text-navy-900">{name}</h2>
+            {status && <div className="mt-1">{status}</div>}
 
-            {(benefits || action) && (
-                <div className="mt-5 border-t border-ui-border pt-5">
-                    {benefits && (
-                        <ul className="space-y-2.5 text-sm text-ui-text">
-                            {benefits.map((benefit) => (
-                                <li
-                                    key={benefit}
-                                    className="flex items-center gap-2.5"
-                                >
-                                    <svg
-                                        className="h-4 w-4 shrink-0 text-gold-700"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="3"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        viewBox="0 0 24 24"
-                                        aria-hidden="true"
-                                    >
-                                        <path d="m5 12 5 5L20 7" />
-                                    </svg>
-                                    {benefit}
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                    {action && <div className="mt-5">{action}</div>}
-                </div>
-            )}
-        </div>
+            <ul className="mt-5 space-y-2.5 border-t border-ui-border pt-5 text-sm text-ui-text">
+                {benefits.map((benefit) => (
+                    <li key={benefit} className="flex items-start gap-2.5">
+                        <Check size={16} className="mt-0.5 shrink-0 text-gold-700" aria-hidden="true" />
+                        {benefit}
+                    </li>
+                ))}
+            </ul>
+
+            {action && <div className="mt-auto pt-6">{action}</div>}
+        </Card>
+    );
+}
+
+function Validity({ subscription }) {
+    if (!subscription.expires_at) return null;
+    return isActive(subscription) ? (
+        <p className="text-sm text-ui-muted">Valable jusqu'au {formatDate(subscription.expires_at, { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+    ) : (
+        <Badge variant="warning" icon={Clock}>
+            Expiré le {formatDate(subscription.expires_at)}
+        </Badge>
     );
 }
 
 export default function Show({ subscription }) {
-    const { auth, flash } = usePage().props;
+    const { auth } = usePage().props;
     const roleName = auth.user.role?.name;
     const isEtudiant = roleName === 'etudiant';
     const isProprietaire = roleName === 'proprietaire';
-    const isPremium = subscription.type === 'premium';
+    const active = isActive(subscription);
+    const isPremium = subscription.type === 'premium' && active;
 
     const [confirming, setConfirming] = useState(false);
     const [processing, setProcessing] = useState(false);
 
     const confirmAction = () => {
-        setProcessing(true);
-
         router.post(
             route(isEtudiant ? 'subscription.upgrade' : 'subscription.renew'),
             {},
             {
+                preserveScroll: true,
+                onStart: () => setProcessing(true),
                 onFinish: () => {
                     setProcessing(false);
                     setConfirming(false);
@@ -105,96 +87,96 @@ export default function Show({ subscription }) {
         );
     };
 
+    const premiumExpired = subscription.type === 'premium' && !active;
+    const actionLabel = isEtudiant ? (premiumExpired ? 'Renouveler Premium' : 'Passer Premium') : 'Renouveler mon abonnement Pro';
+
     return (
         <DashboardLayout
             header={
-                <h2 className="font-heading text-2xl font-semibold leading-tight text-ui-text">
-                    Mon abonnement
-                </h2>
+                <PageHeading
+                    title="Mon abonnement"
+                    subtitle={isEtudiant ? 'Choisis la formule qui te convient.' : 'Ton abonnement propriétaire Pro.'}
+                />
             }
         >
             <Head title="Mon abonnement" />
 
-            <div className="py-10">
-                <div className="mx-auto max-w-md space-y-4 px-4">
-                    {flash?.success && (
-                        <div className="rounded-field bg-success-50 p-4 text-sm text-success-700">
-                            {flash.success}
-                        </div>
-                    )}
+            <div className="mx-auto max-w-4xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+                <FlashMessages />
 
-                    {isEtudiant &&
-                        (isPremium ? (
-                            <PlanCard
-                                plan="Premium"
-                                expiresAt={subscription.expires_at}
-                                badge="Premium actif"
-                            />
-                        ) : (
-                            <PlanCard
-                                plan="Gratuit"
-                                benefits={PREMIUM_BENEFITS}
-                                action={
-                                    <PrimaryButton
+                <Alert variant="info" icon={FlaskConical} title="Paiement simulé">
+                    ImmoKeys est en phase de test : aucune transaction réelle n'est effectuée et aucun moyen de paiement n'est
+                    demandé.
+                </Alert>
+
+                {isEtudiant && (
+                    <div className="grid gap-6 md:grid-cols-2">
+                        <PlanCard icon={Sparkles} name="Gratuit" benefits={FREE_BENEFITS} current={!isPremium} />
+                        <PlanCard
+                            icon={Crown}
+                            name="Premium"
+                            benefits={PREMIUM_BENEFITS}
+                            current={isPremium}
+                            highlight
+                            status={subscription.type === 'premium' && <Validity subscription={subscription} />}
+                            action={
+                                !isPremium && (
+                                    <Button
                                         className="w-full"
+                                        icon={premiumExpired ? RefreshCw : Crown}
                                         onClick={() => setConfirming(true)}
                                     >
-                                        Passer Premium
-                                    </PrimaryButton>
-                                }
-                            />
-                        ))}
-
-                    {isProprietaire && (
-                        <PlanCard
-                            plan="Pro"
-                            expiresAt={subscription.expires_at}
-                            badge="Pro actif"
-                            benefits={PRO_BENEFITS}
-                            action={
-                                <PrimaryButton
-                                    className="w-full"
-                                    onClick={() => setConfirming(true)}
-                                >
-                                    Renouveler mon abonnement Pro
-                                </PrimaryButton>
+                                        {actionLabel}
+                                    </Button>
+                                )
                             }
                         />
-                    )}
-                </div>
+                    </div>
+                )}
+
+                {isProprietaire && (
+                    <div className="mx-auto max-w-md">
+                        <PlanCard
+                            icon={BadgeCheck}
+                            name="Pro"
+                            benefits={PRO_BENEFITS}
+                            current={active}
+                            highlight
+                            status={<Validity subscription={subscription} />}
+                            action={
+                                <Button className="w-full" variant={active ? 'outline' : 'primary'} icon={RefreshCw} onClick={() => setConfirming(true)}>
+                                    {actionLabel}
+                                </Button>
+                            }
+                        />
+                    </div>
+                )}
             </div>
 
-            <Modal
-                show={confirming}
-                onClose={() => setConfirming(false)}
-            >
-                <div className="p-6">
-                    <h2 className="font-heading text-lg font-semibold text-ui-text">
-                        {isEtudiant
-                            ? "Passer à l'abonnement Premium"
-                            : "Renouveler l'abonnement Pro"}
-                    </h2>
-
-                    <div className="mt-4 rounded-field bg-warning-50 p-4 text-sm text-warning-700">
-                        Paiement simulé à des fins pédagogiques — aucune
-                        transaction réelle n'est effectuée.
-                    </div>
-
-                    <div className="mt-6 flex justify-end gap-3">
-                        <SecondaryButton
-                            onClick={() => setConfirming(false)}
-                        >
+            <Dialog
+                open={confirming}
+                onClose={() => !processing && setConfirming(false)}
+                title={isEtudiant ? (premiumExpired ? 'Renouveler Premium' : "Passer à l'abonnement Premium") : "Renouveler l'abonnement Pro"}
+                description={
+                    isEtudiant
+                        ? 'Premium sera actif pendant un mois.'
+                        : "L'abonnement Pro sera prolongé d'un an à partir d'aujourd'hui."
+                }
+                actions={
+                    <>
+                        <Button variant="outline" onClick={() => setConfirming(false)} disabled={processing}>
                             Annuler
-                        </SecondaryButton>
-                        <PrimaryButton
-                            onClick={confirmAction}
-                            disabled={processing}
-                        >
+                        </Button>
+                        <Button onClick={confirmAction} loading={processing}>
                             Confirmer
-                        </PrimaryButton>
-                    </div>
-                </div>
-            </Modal>
+                        </Button>
+                    </>
+                }
+            >
+                <Alert variant="info" icon={FlaskConical} className="mt-4">
+                    Paiement simulé : aucune transaction réelle n'est effectuée.
+                </Alert>
+            </Dialog>
         </DashboardLayout>
     );
 }
