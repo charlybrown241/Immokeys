@@ -5,7 +5,7 @@ const variants = {
     success: 'bg-success-50 text-success-700 ring-success/20',
     warning: 'bg-warning-50 text-warning-700 ring-warning/30',
     danger: 'bg-danger-50 text-danger-700 ring-danger/20',
-    info: 'bg-blue-50 text-blue-700 ring-blue-700/15',
+    info: 'bg-info-50 text-info-700 ring-info-700/15',
     neutral: 'bg-ui-bg text-ui-text ring-ui-border',
     brand: 'bg-gold-50 text-gold-700 ring-gold-600/30',
     // For badges laid over photos.

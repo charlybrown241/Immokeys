@@ -1,12 +1,13 @@
 import DangerButton from '@/Components/DangerButton';
 import PrimaryButton from '@/Components/PrimaryButton';
+import PageHeading from '@/Components/dashboard/PageHeading';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, router, usePage } from '@inertiajs/react';
 
 const STATUS_STYLES = {
-    en_attente: 'bg-yellow-100 text-yellow-800',
-    approuve: 'bg-green-100 text-green-800',
-    rejete: 'bg-red-100 text-red-800',
+    en_attente: 'bg-warning-50 text-warning-700',
+    approuve: 'bg-success-50 text-success-700',
+    rejete: 'bg-danger-50 text-danger-700',
 };
 
 const STATUS_LABELS = {
@@ -38,55 +39,51 @@ export default function Index({ certifications }) {
 
     return (
         <DashboardLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Certifications
-                </h2>
-            }
+            header={<PageHeading title="Certifications d'identité" subtitle="Pièces CIN envoyées par les propriétaires" />}
         >
             <Head title="Certifications" />
 
-            <div className="py-12">
+            <div className="py-8">
                 <div className="mx-auto max-w-7xl space-y-4 px-4 sm:px-6 lg:px-8">
                     {flash?.success && (
-                        <div className="rounded-md bg-green-50 p-4 text-sm text-green-700">
+                        <div className="rounded-field bg-success-50 p-4 text-sm text-success-700">
                             {flash.success}
                         </div>
                     )}
 
-                    <div className="overflow-x-auto bg-white shadow-sm sm:rounded-lg">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
+                    <div className="overflow-x-auto bg-white shadow-sm sm:rounded-card">
+                        <table className="min-w-full divide-y divide-ui-border">
+                            <thead className="bg-ui-bg">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-ui-muted">
                                         Propriétaire
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-ui-muted">
                                         Soumis le
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-ui-muted">
                                         Statut
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-ui-muted">
                                         Document
                                     </th>
-                                    <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+                                    <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-ui-muted">
                                         Actions
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-200 bg-white">
+                            <tbody className="divide-y divide-ui-border bg-white">
                                 {certifications.map((certification) => (
                                     <tr key={certification.id}>
                                         <td className="whitespace-nowrap px-6 py-4">
-                                            <div className="font-medium text-gray-900">
+                                            <div className="font-medium text-ui-text">
                                                 {certification.user.name}
                                             </div>
-                                            <div className="text-sm text-gray-500">
+                                            <div className="text-sm text-ui-muted">
                                                 {certification.user.email}
                                             </div>
                                         </td>
-                                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                                        <td className="whitespace-nowrap px-6 py-4 text-sm text-ui-muted">
                                             {new Date(
                                                 certification.created_at,
                                             ).toLocaleDateString('fr-FR')}
@@ -104,7 +101,7 @@ export default function Index({ certifications }) {
                                                 )}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="text-terracotta-700 underline hover:text-terracotta-900"
+                                                className="text-gold-700 underline hover:text-gold-700"
                                             >
                                                 Voir le document
                                             </a>
@@ -141,7 +138,7 @@ export default function Index({ certifications }) {
                                     <tr>
                                         <td
                                             colSpan={5}
-                                            className="px-6 py-4 text-center text-sm text-gray-500"
+                                            className="px-6 py-4 text-center text-sm text-ui-muted"
                                         >
                                             Aucune certification soumise.
                                         </td>

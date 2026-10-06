@@ -1,20 +1,22 @@
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
+import { AuthHeading } from '@/Components/auth/AuthParts';
+import { Button, PasswordInput } from '@/Components/ui';
 import AuthLayout from '@/Layouts/AuthLayout';
 import { Head, useForm } from '@inertiajs/react';
+import { useRef } from 'react';
 
 export default function ConfirmPassword() {
     const { data, setData, post, processing, errors, reset } = useForm({
         password: '',
     });
 
+    const passwordRef = useRef(null);
+
     const submit = (e) => {
         e.preventDefault();
 
         post(route('password.confirm'), {
             onFinish: () => reset('password'),
+            onError: () => passwordRef.current?.focus(),
         });
     };
 
@@ -22,31 +24,26 @@ export default function ConfirmPassword() {
         <AuthLayout>
             <Head title="Confirmer le mot de passe" />
 
-            <div className="mb-4 text-sm text-ink-soft">
-                Cette zone est sécurisée. Merci de confirmer votre mot de passe
-                pour continuer.
-            </div>
+            <AuthHeading title="Confirme ton mot de passe">
+                Cette zone est sécurisée : confirme ton mot de passe pour continuer.
+            </AuthHeading>
 
-            <form onSubmit={submit}>
-                <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Mot de passe" />
+            <form onSubmit={submit} noValidate className="mt-6 space-y-5">
+                <PasswordInput
+                    ref={passwordRef}
+                    id="password"
+                    name="password"
+                    label="Mot de passe"
+                    value={data.password}
+                    autoComplete="current-password"
+                    autoFocus
+                    error={errors.password}
+                    onChange={(e) => setData('password', e.target.value)}
+                />
 
-                    <TextInput
-                        id="password"
-                        type="password"
-                        name="password"
-                        value={data.password}
-                        className="mt-1 block w-full"
-                        isFocused={true}
-                        onChange={(e) => setData('password', e.target.value)}
-                    />
-
-                    <InputError message={errors.password} className="mt-2" />
-                </div>
-
-                <PrimaryButton className="mt-6 w-full" disabled={processing}>
-                    Confirmer
-                </PrimaryButton>
+                <Button type="submit" size="lg" loading={processing} className="w-full">
+                    {processing ? 'Vérification…' : 'Confirmer'}
+                </Button>
             </form>
         </AuthLayout>
     );

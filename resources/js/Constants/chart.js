@@ -8,6 +8,6 @@ export const CHART = {
     indigo: '#5B45D6',
     neutral: '#94A3B8',
     grid: '#E5E9F2',
-    axis: '#64748B',
+    axis: '#5B6B82',
     surface: '#FFFFFF',
 };

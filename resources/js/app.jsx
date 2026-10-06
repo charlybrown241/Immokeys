@@ -26,6 +26,7 @@ createInertiaApp({
         root.render(<App {...props} />);
     },
     progress: {
-        color: '#4B5563',
+        // Gold progress bar (gold-600) under the navy/white bars.
+        color: '#D49533',
     },
 });

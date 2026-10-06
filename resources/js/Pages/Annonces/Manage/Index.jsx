@@ -2,18 +2,18 @@ import DangerButton from '@/Components/DangerButton';
 import Modal from '@/Components/Modal';
 import SecondaryButton from '@/Components/SecondaryButton';
 import {
-    badgeCertified,
+    badgeSuccess,
     badgeDanger,
     badgeNeutral,
-    badgePending,
+    badgeWarning,
 } from '@/Constants/theme';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
 const STATUS_STYLES = {
-    en_attente: badgePending,
-    disponible: badgeCertified,
+    en_attente: badgeWarning,
+    disponible: badgeSuccess,
     loue: badgeNeutral,
 };
 
@@ -42,7 +42,7 @@ function StatusBadge({ annonce }) {
 }
 
 const actionClasses =
-    'inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-input border px-4 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2';
+    'inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-field border px-4 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2';
 
 export default function Index({ annonces }) {
     const { flash } = usePage().props;
@@ -58,12 +58,12 @@ export default function Index({ annonces }) {
         <DashboardLayout
             header={
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                    <h2 className="font-display text-xl font-semibold leading-tight text-ink sm:text-2xl">
+                    <h2 className="font-heading text-xl font-semibold leading-tight text-ui-text sm:text-2xl">
                         Mes annonces
                     </h2>
                     <Link
                         href={route('annonces.create')}
-                        className="inline-flex min-h-10 items-center rounded-input bg-navbar px-4 py-2.5 text-sm font-semibold text-navbar-ink transition hover:bg-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+                        className="inline-flex min-h-10 items-center rounded-field bg-navy-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-navy-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-600 focus-visible:ring-offset-2"
                     >
                         Publier une annonce
                     </Link>
@@ -75,13 +75,13 @@ export default function Index({ annonces }) {
             <div className="py-10">
                 <div className="mx-auto max-w-7xl space-y-4 px-4 md:px-7">
                     {flash?.success && (
-                        <div className="rounded-input bg-success-bg p-4 text-sm text-success-ink">
+                        <div className="rounded-field bg-success-50 p-4 text-sm text-success-700">
                             {flash.success}
                         </div>
                     )}
 
                     {annonces.length === 0 && (
-                        <div className="rounded-card bg-surface p-10 text-center text-sm text-ink-soft shadow-card">
+                        <div className="rounded-card bg-white p-10 text-center text-sm text-ui-muted shadow-card">
                             Vous n'avez pas encore publié d'annonce.
                         </div>
                     )}
@@ -93,17 +93,18 @@ export default function Index({ annonces }) {
                             return (
                                 <div
                                     key={annonce.id}
-                                    className="flex flex-col overflow-hidden rounded-card bg-surface shadow-card"
+                                    className="flex flex-col overflow-hidden rounded-card bg-white shadow-card"
                                 >
-                                    <div className="aspect-[4/3] w-full overflow-hidden bg-gradient-to-br from-line to-pending-bg">
+                                    <div className="aspect-[4/3] w-full overflow-hidden bg-gradient-to-br from-ui-border to-warning-50">
                                         {mainPhoto ? (
                                             <img
                                                 src={`/storage/${mainPhoto.path}`}
+                                                loading="lazy"
                                                 alt={annonce.title}
                                                 className="h-full w-full object-cover"
                                             />
                                         ) : (
-                                            <div className="flex h-full items-center justify-center text-sm text-ink-soft">
+                                            <div className="flex h-full items-center justify-center text-sm text-ui-muted">
                                                 Aucune photo
                                             </div>
                                         )}
@@ -111,20 +112,20 @@ export default function Index({ annonces }) {
 
                                     <div className="flex flex-1 flex-col p-4">
                                         <div className="flex items-start justify-between gap-3">
-                                            <h3 className="font-display text-lg font-semibold leading-snug text-ink">
+                                            <h3 className="font-heading text-lg font-semibold leading-snug text-ui-text">
                                                 {annonce.title}
                                             </h3>
                                             <StatusBadge annonce={annonce} />
                                         </div>
-                                        <p className="mt-1 text-sm text-ink-soft">
+                                        <p className="mt-1 text-sm text-ui-muted">
                                             {annonce.quartier}
                                         </p>
-                                        <p className="mt-2 text-lg font-bold text-accent-strong">
+                                        <p className="mt-2 text-lg font-bold text-gold-700">
                                             {Number(
                                                 annonce.price,
                                             ).toLocaleString('fr-FR')}{' '}
                                             MAD
-                                            <span className="text-sm font-medium text-ink-soft">
+                                            <span className="text-sm font-medium text-ui-muted">
                                                 {' '}
                                                 / mois
                                             </span>
@@ -136,7 +137,7 @@ export default function Index({ annonces }) {
                                                     'annonces.edit',
                                                     annonce.id,
                                                 )}
-                                                className={`${actionClasses} border-line text-ink hover:border-ink/30 focus-visible:ring-accent`}
+                                                className={`${actionClasses} border-ui-border text-ui-text hover:border-ui-text/30 focus-visible:ring-gold-600`}
                                             >
                                                 Modifier
                                             </Link>
@@ -145,7 +146,7 @@ export default function Index({ annonces }) {
                                                 onClick={() =>
                                                     setAnnonceToDelete(annonce)
                                                 }
-                                                className={`${actionClasses} border-red-200 text-red-700 hover:border-red-300 hover:bg-red-50 focus-visible:ring-red-500`}
+                                                className={`${actionClasses} border-danger text-danger-700 hover:border-danger hover:bg-danger-50 focus-visible:ring-danger`}
                                             >
                                                 Supprimer
                                             </button>
@@ -163,10 +164,10 @@ export default function Index({ annonces }) {
                 onClose={() => setAnnonceToDelete(null)}
             >
                 <div className="p-6">
-                    <h2 className="font-display text-lg font-semibold text-ink">
+                    <h2 className="font-heading text-lg font-semibold text-ui-text">
                         Supprimer cette annonce ?
                     </h2>
-                    <p className="mt-1 text-sm text-ink-soft">
+                    <p className="mt-1 text-sm text-ui-muted">
                         Cette action est irréversible. L'annonce "
                         {annonceToDelete?.title}" et ses photos seront
                         définitivement supprimées.

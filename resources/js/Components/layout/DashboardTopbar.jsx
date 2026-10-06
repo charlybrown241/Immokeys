@@ -138,12 +138,9 @@ export default function DashboardTopbar({ onOpenSidebar }) {
                 >
                     <MenuIcon size={24} aria-hidden="true" />
                 </button>
-                <Link
-                    href={route(auth.home_route)}
-                    aria-label="ImmoKeys, accueil de mon espace"
-                    className={cx('rounded-field lg:hidden', focusRing)}
-                >
+                <Link href={route(auth.home_route)} className={cx('rounded-field lg:hidden', focusRing)}>
                     <Logo variant="icon-light" height={32} />
+                    <span className="sr-only">, accueil de mon espace</span>
                 </Link>
 
                 <SearchForm />

@@ -1,7 +1,8 @@
-import DangerButton from '@/Components/DangerButton';
-import SecondaryButton from '@/Components/SecondaryButton';
+import PageHeading from '@/Components/dashboard/PageHeading';
+import { Button } from '@/Components/ui';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, router, usePage } from '@inertiajs/react';
+import { Ban, RotateCcw } from 'lucide-react';
 
 const ROLE_LABELS = {
     etudiant: 'Étudiant',
@@ -18,66 +19,62 @@ export default function Index({ users }) {
 
     return (
         <DashboardLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Utilisateurs
-                </h2>
-            }
+            header={<PageHeading title="Utilisateurs" subtitle="Comptes étudiants, propriétaires et administrateurs" />}
         >
             <Head title="Utilisateurs" />
 
-            <div className="py-12">
+            <div className="py-8">
                 <div className="mx-auto max-w-7xl space-y-4 px-4 sm:px-6 lg:px-8">
                     {flash?.success && (
-                        <div className="rounded-md bg-green-50 p-4 text-sm text-green-700">
+                        <div className="rounded-field bg-success-50 p-4 text-sm text-success-700">
                             {flash.success}
                         </div>
                     )}
 
-                    <div className="overflow-x-auto bg-white shadow-sm sm:rounded-lg">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
+                    <div className="overflow-x-auto bg-white shadow-sm sm:rounded-card">
+                        <table className="min-w-full divide-y divide-ui-border">
+                            <thead className="bg-ui-bg">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-ui-muted">
                                         Nom
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-ui-muted">
                                         Email
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-ui-muted">
                                         Rôle
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-ui-muted">
                                         Vérification
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-ui-muted">
                                         Compte
                                     </th>
-                                    <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+                                    <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-ui-muted">
                                         Actions
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-200 bg-white">
+                            <tbody className="divide-y divide-ui-border bg-white">
                                 {users.map((user) => (
                                     <tr key={user.id}>
-                                        <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
+                                        <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-ui-text">
                                             {user.name}
                                         </td>
-                                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                                        <td className="whitespace-nowrap px-4 py-3 text-sm text-ui-muted">
                                             {user.email}
                                         </td>
-                                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
+                                        <td className="whitespace-nowrap px-4 py-3 text-sm text-ui-text">
                                             {ROLE_LABELS[user.role] ??
                                                 user.role}
                                         </td>
-                                        <td className="whitespace-nowrap px-6 py-4 text-sm">
+                                        <td className="whitespace-nowrap px-4 py-3 text-sm">
                                             {user.role === 'proprietaire' ? (
                                                 <span
                                                     className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                                                         user.is_verified
-                                                            ? 'bg-green-100 text-green-800'
-                                                            : 'bg-yellow-100 text-yellow-800'
+                                                            ? 'bg-gold-50 text-gold-700'
+                                                            : 'bg-warning-50 text-warning-700'
                                                     }`}
                                                 >
                                                     {user.is_verified
@@ -85,17 +82,17 @@ export default function Index({ users }) {
                                                         : 'Non certifié'}
                                                 </span>
                                             ) : (
-                                                <span className="text-gray-400">
+                                                <span className="text-ui-muted">
                                                     —
                                                 </span>
                                             )}
                                         </td>
-                                        <td className="whitespace-nowrap px-6 py-4 text-sm">
+                                        <td className="whitespace-nowrap px-4 py-3 text-sm">
                                             <span
                                                 className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                                                     user.is_active
-                                                        ? 'bg-green-100 text-green-800'
-                                                        : 'bg-red-100 text-red-800'
+                                                        ? 'bg-success-50 text-success-700'
+                                                        : 'bg-danger-50 text-danger-700'
                                                 }`}
                                             >
                                                 {user.is_active
@@ -103,27 +100,20 @@ export default function Index({ users }) {
                                                     : 'Désactivé'}
                                             </span>
                                         </td>
-                                        <td className="whitespace-nowrap px-6 py-4 text-right">
+                                        <td className="whitespace-nowrap px-4 py-3 text-right">
                                             {user.id === auth.user.id ? (
-                                                <span className="text-xs text-gray-400">
+                                                <span className="text-xs text-ui-muted">
                                                     Votre compte
                                                 </span>
-                                            ) : user.is_active ? (
-                                                <DangerButton
-                                                    onClick={() =>
-                                                        toggleActive(user)
-                                                    }
-                                                >
-                                                    Désactiver
-                                                </DangerButton>
                                             ) : (
-                                                <SecondaryButton
-                                                    onClick={() =>
-                                                        toggleActive(user)
-                                                    }
+                                                <Button
+                                                    size="sm"
+                                                    variant={user.is_active ? 'outline' : 'secondary'}
+                                                    icon={user.is_active ? Ban : RotateCcw}
+                                                    onClick={() => toggleActive(user)}
                                                 >
-                                                    Réactiver
-                                                </SecondaryButton>
+                                                    {user.is_active ? 'Désactiver' : 'Réactiver'}
+                                                </Button>
                                             )}
                                         </td>
                                     </tr>
@@ -133,7 +123,7 @@ export default function Index({ users }) {
                                     <tr>
                                         <td
                                             colSpan={6}
-                                            className="px-6 py-4 text-center text-sm text-gray-500"
+                                            className="px-4 py-3 text-center text-sm text-ui-muted"
                                         >
                                             Aucun utilisateur.
                                         </td>

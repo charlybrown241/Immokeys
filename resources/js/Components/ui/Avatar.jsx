@@ -22,7 +22,7 @@ export default function Avatar({ src, name = '', size = 'md', className = '' }) 
     const base = cx('inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full', sizes[size], className);
 
     if (src && !failed) {
-        return <img src={src} alt={name} onError={() => setFailed(true)} className={cx(base, 'object-cover')} />;
+        return <img src={src} alt={name} loading="lazy" onError={() => setFailed(true)} className={cx(base, 'object-cover')} />;
     }
 
     return (

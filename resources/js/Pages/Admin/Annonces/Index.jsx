@@ -1,12 +1,14 @@
 import DangerButton from '@/Components/DangerButton';
 import SecondaryButton from '@/Components/SecondaryButton';
+import Pagination from '@/Components/listings/Pagination';
+import PageHeading from '@/Components/dashboard/PageHeading';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, router, usePage } from '@inertiajs/react';
 
 const STATUS_STYLES = {
-    en_attente: 'bg-orange-100 text-orange-800',
-    disponible: 'bg-green-100 text-green-800',
-    loue: 'bg-gray-200 text-gray-700',
+    en_attente: 'bg-warning-50 text-warning-700',
+    disponible: 'bg-success-50 text-success-700',
+    loue: 'bg-ui-border text-ui-text',
 };
 
 const STATUS_LABELS = {
@@ -18,7 +20,7 @@ const STATUS_LABELS = {
 function StatusBadge({ annonce }) {
     if (annonce.is_suspended) {
         return (
-            <span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
+            <span className="inline-flex items-center rounded-full bg-danger-50 px-2.5 py-0.5 text-xs font-medium text-danger-700">
                 Suspendue
             </span>
         );
@@ -56,40 +58,29 @@ export default function Index({ annonces, filters }) {
         router.post(route('admin.annonces.toggle-suspension', annonce.id));
     };
 
-    const goToPage = (url) => {
-        if (!url) {
-            return;
-        }
-
-        router.get(url, {}, { preserveState: true, preserveScroll: true, only: ['annonces'] });
-    };
-
     return (
         <DashboardLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Annonces
-                </h2>
-            }
+            header={<PageHeading title="Annonces" subtitle="Modération des annonces publiées" />}
         >
             <Head title="Annonces" />
 
-            <div className="py-12">
+            <div className="py-8">
                 <div className="mx-auto max-w-7xl space-y-4 px-4 sm:px-6 lg:px-8">
                     {flash?.success && (
-                        <div className="rounded-md bg-green-50 p-4 text-sm text-green-700">
+                        <div className="rounded-field bg-success-50 p-4 text-sm text-success-700">
                             {flash.success}
                         </div>
                     )}
 
                     <div className="flex items-center gap-2">
-                        <label className="text-sm font-medium text-gray-500">
+                        <label htmlFor="filtre-statut" className="text-sm font-medium text-ui-muted">
                             Statut
                         </label>
                         <select
+                            id="filtre-statut"
                             value={filters.status ?? ''}
                             onChange={(e) => applyFilter(e.target.value)}
-                            className="rounded-md border-gray-300 text-sm focus:border-terracotta-500 focus:ring-terracotta-500"
+                            className="rounded-field border-ui-border bg-white text-sm focus:border-gold-600 focus:ring-gold-600/30"
                         >
                             {FILTER_OPTIONS.map((option) => (
                                 <option key={option.value} value={option.value}>
@@ -99,66 +90,67 @@ export default function Index({ annonces, filters }) {
                         </select>
                     </div>
 
-                    <div className="overflow-x-auto bg-white shadow-sm sm:rounded-lg">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
+                    <div className="overflow-x-auto bg-white shadow-sm sm:rounded-card">
+                        <table className="min-w-full divide-y divide-ui-border">
+                            <thead className="bg-ui-bg">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-ui-muted">
                                         Photo
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-ui-muted">
                                         Titre & quartier
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-ui-muted">
                                         Propriétaire
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-ui-muted">
                                         Prix
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-ui-muted">
                                         Statut
                                     </th>
-                                    <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+                                    <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-ui-muted">
                                         Actions
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-200 bg-white">
+                            <tbody className="divide-y divide-ui-border bg-white">
                                 {annonces.data.map((annonce) => (
                                     <tr key={annonce.id}>
                                         <td className="whitespace-nowrap px-6 py-4">
-                                            <div className="h-12 w-16 overflow-hidden rounded bg-gray-100">
+                                            <div className="h-12 w-16 overflow-hidden rounded bg-ui-bg">
                                                 {annonce.main_photo ? (
                                                     <img
                                                         src={`/storage/${annonce.main_photo.path}`}
+                                                        loading="lazy"
                                                         alt=""
                                                         className="h-full w-full object-cover"
                                                     />
                                                 ) : (
-                                                    <div className="flex h-full items-center justify-center text-xs text-gray-400">
+                                                    <div className="flex h-full items-center justify-center text-xs text-ui-muted">
                                                         Aucune
                                                     </div>
                                                 )}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <div className="font-medium text-gray-900">
+                                            <div className="font-medium text-ui-text">
                                                 {annonce.title}
                                             </div>
-                                            <div className="text-sm text-gray-500">
+                                            <div className="text-sm text-ui-muted">
                                                 {annonce.quartier},{' '}
                                                 {annonce.city}
                                             </div>
                                         </td>
                                         <td className="whitespace-nowrap px-6 py-4">
-                                            <div className="text-sm text-gray-900">
+                                            <div className="text-sm text-ui-text">
                                                 {annonce.owner?.name}
                                             </div>
-                                            <div className="text-sm text-gray-500">
+                                            <div className="text-sm text-ui-muted">
                                                 {annonce.owner?.email}
                                             </div>
                                         </td>
-                                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
+                                        <td className="whitespace-nowrap px-6 py-4 text-sm text-ui-text">
                                             {Number(
                                                 annonce.price,
                                             ).toLocaleString('fr-FR')}{' '}
@@ -197,7 +189,7 @@ export default function Index({ annonces, filters }) {
                                     <tr>
                                         <td
                                             colSpan={6}
-                                            className="px-6 py-4 text-center text-sm text-gray-500"
+                                            className="px-6 py-4 text-center text-sm text-ui-muted"
                                         >
                                             Aucune annonce ne correspond a ce
                                             filtre.
@@ -208,28 +200,7 @@ export default function Index({ annonces, filters }) {
                         </table>
                     </div>
 
-                    {annonces.links.length > 3 && (
-                        <nav className="flex flex-wrap items-center justify-center gap-1">
-                            {annonces.links.map((link, index) => (
-                                <button
-                                    key={index}
-                                    type="button"
-                                    disabled={!link.url}
-                                    onClick={() => goToPage(link.url)}
-                                    dangerouslySetInnerHTML={{
-                                        __html: link.label,
-                                    }}
-                                    className={`rounded-md px-3 py-1 text-sm ${
-                                        link.active
-                                            ? 'bg-gray-800 text-white'
-                                            : link.url
-                                              ? 'bg-white text-gray-700 hover:bg-gray-100'
-                                              : 'cursor-not-allowed bg-white text-gray-300'
-                                    }`}
-                                />
-                            ))}
-                        </nav>
-                    )}
+                    <Pagination links={annonces.links} />
                 </div>
             </div>
         </DashboardLayout>

@@ -48,11 +48,11 @@ export default function DeleteUserForm({ className = '' }) {
     return (
         <section className={`space-y-6 ${className}`}>
             <header>
-                <h2 className="font-display text-lg font-semibold text-red-700">
+                <h2 className="font-heading text-lg font-semibold text-danger-700">
                     Supprimer mon compte
                 </h2>
 
-                <p className="mt-1 text-sm text-ink-soft">
+                <p className="mt-1 text-sm text-ui-muted">
                     La suppression est définitive : vos annonces, vos photos et
                     toutes vos données seront effacées. Conservez au préalable
                     les informations que vous souhaitez garder.
@@ -65,11 +65,11 @@ export default function DeleteUserForm({ className = '' }) {
 
             <Modal show={confirmingUserDeletion} onClose={closeModal}>
                 <form onSubmit={deleteUser} className="p-6">
-                    <h2 className="font-display text-lg font-semibold text-ink">
+                    <h2 className="font-heading text-lg font-semibold text-ui-text">
                         Supprimer définitivement votre compte ?
                     </h2>
 
-                    <p className="mt-1 text-sm text-ink-soft">
+                    <p className="mt-1 text-sm text-ui-muted">
                         Toutes vos données seront effacées et cette action est
                         irréversible. Saisissez votre mot de passe pour
                         confirmer.

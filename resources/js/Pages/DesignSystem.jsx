@@ -75,7 +75,7 @@ const colorGroups = [
             { token: 'ui-bg', hex: '#F5F7FB', className: 'bg-ui-bg' },
             { token: 'ui-border', hex: '#E5E9F2', className: 'bg-ui-border' },
             { token: 'ui-text', hex: '#0F172A', className: 'bg-ui-text' },
-            { token: 'ui-muted', hex: '#64748B', className: 'bg-ui-muted' },
+            { token: 'ui-muted', hex: '#5B6B82', className: 'bg-ui-muted' },
         ],
     },
 ];

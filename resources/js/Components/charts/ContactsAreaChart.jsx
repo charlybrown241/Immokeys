@@ -78,7 +78,7 @@ export default function ContactsAreaChart({ series }) {
 
             <div className="mt-4 h-64" aria-hidden="true">
                 <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={data} margin={{ top: 8, right: 8, left: -12, bottom: 0 }}>
+                    <AreaChart data={data} margin={{ top: 8, right: 8, left: -12, bottom: 0 }} accessibilityLayer={false}>
                         <defs>
                             <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="0%" stopColor={CHART.goldFill} stopOpacity={0.55} />

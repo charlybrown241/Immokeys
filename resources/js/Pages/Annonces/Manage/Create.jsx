@@ -17,7 +17,7 @@ const STEPS = [
 function StepCircle({ state, number }) {
     if (state === 'done') {
         return (
-            <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-success-bg text-success-ink">
+            <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-success-50 text-success-700">
                 <svg
                     className="h-4 w-4"
                     fill="none"
@@ -38,8 +38,8 @@ function StepCircle({ state, number }) {
         <span
             className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
                 state === 'active'
-                    ? 'bg-accent-strong text-accent-ink'
-                    : 'bg-idle text-ink-soft'
+                    ? 'bg-navy-900 text-white'
+                    : 'bg-ui-border text-ui-muted'
             }`}
         >
             {number}
@@ -79,8 +79,8 @@ function Stepper({ current }) {
                         <span
                             className={`text-sm leading-tight sm:whitespace-nowrap ${
                                 state === 'active'
-                                    ? 'font-semibold text-ink'
-                                    : 'hidden text-ink-soft sm:inline'
+                                    ? 'font-semibold text-ui-text'
+                                    : 'hidden text-ui-muted sm:inline'
                             }`}
                         >
                             {s.id}. {s.label}
@@ -88,7 +88,7 @@ function Stepper({ current }) {
                         {index < STEPS.length - 1 && (
                             <span
                                 aria-hidden="true"
-                                className="h-px min-w-3 flex-1 bg-line"
+                                className="h-px min-w-3 flex-1 bg-ui-border"
                             />
                         )}
                     </li>
@@ -155,7 +155,7 @@ export default function Create({ categories }) {
     return (
         <DashboardLayout
             header={
-                <h2 className="font-display text-2xl font-semibold leading-tight text-ink">
+                <h2 className="font-heading text-2xl font-semibold leading-tight text-ui-text">
                     Publier une annonce
                 </h2>
             }
@@ -164,7 +164,7 @@ export default function Create({ categories }) {
 
             <div className="py-10">
                 <div className="mx-auto max-w-3xl px-4 md:px-7">
-                    <div className="rounded-card bg-surface p-6 shadow-card sm:p-8">
+                    <div className="rounded-card bg-white p-6 shadow-card sm:p-8">
                         <Stepper current={step} />
 
                         <form onSubmit={submit}>
@@ -342,7 +342,7 @@ export default function Create({ categories }) {
                                             accept="image/*"
                                             multiple
                                             onChange={handlePhotosChange}
-                                            className="mt-1 block w-full text-sm text-ink-soft file:mr-3 file:rounded-full file:border-0 file:bg-navbar file:px-4 file:py-2 file:text-sm file:font-semibold file:text-navbar-ink hover:file:bg-ink"
+                                            className="mt-1 block w-full text-sm text-ui-muted file:mr-3 file:rounded-full file:border-0 file:bg-navy-900 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-navy-800"
                                         />
                                         <InputError
                                             message={errors.photos}
@@ -360,7 +360,7 @@ export default function Create({ categories }) {
                                                     <img
                                                         src={src}
                                                         alt=""
-                                                        className="h-24 w-full rounded-lg object-cover"
+                                                        className="h-24 w-full rounded-field object-cover"
                                                     />
                                                     <button
                                                         type="button"
@@ -368,7 +368,7 @@ export default function Create({ categories }) {
                                                             removePhoto(index)
                                                         }
                                                         aria-label="Retirer la photo"
-                                                        className="absolute right-1.5 top-1.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-surface/90 text-sm font-semibold text-red-600 shadow"
+                                                        className="absolute right-1.5 top-1.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/90 text-sm font-semibold text-danger-700 shadow"
                                                     >
                                                         ×
                                                     </button>
@@ -379,7 +379,7 @@ export default function Create({ categories }) {
                                 </div>
                             )}
 
-                            <div className="mt-8 flex items-center justify-between border-t border-line pt-6">
+                            <div className="mt-8 flex items-center justify-between border-t border-ui-border pt-6">
                                 <SecondaryButton
                                     type="button"
                                     disabled={step === 1}
@@ -409,7 +409,7 @@ export default function Create({ categories }) {
                             </div>
 
                             {step < 3 && stepErrorMessage[step] && (
-                                <p className="mt-3 text-right text-sm text-red-600">
+                                <p className="mt-3 text-right text-sm text-danger-700">
                                     {stepErrorMessage[step]}
                                 </p>
                             )}

@@ -30,7 +30,7 @@ export default function StatusDonut({ items, unit = 'annonces' }) {
         <div className="flex flex-col items-center gap-6 sm:flex-row lg:flex-col">
             <div className="relative h-44 w-44 shrink-0" aria-hidden="true">
                 <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
+                    <PieChart accessibilityLayer={false}>
                         <Pie
                             data={slices}
                             dataKey="value"
@@ -41,6 +41,7 @@ export default function StatusDonut({ items, unit = 'annonces' }) {
                             strokeWidth={2}
                             startAngle={90}
                             endAngle={-270}
+                            rootTabIndex={-1}
                             isAnimationActive={!reducedMotion}
                         >
                             {slices.map((item) => (

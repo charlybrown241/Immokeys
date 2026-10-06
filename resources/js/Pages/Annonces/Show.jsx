@@ -78,19 +78,19 @@ export default function Show({ annonce, similar }) {
                             <h2 id="caracteristiques" className="font-heading text-xl font-bold text-navy-900">
                                 Caractéristiques
                             </h2>
-                            <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                            <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
                                 {features.map(({ icon: Icon, label, value }) => (
-                                    <div key={label} className="flex items-center gap-3 rounded-card border border-ui-border bg-white p-3.5">
+                                    <li key={label} className="flex items-center gap-3 rounded-card border border-ui-border bg-white p-3.5">
                                         <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-field bg-gold-50 text-gold-700">
                                             <Icon size={20} aria-hidden="true" />
                                         </span>
-                                        <div className="min-w-0">
-                                            <dt className="text-xs text-ui-muted">{label}</dt>
-                                            <dd className="text-sm font-semibold text-ui-text">{value}</dd>
-                                        </div>
-                                    </div>
+                                        <p className="min-w-0">
+                                            <span className="block text-xs text-ui-muted">{label}</span>
+                                            <span className="block text-sm font-semibold text-ui-text">{value}</span>
+                                        </p>
+                                    </li>
                                 ))}
-                            </dl>
+                            </ul>
                         </section>
 
                         <section aria-labelledby="description">
