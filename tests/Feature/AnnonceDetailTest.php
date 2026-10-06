@@ -97,6 +97,26 @@ class AnnonceDetailTest extends TestCase
         );
     }
 
+    public function test_detail_page_exposes_listing_details_with_amenity_labels(): void
+    {
+        $annonce = $this->annonce($this->owner(['is_verified' => true]), [
+            'rooms' => 3,
+            'is_furnished' => false,
+            'available_from' => '2026-12-01',
+            'charges' => 300,
+            'deposit' => 5000,
+            'amenities' => ['wifi', 'parking', 'inconnu'],
+        ]);
+
+        $this->get("/annonces/{$annonce->id}")->assertInertia(fn ($page) => $page
+            ->where('annonce.rooms', 3)
+            ->where('annonce.is_furnished', false)
+            ->where('annonce.available_from', '2026-12-01')
+            ->where('annonce.charges', '300.00')
+            ->where('annonce.deposit', '5000.00')
+            ->where('annonce.amenities', ['Wi-Fi', 'Parking']));
+    }
+
     public function test_detail_page_exposes_owner_identity_certification(): void
     {
         $verified = $this->annonce($this->owner(['is_verified' => true]));
@@ -157,6 +177,21 @@ class AnnonceDetailTest extends TestCase
         // Same session: revisiting must not increment again.
         $this->get("/annonces/{$annonce->id}");
         $this->assertSame(1, $annonce->fresh()->views_count);
+    }
+
+    public function test_views_are_also_counted_per_day_once_per_session(): void
+    {
+        $annonce = $this->annonce($this->owner());
+
+        $this->get("/annonces/{$annonce->id}");
+        $this->get("/annonces/{$annonce->id}");
+        $this->assertDatabaseHas('annonce_views', ['annonce_id' => $annonce->id, 'day' => now()->toDateString(), 'count' => 1]);
+
+        // A new session the same day adds to the same row.
+        $this->flushSession();
+        $this->get("/annonces/{$annonce->id}");
+        $this->assertDatabaseHas('annonce_views', ['annonce_id' => $annonce->id, 'day' => now()->toDateString(), 'count' => 2]);
+        $this->assertDatabaseCount('annonce_views', 1);
     }
 
     public function test_a_new_session_counts_as_a_new_view(): void

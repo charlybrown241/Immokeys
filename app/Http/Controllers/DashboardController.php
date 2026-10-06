@@ -6,7 +6,7 @@ use App\Models\Annonce;
 use App\Models\ContactLog;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -32,6 +32,15 @@ class DashboardController extends Controller
             ->where('created_at', '>=', now()->subDays(self::SERIES_DAYS - 1)->startOfDay())
             ->get(['id', 'created_at']);
 
+        // Views per day (annonce_views), summed over all the owner's annonces.
+        $views = DB::table('annonce_views')
+            ->whereIn('annonce_id', $annonces->pluck('id'))
+            ->where('day', '>=', now()->subDays(self::SERIES_DAYS - 1)->toDateString())
+            ->selectRaw('day, SUM(count) as total')
+            ->groupBy('day')
+            ->pluck('total', 'day')
+            ->mapWithKeys(fn ($total, $day) => [substr((string) $day, 0, 10) => (int) $total]);
+
         $last30 = $contacts->filter(fn ($log) => $log->created_at->gte(now()->subDays(30)))->count();
         $previous30 = $contacts->filter(fn ($log) => $log->created_at->lt(now()->subDays(30))
             && $log->created_at->gte(now()->subDays(60)))->count();
@@ -47,8 +56,10 @@ class DashboardController extends Controller
                 'contactsLast30' => $last30,
                 'contactsDelta' => $previous30 > 0 ? (int) round((($last30 - $previous30) / $previous30) * 100) : null,
                 'viewsTotal' => (int) $annonces->sum('views_count'),
+                'viewsThisMonth' => $views->filter(fn ($total, $day) => $day >= now()->startOfMonth()->toDateString())->sum(),
             ],
-            'contactsSeries' => $this->dailySeries($contacts->pluck('created_at')),
+            'contactsSeries' => $this->dailySeries($contacts->countBy(fn ($log) => $log->created_at->toDateString())),
+            'viewsSeries' => $this->dailySeries($views),
             'recentContacts' => $this->recentContacts($user),
             'annoncesByStatus' => [
                 'disponible' => $annonces->where('status', 'disponible')->where('is_suspended', false)->count(),
@@ -72,13 +83,11 @@ class DashboardController extends Controller
     /**
      * One point per day over the last SERIES_DAYS days, zeros included.
      *
-     * @param  \Illuminate\Support\Collection<int, Carbon>  $dates
+     * @param  \Illuminate\Support\Collection<string, int>  $counts  keyed by Y-m-d
      * @return array<int, array{date: string, count: int}>
      */
-    private function dailySeries($dates): array
+    private function dailySeries($counts): array
     {
-        $counts = $dates->countBy(fn (Carbon $date) => $date->toDateString());
-
         return collect(range(self::SERIES_DAYS - 1, 0))
             ->map(function (int $daysAgo) use ($counts) {
                 $day = now()->subDays($daysAgo)->toDateString();

@@ -5,10 +5,12 @@ namespace Database\Seeders;
 use App\Models\Annonce;
 use App\Models\Certification;
 use App\Models\ContactLog;
+use App\Models\Report;
 use App\Models\Role;
 use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Demo data for the dashboards (local only, never called by
@@ -16,10 +18,13 @@ use Illuminate\Database\Seeder;
  * after the base seeders. Everything it creates is recognisable:
  * "*.demo*@immokeys.test" emails and "[Démo]" annonce titles.
  *
- * - proprietaire@immokeys.test gets 6 annonces with views and ~90 days of
- *   WhatsApp contacts (owner dashboard);
- * - etudiant@immokeys.test gets a contact history (student space);
- * - 3 new owners wait for identity certification (admin dashboard).
+ * - proprietaire@immokeys.test gets 6 annonces with ~90 days of daily
+ *   views and WhatsApp contacts (owner dashboard);
+ * - etudiant@immokeys.test gets a contact history and favourites;
+ * - 3 new owners wait for identity certification and 2 annonces are
+ *   reported (admin dashboard).
+ *
+ * Remove it all with `php artisan immokeys:demo-clear`.
  */
 class DemoDataSeeder extends Seeder
 {
@@ -56,7 +61,7 @@ class DemoDataSeeder extends Seeder
             'title' => '[Démo] '.fake('fr_FR')->randomElement(['Studio lumineux', 'Chambre calme', 'Colocation conviviale', 'Appartement meublé']).' '.self::QUARTIERS[$i],
             'quartier' => self::QUARTIERS[$i],
             'status' => $status,
-            'views_count' => fake()->numberBetween(20, 480),
+            'views_count' => 0,
             'created_at' => now()->subDays(fake()->numberBetween(5, 120)),
         ]));
 
@@ -72,6 +77,30 @@ class DemoDataSeeder extends Seeder
                     'created_at' => now()->subDays($daysAgo)->setTime(fake()->numberBetween(8, 22), fake()->numberBetween(0, 59)),
                 ]);
             }
+        }
+
+        // Daily views over 90 days; views_count is their total.
+        foreach ($online as $annonce) {
+            $rows = collect(range(89, 0))
+                ->map(fn (int $daysAgo) => [
+                    'annonce_id' => $annonce->id,
+                    'day' => now()->subDays($daysAgo)->toDateString(),
+                    'count' => fake()->numberBetween(0, $daysAgo < 30 ? 9 : 5),
+                ])
+                ->filter(fn (array $row) => $row['count'] > 0);
+            DB::table('annonce_views')->insert($rows->values()->all());
+            $annonce->update(['views_count' => $rows->sum('count')]);
+        }
+
+        $student->favoriteAnnonces()->syncWithoutDetaching($online->take(3)->pluck('id'));
+
+        foreach ([['arnaque', 'On me demande un virement avant la visite.'], ['deja_loue', null]] as $index => [$reason, $message]) {
+            Report::create([
+                'annonce_id' => $online[$index]->id,
+                'user_id' => $students[$index]->id,
+                'reason' => $reason,
+                'message' => $message,
+            ]);
         }
 
         // Owners waiting for identity certification.

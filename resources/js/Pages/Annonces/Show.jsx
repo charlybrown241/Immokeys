@@ -1,11 +1,13 @@
 import AdBanner from '@/Components/AdBanner';
 import ListingCard from '@/Components/ListingCard';
+import FlashMessages from '@/Components/dashboard/FlashMessages';
 import OwnerCard from '@/Components/listings/OwnerCard';
+import ReportButton from '@/Components/listings/ReportButton';
 import PhotoGallery from '@/Components/listings/PhotoGallery';
 import { Badge, cx, focusRing } from '@/Components/ui';
 import PublicLayout from '@/Layouts/PublicLayout';
 import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft, BadgeCheck, CalendarDays, CircleCheck, House, MapPin, Maximize2 } from 'lucide-react';
+import { ArrowLeft, BadgeCheck, BedDouble, CalendarCheck, CalendarDays, Check, CircleCheck, House, MapPin, Maximize2, Sofa } from 'lucide-react';
 
 const STATUS_LABELS = {
     disponible: 'Disponible',
@@ -16,10 +18,21 @@ function formatDate(value) {
     return value ? new Date(value).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : null;
 }
 
-export default function Show({ annonce, similar }) {
+export default function Show({ annonce, similar, canReport, reportReasons }) {
+    const availability = !annonce.available_from || new Date(annonce.available_from) <= new Date()
+        ? 'Dès maintenant'
+        : formatDate(annonce.available_from);
+
     const features = [
         { icon: Maximize2, label: 'Surface', value: annonce.surface ? `${annonce.surface} m²` : null },
         { icon: House, label: 'Type', value: annonce.category?.name },
+        { icon: BedDouble, label: 'Pièces', value: annonce.rooms ? String(annonce.rooms) : null },
+        {
+            icon: Sofa,
+            label: 'Ameublement',
+            value: annonce.is_furnished === null || annonce.is_furnished === undefined ? null : annonce.is_furnished ? 'Meublé' : 'Non meublé',
+        },
+        { icon: CalendarCheck, label: 'Disponible', value: annonce.status === 'disponible' ? availability : null },
         { icon: MapPin, label: 'Quartier', value: annonce.quartier },
         { icon: CircleCheck, label: 'Statut', value: STATUS_LABELS[annonce.status] },
         { icon: CalendarDays, label: 'Publiée le', value: formatDate(annonce.published_at) },
@@ -39,6 +52,10 @@ export default function Show({ annonce, similar }) {
                 </Link>
 
                 <AdBanner className="mt-4" />
+
+                <div className="mt-4 empty:hidden">
+                    <FlashMessages />
+                </div>
 
                 {/* DOM order: gallery, owner card, details, so phones see the
                     price and the contact button right after the photos. On
@@ -71,6 +88,11 @@ export default function Show({ annonce, similar }) {
 
                     <aside aria-label="Contact" className="self-start lg:sticky lg:top-24 lg:col-start-2 lg:row-span-2 lg:row-start-1">
                         <OwnerCard annonce={annonce} />
+                        {canReport && (
+                            <div className="mt-3 text-center">
+                                <ReportButton annonceId={annonce.id} reasons={reportReasons} />
+                            </div>
+                        )}
                     </aside>
 
                     <div className="min-w-0 space-y-10 lg:col-start-1 lg:row-start-2">
@@ -92,6 +114,25 @@ export default function Show({ annonce, similar }) {
                                 ))}
                             </ul>
                         </section>
+
+                        {annonce.amenities?.length > 0 && (
+                            <section aria-labelledby="equipements">
+                                <h2 id="equipements" className="font-heading text-xl font-bold text-navy-900">
+                                    Équipements
+                                </h2>
+                                <ul className="mt-4 flex flex-wrap gap-2">
+                                    {annonce.amenities.map((amenity) => (
+                                        <li
+                                            key={amenity}
+                                            className="inline-flex items-center gap-1.5 rounded-full border border-ui-border bg-white px-3.5 py-1.5 text-sm font-medium text-ui-text"
+                                        >
+                                            <Check size={15} className="text-gold-700" aria-hidden="true" />
+                                            {amenity}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </section>
+                        )}
 
                         <section aria-labelledby="description">
                             <h2 id="description" className="font-heading text-xl font-bold text-navy-900">

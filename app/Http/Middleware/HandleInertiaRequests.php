@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Models\Annonce;
 use App\Models\Certification;
+use App\Models\Report;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -47,14 +48,23 @@ class HandleInertiaRequests extends Middleware
                     ->count(),
                 'whatsapp' => config('services.immokeys.whatsapp'),
             ],
+            // Ids of the signed-in student's favourites (null for others:
+            // guests and other roles keep favourites in the browser).
+            'favoriteIds' => fn () => $user?->role?->name === 'etudiant'
+                ? $user->favoriteAnnonces()->pluck('annonces.id')
+                : null,
             'notifications' => [
                 'pending_certifications' => fn () => $user?->role?->name === 'admin'
                     ? Certification::where('status', 'en_attente')->count()
+                    : 0,
+                'pending_reports' => fn () => $user?->role?->name === 'admin'
+                    ? Report::where('status', 'nouveau')->count()
                     : 0,
             ],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
+                'newsletter' => fn () => $request->session()->get('newsletter'),
             ],
         ];
     }

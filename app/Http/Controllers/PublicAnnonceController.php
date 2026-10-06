@@ -6,12 +6,14 @@ use App\Http\Requests\AnnonceFilterRequest;
 use App\Models\Annonce;
 use App\Models\Category;
 use App\Models\ContactLog;
+use App\Models\Report;
 use App\Models\User;
 use App\Support\AnnonceCard;
 use App\Support\WhatsappContact;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -62,6 +64,7 @@ class PublicAnnonceController extends Controller
 
         if (! in_array($annonce->id, $viewedAnnonces, true)) {
             $annonce->increment('views_count');
+            $this->countDailyView($annonce);
             $request->session()->push('viewed_annonces', $annonce->id);
         }
 
@@ -73,7 +76,16 @@ class PublicAnnonceController extends Controller
                 'quartier' => $annonce->quartier,
                 'city' => $annonce->city,
                 'surface' => $annonce->surface,
+                'rooms' => $annonce->rooms,
+                'is_furnished' => $annonce->is_furnished,
+                'available_from' => $annonce->available_from?->toDateString(),
                 'price' => $annonce->price,
+                'charges' => $annonce->charges,
+                'deposit' => $annonce->deposit,
+                'amenities' => collect($annonce->amenities ?? [])
+                    ->filter(fn ($key) => isset(Annonce::AMENITIES[$key]))
+                    ->map(fn ($key) => Annonce::AMENITIES[$key])
+                    ->values(),
                 'status' => $annonce->status,
                 'category' => $annonce->category,
                 'photos' => $annonce->photos,
@@ -84,7 +96,27 @@ class PublicAnnonceController extends Controller
                 'whatsapp_contact' => WhatsappContact::stateFor($request->user(), $annonce),
             ],
             'similar' => $this->similar($annonce, $request->user()),
+            // Owners cannot report their own annonce; admins moderate directly.
+            'canReport' => ! $request->user()
+                || ($request->user()->id !== $annonce->user_id && $request->user()->role?->name !== 'admin'),
+            'reportReasons' => Report::REASONS,
         ]);
+    }
+
+    /**
+     * One more view today for this annonce (row created on the first one).
+     */
+    private function countDailyView(Annonce $annonce): void
+    {
+        $today = now()->toDateString();
+        $updated = DB::table('annonce_views')
+            ->where('annonce_id', $annonce->id)
+            ->where('day', $today)
+            ->increment('count');
+
+        if ($updated === 0) {
+            DB::table('annonce_views')->insertOrIgnore(['annonce_id' => $annonce->id, 'day' => $today, 'count' => 1]);
+        }
     }
 
     /**

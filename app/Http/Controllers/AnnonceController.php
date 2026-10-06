@@ -46,6 +46,7 @@ class AnnonceController extends Controller
 
         return Inertia::render('Annonces/Manage/Create', [
             'categories' => Category::orderBy('name')->get(['id', 'name']),
+            'amenities' => Annonce::AMENITIES,
         ]);
     }
 
@@ -58,6 +59,7 @@ class AnnonceController extends Controller
             $annonce = $request->user()->annonces()->create([
                 ...$request->safe()->only([
                     'title', 'category_id', 'description', 'quartier', 'surface', 'price',
+                    'rooms', 'is_furnished', 'available_from', 'charges', 'deposit', 'amenities',
                 ]),
                 'city' => 'Casablanca',
                 'status' => 'en_attente',
@@ -84,6 +86,7 @@ class AnnonceController extends Controller
         return Inertia::render('Annonces/Manage/Edit', [
             'annonce' => $annonce->load('photos'),
             'categories' => Category::orderBy('name')->get(['id', 'name']),
+            'amenities' => Annonce::AMENITIES,
         ]);
     }
 

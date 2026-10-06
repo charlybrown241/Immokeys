@@ -1,3 +1,4 @@
+import FavoritesSync from '@/Components/FavoritesSync';
 import DashboardSidebar from '@/Components/layout/DashboardSidebar';
 import DashboardTopbar from '@/Components/layout/DashboardTopbar';
 import { Drawer } from '@/Components/ui';
@@ -23,6 +24,7 @@ export default function DashboardLayout({ header, children }) {
                 Aller au contenu
             </a>
 
+            <FavoritesSync />
             <aside className="fixed inset-y-0 left-0 z-40 hidden w-[260px] lg:flex">
                 <DashboardSidebar />
             </aside>

@@ -6,6 +6,7 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -64,6 +65,14 @@ class User extends Authenticatable
     public function annonces(): HasMany
     {
         return $this->hasMany(Annonce::class);
+    }
+
+    /**
+     * Annonces this student saved as favourites, newest first via pivot.
+     */
+    public function favoriteAnnonces(): BelongsToMany
+    {
+        return $this->belongsToMany(Annonce::class, 'favorites')->withTimestamps();
     }
 
     public function subscription(): HasOne

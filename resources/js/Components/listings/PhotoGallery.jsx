@@ -60,7 +60,7 @@ export default function PhotoGallery({ photos, title, children }) {
                                 className={cx(
                                     'block aspect-square w-full overflow-hidden rounded-field ring-2 ring-offset-2 transition',
                                     focusRing,
-                                    index === active ? 'ring-gold-600' : 'ring-transparent opacity-80 hover:opacity-100',
+                                    index === active ? 'ring-gold-700' : 'ring-transparent opacity-80 hover:opacity-100',
                                 )}
                             >
                                 <img src={`/storage/${photo.path}`} alt="" loading="lazy" className="h-full w-full object-cover" />

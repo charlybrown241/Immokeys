@@ -2,14 +2,13 @@ import FlashMessages from '@/Components/dashboard/FlashMessages';
 import PageHeading from '@/Components/dashboard/PageHeading';
 import Panel from '@/Components/dashboard/Panel';
 import ListingCard from '@/Components/ListingCard';
-import { Badge, Button, Card, cx, EmptyState, focusRing, Skeleton, StatCard } from '@/Components/ui';
-import useFavorites, { favoriteIds } from '@/hooks/useFavorites';
+import { Badge, Button, cx, EmptyState, focusRing, StatCard } from '@/Components/ui';
+import useFavorites from '@/hooks/useFavorites';
 import useRecentSearches from '@/hooks/useRecentSearches';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { formatMad, formatRelative } from '@/utils/format';
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { ArrowRight, Eye, Heart, History, MessageCircle, Search, SearchX } from 'lucide-react';
-import { useEffect, useState } from 'react';
 
 const SORT_LABELS = {
     price_asc: 'prix croissant',
@@ -29,53 +28,11 @@ function searchLabel(search, categories) {
         .join(' · ');
 }
 
-function CardGridSkeleton({ count = 3 }) {
-    return (
-        <ul className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3" aria-hidden="true">
-            {Array.from({ length: count }, (_, index) => (
-                <li key={index}>
-                    <Card padding="none" className="overflow-hidden">
-                        <div className="aspect-[4/3]">
-                            <Skeleton shape="rect" className="!h-full !rounded-none" />
-                        </div>
-                        <div className="space-y-3 p-4">
-                            <Skeleton shape="title" className="w-1/3" />
-                            <Skeleton />
-                            <Skeleton className="h-9 rounded-field" />
-                        </div>
-                    </Card>
-                </li>
-            ))}
-        </ul>
-    );
-}
-
-// Favourites are stored in this browser: send their ids to the server to
-// get up-to-date cards (price, availability, contact link).
-function useFavoriteCards(favoritesProp) {
-    const { isFavorite } = useFavorites();
-    const [ids] = useState(favoriteIds);
-    const [loading, setLoading] = useState(ids.length > 0);
-
-    useEffect(() => {
-        if (ids.length === 0) return;
-        router.reload({
-            only: ['favorites'],
-            data: { favoris: ids },
-            preserveUrl: true,
-            onFinish: () => setLoading(false),
-        });
-    }, [ids]);
-
-    // Hide a card as soon as it is un-hearted, without another request.
-    const cards = (favoritesProp ?? []).filter((annonce) => isFavorite(annonce.id));
-
-    return { cards, loading, hasAny: ids.length > 0 };
-}
-
 export default function StudentDashboard({ recentlyViewed, contacts, contactsCount, categories, favorites }) {
     const { user } = usePage().props.auth;
-    const favoriteCards = useFavoriteCards(favorites);
+    const { isFavorite } = useFavorites();
+    // Hide a card as soon as it is un-hearted (optimistic), before the reload.
+    const favoriteCards = favorites.filter((annonce) => isFavorite(annonce.id));
     const { searches, clear } = useRecentSearches();
 
     return (
@@ -101,8 +58,8 @@ export default function StudentDashboard({ recentlyViewed, contacts, contactsCou
                     <StatCard
                         icon={Heart}
                         label="Favoris"
-                        value={favoriteCards.loading ? '…' : favoriteCards.cards.length}
-                        hint="Sur cet appareil"
+                        value={favoriteCards.length}
+                        hint="Sur ton compte"
                     />
                     <StatCard icon={MessageCircle} label="Propriétaires contactés" value={contactsCount} hint="Via WhatsApp" />
                     <StatCard icon={Eye} label="Annonces consultées" value={recentlyViewed.length} hint="Pendant cette session" />
@@ -110,18 +67,16 @@ export default function StudentDashboard({ recentlyViewed, contacts, contactsCou
 
                 <Panel
                     title="Mes favoris"
-                    description="Enregistrés dans ce navigateur"
+                    description="Enregistrés sur ton compte"
                     action={
                         <Button as={Link} href={route('annonces.index')} variant="ghost" size="sm" iconRight={ArrowRight}>
                             Voir les logements
                         </Button>
                     }
                 >
-                    {favoriteCards.loading ? (
-                        <CardGridSkeleton />
-                    ) : favoriteCards.cards.length > 0 ? (
+                    {favoriteCards.length > 0 ? (
                         <ul className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-                            {favoriteCards.cards.map((annonce) => (
+                            {favoriteCards.map((annonce) => (
                                 <li key={annonce.id}>
                                     <ListingCard annonce={annonce} />
                                 </li>

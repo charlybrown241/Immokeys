@@ -1,7 +1,17 @@
-import { GENERAL_FIELDS, GeneralFields, LOCATION_FIELDS, LocationFields } from '@/Components/annonces/AnnonceFields';
+import {
+    detailsFromAnnonce,
+    GENERAL_FIELDS,
+    GeneralFields,
+    HOUSING_FIELDS,
+    HousingFields,
+    LOCATION_FIELDS,
+    LocationFields,
+} from '@/Components/annonces/AnnonceFields';
+import PhotoManager from '@/Components/annonces/PhotoManager';
+import FlashMessages from '@/Components/dashboard/FlashMessages';
 import PageHeading from '@/Components/dashboard/PageHeading';
 import Panel from '@/Components/dashboard/Panel';
-import { Alert, Badge, Button, Select } from '@/Components/ui';
+import { Alert, Button, Select } from '@/Components/ui';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Ban, Eye, Save, ToggleRight } from 'lucide-react';
@@ -19,7 +29,7 @@ const STATUS_HINTS = {
     loue: 'Reste consultable, mais le contact WhatsApp est désactivé.',
 };
 
-export default function Edit({ annonce, categories }) {
+export default function Edit({ annonce, categories, amenities }) {
     const refs = {
         status: useRef(null),
         title: useRef(null),
@@ -27,7 +37,13 @@ export default function Edit({ annonce, categories }) {
         description: useRef(null),
         quartier: useRef(null),
         surface: useRef(null),
+        rooms: useRef(null),
+        is_furnished: useRef(null),
+        available_from: useRef(null),
+        amenities: useRef(null),
         price: useRef(null),
+        charges: useRef(null),
+        deposit: useRef(null),
     };
 
     const { data, setData, put, processing, errors, clearErrors } = useForm({
@@ -37,6 +53,7 @@ export default function Edit({ annonce, categories }) {
         quartier: annonce.quartier,
         surface: annonce.surface ?? '',
         price: annonce.price,
+        ...detailsFromAnnonce(annonce),
         status: annonce.status,
     });
 
@@ -50,7 +67,9 @@ export default function Edit({ annonce, categories }) {
 
         put(route('annonces.update', annonce.id), {
             onError: (formErrors) => {
-                const first = ['status', ...GENERAL_FIELDS, ...LOCATION_FIELDS].find((field) => formErrors[field]);
+                const first = ['status', ...GENERAL_FIELDS, ...HOUSING_FIELDS, ...LOCATION_FIELDS].find(
+                    (field) => formErrors[field] || Object.keys(formErrors).some((key) => key.startsWith(`${field}.`)),
+                );
                 refs[first]?.current?.focus();
             },
         });
@@ -78,6 +97,8 @@ export default function Edit({ annonce, categories }) {
             <Head title="Modifier l'annonce" />
 
             <form onSubmit={submit} noValidate className="mx-auto max-w-3xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+                <FlashMessages />
+
                 {annonce.is_suspended && (
                     <Alert variant="danger" icon={Ban} title="Annonce suspendue par l'administrateur">
                         Elle reste masquée aux étudiants, même si tu la passes en « Disponible ». Contacte-nous pour en savoir plus.
@@ -102,32 +123,16 @@ export default function Edit({ annonce, categories }) {
                     <GeneralFields data={data} setData={update} errors={errors} categories={categories} refs={refs} />
                 </Panel>
 
+                <Panel title="Logement">
+                    <HousingFields data={data} setData={update} errors={errors} refs={refs} amenities={amenities} />
+                </Panel>
+
                 <Panel title="Localisation & prix">
                     <LocationFields data={data} setData={update} errors={errors} refs={refs} />
                 </Panel>
 
-                <Panel title="Photos" description="Les photos ne peuvent pas encore être modifiées après la publication.">
-                    {photos.length > 0 ? (
-                        <ul className="grid grid-cols-3 gap-3 sm:grid-cols-4">
-                            {photos.map((photo, index) => (
-                                <li key={photo.id} className="relative overflow-hidden rounded-field border border-ui-border">
-                                    <img
-                                        src={`/storage/${photo.path}`}
-                                        alt={`Photo ${index + 1} de l'annonce`}
-                                        loading="lazy"
-                                        className="aspect-square w-full object-cover"
-                                    />
-                                    {index === 0 && (
-                                        <Badge variant="navy" className="absolute left-1.5 top-1.5">
-                                            Principale
-                                        </Badge>
-                                    )}
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <p className="text-sm text-ui-muted">Cette annonce n'a pas de photo.</p>
-                    )}
+                <Panel title="Photos" description="Les changements de photos sont enregistrés immédiatement.">
+                    <PhotoManager annonceId={annonce.id} photos={photos} />
                 </Panel>
 
                 <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">

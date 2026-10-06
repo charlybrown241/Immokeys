@@ -3,14 +3,19 @@
 use App\Http\Controllers\Admin\AnnonceController as AdminAnnonceController;
 use App\Http\Controllers\Admin\CertificationController as AdminCertificationController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\ReportController as AdminReportController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\AnnonceController;
+use App\Http\Controllers\AnnoncePhotoController;
 use App\Http\Controllers\CertificationController;
 use App\Http\Controllers\ContactLogStatusController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicAnnonceController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StudentDashboardController;
 use App\Http\Controllers\SubscriptionController;
 use Illuminate\Support\Facades\Route;
@@ -25,6 +30,16 @@ Route::get('/mon-espace', [StudentDashboardController::class, 'index'])
     ->middleware(['auth', 'verified', 'role:etudiant'])
     ->name('student.dashboard');
 
+Route::middleware(['auth', 'verified', 'role:etudiant'])->group(function () {
+    Route::post('/favoris/{annonce}', [FavoriteController::class, 'toggle'])
+        ->whereNumber('annonce')
+        ->middleware('throttle:60,1')
+        ->name('favorites.toggle');
+    Route::put('/favoris', [FavoriteController::class, 'sync'])
+        ->middleware('throttle:10,1')
+        ->name('favorites.sync');
+});
+
 Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])
     ->middleware(['auth', 'verified', 'role:admin'])
     ->name('admin.dashboard');
@@ -38,11 +53,18 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('ad
     Route::get('/annonces', [AdminAnnonceController::class, 'index'])->name('annonces.index');
     Route::post('/annonces/{annonce}/toggle-suspension', [AdminAnnonceController::class, 'toggleSuspension'])->name('annonces.toggle-suspension');
 
+    Route::get('/signalements', [AdminReportController::class, 'index'])->name('reports.index');
+    Route::patch('/signalements/{report}', [AdminReportController::class, 'update'])->name('reports.update');
+
     Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
     Route::post('/users/{user}/toggle-active', [AdminUserController::class, 'toggleActive'])->name('users.toggle-active');
 });
 
 Route::get('/annonces', [PublicAnnonceController::class, 'index'])->name('annonces.index');
+
+Route::post('/newsletter', [NewsletterController::class, 'store'])
+    ->middleware('throttle:5,1')
+    ->name('newsletter.store');
 
 // Static information pages linked from the footer.
 Route::inertia('/comment-ca-marche', 'Static/CommentCaMarche')->name('pages.how-it-works');
@@ -52,6 +74,11 @@ Route::inertia('/confidentialite', 'Static/Confidentialite')->name('pages.privac
 Route::get('/annonces/{annonce}', [PublicAnnonceController::class, 'show'])
     ->whereNumber('annonce')
     ->name('annonces.show');
+
+Route::post('/annonces/{annonce}/signaler', [ReportController::class, 'store'])
+    ->whereNumber('annonce')
+    ->middleware(['auth', 'throttle:5,10'])
+    ->name('annonces.report');
 
 Route::get('/annonces/{annonce}/contact-whatsapp', [PublicAnnonceController::class, 'contactWhatsapp'])
     ->whereNumber('annonce')
@@ -70,6 +97,13 @@ Route::middleware(['auth', 'verified', 'role:proprietaire'])->group(function () 
     Route::get('/annonces/{annonce}/edit', [AnnonceController::class, 'edit'])->name('annonces.edit');
     Route::put('/annonces/{annonce}', [AnnonceController::class, 'update'])->name('annonces.update');
     Route::delete('/annonces/{annonce}', [AnnonceController::class, 'destroy'])->name('annonces.destroy');
+
+    // Photos of an existing annonce; scopeBindings() 404s a photo of another annonce.
+    Route::scopeBindings()->group(function () {
+        Route::post('/annonces/{annonce}/photos', [AnnoncePhotoController::class, 'store'])->name('annonces.photos.store');
+        Route::delete('/annonces/{annonce}/photos/{photo}', [AnnoncePhotoController::class, 'destroy'])->name('annonces.photos.destroy');
+        Route::patch('/annonces/{annonce}/photos/{photo}/principale', [AnnoncePhotoController::class, 'makeMain'])->name('annonces.photos.main');
+    });
 
     Route::patch('/demandes/{contactLog}/statut', ContactLogStatusController::class)->name('contacts.status');
 });

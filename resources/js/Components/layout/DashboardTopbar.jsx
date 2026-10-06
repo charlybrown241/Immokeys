@@ -2,7 +2,7 @@ import Logo from '@/Components/Logo';
 import { Avatar, cx, focusRing, Input } from '@/Components/ui';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 import { Link, router, usePage } from '@inertiajs/react';
-import { Bell, ChevronDown, FileCheck2, LogOut, Menu as MenuIcon, Search, UserRound } from 'lucide-react';
+import { Bell, ChevronDown, FileCheck2, Flag, LogOut, Menu as MenuIcon, Search, UserRound } from 'lucide-react';
 import { useState } from 'react';
 
 const ROLE_LABELS = {
@@ -48,35 +48,45 @@ function SearchForm() {
 
 function NotificationsMenu() {
     const { notifications } = usePage().props;
-    const pending = notifications?.pending_certifications ?? 0;
+    const certifications = notifications?.pending_certifications ?? 0;
+    const reports = notifications?.pending_reports ?? 0;
+    const items = [
+        certifications > 0 && {
+            key: 'certifications',
+            href: route('admin.certifications.index'),
+            icon: FileCheck2,
+            label: certifications > 1 ? `${certifications} certifications à valider` : '1 certification à valider',
+        },
+        reports > 0 && {
+            key: 'reports',
+            href: route('admin.reports.index'),
+            icon: Flag,
+            label: reports > 1 ? `${reports} signalements à traiter` : '1 signalement à traiter',
+        },
+    ].filter(Boolean);
+    const total = certifications + reports;
 
     return (
         <Menu>
-            <MenuButton
-                className={iconButton}
-                aria-label={pending > 0 ? `Notifications, ${pending} non lues` : 'Notifications'}
-            >
+            <MenuButton className={iconButton} aria-label={total > 0 ? `Notifications, ${total} en attente` : 'Notifications'}>
                 <Bell size={22} aria-hidden="true" />
-                {pending > 0 && (
-                    <span
-                        aria-hidden="true"
-                        className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-danger ring-2 ring-white"
-                    />
+                {total > 0 && (
+                    <span aria-hidden="true" className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-danger ring-2 ring-white" />
                 )}
             </MenuButton>
             <MenuItems transition anchor="bottom end" className={cx(menuPanel, 'w-72')}>
                 <p className="px-3 pb-1 pt-2 font-heading text-sm font-bold text-ui-text">Notifications</p>
-                {pending > 0 ? (
-                    <MenuItem>
-                        <Link href={route('admin.certifications.index')} className={cx(menuItem, 'text-ui-text')}>
-                            <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-field bg-gold-50 text-gold-700">
-                                <FileCheck2 size={16} aria-hidden="true" />
-                            </span>
-                            {pending > 1
-                                ? `${pending} certifications à valider`
-                                : '1 certification à valider'}
-                        </Link>
-                    </MenuItem>
+                {items.length > 0 ? (
+                    items.map(({ key, href, icon: Icon, label }) => (
+                        <MenuItem key={key}>
+                            <Link href={href} className={cx(menuItem, 'text-ui-text')}>
+                                <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-field bg-gold-50 text-gold-700">
+                                    <Icon size={16} aria-hidden="true" />
+                                </span>
+                                {label}
+                            </Link>
+                        </MenuItem>
+                    ))
                 ) : (
                     <p className="px-3 py-3 text-sm text-ui-muted">Aucune nouvelle notification.</p>
                 )}

@@ -1,30 +1,45 @@
+import { router, usePage } from '@inertiajs/react';
 import { useCallback, useSyncExternalStore } from 'react';
 
-// Favourites are kept in this browser only (localStorage): there is no
-// favourites table on the server yet. Every card shares one store so a
-// toggle is reflected everywhere at once.
+// Signed-in students: favourites live on the server (shared prop
+// "favoriteIds", array of ids), toggled with an optimistic update.
+// Everyone else: favourites are kept in this browser (localStorage) and
+// merged into the account at the student's next sign-in (FavoritesSync).
+
 const KEY = 'immokeys:favoris';
 const listeners = new Set();
-let cache = null;
+let local = null;
+let pending = {};
 
-function read() {
-    if (cache) return cache;
-    try {
-        cache = JSON.parse(window.localStorage.getItem(KEY) ?? '[]');
-    } catch {
-        cache = [];
-    }
-    return cache;
+function notify() {
+    listeners.forEach((listener) => listener());
 }
 
-function write(ids) {
-    cache = ids;
+function readLocal() {
+    if (local) return local;
+    try {
+        local = JSON.parse(window.localStorage.getItem(KEY) ?? '[]');
+    } catch {
+        local = [];
+    }
+    return local;
+}
+
+function writeLocal(ids) {
+    local = ids;
     try {
         window.localStorage.setItem(KEY, JSON.stringify(ids));
     } catch {
         // Storage unavailable (private mode...): keep the in-memory state.
     }
-    listeners.forEach((listener) => listener());
+    notify();
+}
+
+function setPending(id, value) {
+    pending = { ...pending };
+    if (value === undefined) delete pending[id];
+    else pending[id] = value;
+    notify();
 }
 
 function subscribe(listener) {
@@ -32,20 +47,48 @@ function subscribe(listener) {
     return () => listeners.delete(listener);
 }
 
-/** Current favourite ids, outside React (e.g. to send them to the server). */
-export function favoriteIds() {
-    return read();
+const readPending = () => pending;
+const emptyIds = [];
+const emptyPending = {};
+
+/** Favourites stored in this browser, outside React. */
+export function localFavoriteIds() {
+    return readLocal();
 }
 
-const emptyServerSnapshot = [];
+/** Forget the browser favourites once they are merged into the account. */
+export function clearLocalFavorites() {
+    writeLocal([]);
+}
 
 export default function useFavorites() {
-    const ids = useSyncExternalStore(subscribe, read, () => emptyServerSnapshot);
+    const serverIds = usePage().props.favoriteIds;
+    const localIds = useSyncExternalStore(subscribe, readLocal, () => emptyIds);
+    const optimistic = useSyncExternalStore(subscribe, readPending, () => emptyPending);
+    const onServer = Array.isArray(serverIds);
 
-    const toggle = useCallback((id) => {
-        const current = read();
-        write(current.includes(id) ? current.filter((value) => value !== id) : [...current, id]);
-    }, []);
+    const isFavorite = useCallback(
+        (id) => (onServer ? (optimistic[id] ?? serverIds.includes(id)) : localIds.includes(id)),
+        [onServer, optimistic, serverIds, localIds],
+    );
 
-    return { isFavorite: (id) => ids.includes(id), toggle };
+    const toggle = useCallback(
+        (id) => {
+            if (!onServer) {
+                const current = readLocal();
+                writeLocal(current.includes(id) ? current.filter((value) => value !== id) : [...current, id]);
+                return;
+            }
+            setPending(id, !isFavorite(id));
+            router.post(route('favorites.toggle', id), {}, {
+                preserveScroll: true,
+                preserveState: true,
+                // Fresh props now hold the truth (or the old state on error).
+                onFinish: () => setPending(id, undefined),
+            });
+        },
+        [onServer, isFavorite],
+    );
+
+    return { isFavorite, toggle, onServer };
 }

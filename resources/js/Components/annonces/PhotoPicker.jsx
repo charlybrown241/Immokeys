@@ -5,8 +5,31 @@ import { useEffect, useId, useState } from 'react';
 // Mirrors AnnonceStoreRequest: up to 10 photos, jpg/png/webp, 5 MB each.
 export const MAX_PHOTOS = 10;
 const MAX_BYTES = 5 * 1024 * 1024;
-const ACCEPT = '.jpg,.jpeg,.png,.webp';
+export const PHOTO_ACCEPT = '.jpg,.jpeg,.png,.webp';
 const TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
+/**
+ * Split picked files into the ones to keep (right type and size, within
+ * the remaining room) and messages explaining each rejection.
+ */
+export function checkPhotoFiles(picked, room) {
+    const messages = [];
+    const valid = picked.filter((file) => {
+        if (!TYPES.includes(file.type)) {
+            messages.push(`« ${file.name} » : format non accepté (JPG, PNG ou WebP).`);
+            return false;
+        }
+        if (file.size > MAX_BYTES) {
+            messages.push(`« ${file.name} » dépasse 5 Mo.`);
+            return false;
+        }
+        return true;
+    });
+    if (valid.length > room) {
+        messages.push(`${MAX_PHOTOS} photos maximum : ${valid.length - room} photo(s) non ajoutée(s).`);
+    }
+    return { valid: valid.slice(0, Math.max(room, 0)), messages };
+}
 
 /**
  * Photo selection with previews. Files are added to the selection (not
@@ -27,24 +50,9 @@ export default function PhotoPicker({ files, onChange, serverErrors = [] }) {
     const add = (event) => {
         const picked = Array.from(event.target.files ?? []);
         event.target.value = '';
-        const messages = [];
-        const valid = picked.filter((file) => {
-            if (!TYPES.includes(file.type)) {
-                messages.push(`« ${file.name} » : format non accepté (JPG, PNG ou WebP).`);
-                return false;
-            }
-            if (file.size > MAX_BYTES) {
-                messages.push(`« ${file.name} » dépasse 5 Mo.`);
-                return false;
-            }
-            return true;
-        });
-        const room = MAX_PHOTOS - files.length;
-        if (valid.length > room) {
-            messages.push(`${MAX_PHOTOS} photos maximum : ${valid.length - room} photo(s) non ajoutée(s).`);
-        }
+        const { valid, messages } = checkPhotoFiles(picked, MAX_PHOTOS - files.length);
         setRejected(messages);
-        onChange([...files, ...valid.slice(0, Math.max(room, 0))]);
+        onChange([...files, ...valid]);
     };
 
     const remove = (index) => onChange(files.filter((_, i) => i !== index));
@@ -58,7 +66,7 @@ export default function PhotoPicker({ files, onChange, serverErrors = [] }) {
                     htmlFor={inputId}
                     className={cx(
                         'flex flex-col items-center justify-center gap-2 rounded-card border-2 border-dashed px-6 py-10 text-center transition',
-                        'focus-within:ring-2 focus-within:ring-gold-600 focus-within:ring-offset-2',
+                        'focus-within:ring-2 focus-within:ring-gold-700 focus-within:ring-offset-2',
                         full ? 'cursor-not-allowed border-ui-border bg-ui-bg opacity-60' : 'cursor-pointer border-ui-border bg-white hover:border-navy-900 hover:bg-ui-bg',
                     )}
                 >
@@ -72,7 +80,7 @@ export default function PhotoPicker({ files, onChange, serverErrors = [] }) {
                     <input
                         id={inputId}
                         type="file"
-                        accept={ACCEPT}
+                        accept={PHOTO_ACCEPT}
                         multiple
                         disabled={full}
                         onChange={add}
@@ -103,7 +111,7 @@ export default function PhotoPicker({ files, onChange, serverErrors = [] }) {
                                 type="button"
                                 onClick={() => remove(index)}
                                 aria-label={`Retirer la photo ${index + 1} (${file.name})`}
-                                className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-danger-700 shadow-card transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-600"
+                                className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-danger-700 shadow-card transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-700"
                             >
                                 <X size={16} aria-hidden="true" />
                             </button>

@@ -1,4 +1,14 @@
-import { GENERAL_FIELDS, GeneralFields, LOCATION_FIELDS, LocationFields, missingFields } from '@/Components/annonces/AnnonceFields';
+import {
+    EMPTY_DETAILS,
+    GENERAL_FIELDS,
+    GeneralFields,
+    HOUSING_FIELDS,
+    HousingFields,
+    LOCATION_FIELDS,
+    LocationFields,
+    missingFields,
+    missingMessage,
+} from '@/Components/annonces/AnnonceFields';
 import PhotoPicker from '@/Components/annonces/PhotoPicker';
 import PageHeading from '@/Components/dashboard/PageHeading';
 import { Alert, Button, Card, cx, focusRing } from '@/Components/ui';
@@ -10,11 +20,10 @@ import { useEffect, useRef, useState } from 'react';
 
 const STEPS = [
     { id: 1, label: 'Infos générales', fields: GENERAL_FIELDS },
-    { id: 2, label: 'Localisation & prix', fields: LOCATION_FIELDS },
-    { id: 3, label: 'Photos', fields: [] },
+    { id: 2, label: 'Logement', fields: HOUSING_FIELDS },
+    { id: 3, label: 'Localisation & prix', fields: LOCATION_FIELDS },
+    { id: 4, label: 'Photos', fields: [] },
 ];
-
-const REQUIRED_MESSAGE = 'Ce champ est obligatoire.';
 
 function Stepper({ current, onGoTo }) {
     return (
@@ -75,7 +84,7 @@ function Stepper({ current, onGoTo }) {
     );
 }
 
-export default function Create({ categories }) {
+export default function Create({ categories, amenities }) {
     const [step, setStep] = useState(1);
     const [clientErrors, setClientErrors] = useState({});
     const [pendingFocus, setPendingFocus] = useState(null);
@@ -86,7 +95,13 @@ export default function Create({ categories }) {
         description: useRef(null),
         quartier: useRef(null),
         surface: useRef(null),
+        rooms: useRef(null),
+        is_furnished: useRef(null),
+        available_from: useRef(null),
+        amenities: useRef(null),
         price: useRef(null),
+        charges: useRef(null),
+        deposit: useRef(null),
     };
     const headingRef = useRef(null);
 
@@ -97,6 +112,7 @@ export default function Create({ categories }) {
         quartier: '',
         surface: '',
         price: '',
+        ...EMPTY_DETAILS,
         photos: [],
     });
 
@@ -137,7 +153,7 @@ export default function Create({ categories }) {
     const next = () => {
         const missing = missingFields(data, STEPS[step - 1].fields);
         if (missing.length) {
-            setClientErrors(Object.fromEntries(missing.map((field) => [field, field === 'surface' ? 'La surface doit être d’au moins 1 m².' : REQUIRED_MESSAGE])));
+            setClientErrors(Object.fromEntries(missing.map((field) => [field, missingMessage(field)])));
             refs[missing[0]].current?.focus();
             return;
         }
@@ -155,11 +171,12 @@ export default function Create({ categories }) {
             forceFormData: true,
             onError: (formErrors) => {
                 // Send the owner back to the first step holding an error.
-                const target = STEPS.find((s) => s.fields.some((field) => formErrors[field]));
+                const hasError = (field) => formErrors[field] || Object.keys(formErrors).some((key) => key.startsWith(`${field}.`));
+                const target = STEPS.find((s) => s.fields.some(hasError));
                 if (target && target.id !== step) {
-                    goTo(target.id, target.fields.find((field) => formErrors[field]));
+                    goTo(target.id, target.fields.find(hasError));
                 } else if (target) {
-                    refs[target.fields.find((field) => formErrors[field])].current?.focus();
+                    refs[target.fields.find(hasError)].current?.focus();
                 }
             },
         });
@@ -168,7 +185,7 @@ export default function Create({ categories }) {
     const category = categories.find((item) => String(item.id) === String(data.category_id));
 
     return (
-        <DashboardLayout header={<PageHeading title="Publier une annonce" subtitle="Trois étapes, environ cinq minutes." />}>
+        <DashboardLayout header={<PageHeading title="Publier une annonce" subtitle="Quatre étapes, environ cinq minutes." />}>
             <Head title="Nouvelle annonce" />
 
             <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
@@ -177,7 +194,9 @@ export default function Create({ categories }) {
 
                     <form onSubmit={submit} noValidate className="mt-8">
                         <h2 ref={headingRef} tabIndex={-1} className="font-heading text-xl font-bold text-navy-900 focus:outline-none">
-                            <span className="sr-only">Étape {step} sur 3 : </span>
+                            <span className="sr-only">
+                                Étape {step} sur {STEPS.length} :{' '}
+                            </span>
                             {STEPS[step - 1].label}
                         </h2>
 
@@ -192,8 +211,11 @@ export default function Create({ categories }) {
                                     autoFocus={!mounted.current}
                                 />
                             )}
-                            {step === 2 && <LocationFields data={data} setData={update} errors={fieldErrors} refs={refs} />}
-                            {step === 3 && (
+                            {step === 2 && (
+                                <HousingFields data={data} setData={update} errors={fieldErrors} refs={refs} amenities={amenities} />
+                            )}
+                            {step === 3 && <LocationFields data={data} setData={update} errors={fieldErrors} refs={refs} />}
+                            {step === 4 && (
                                 <div className="space-y-6">
                                     <PhotoPicker files={data.photos} onChange={(files) => update('photos', files)} serverErrors={photoErrors} />
 
@@ -201,10 +223,28 @@ export default function Create({ categories }) {
                                         <p className="text-xs font-semibold uppercase tracking-wider text-ui-muted">Récapitulatif</p>
                                         <p className="mt-2 font-heading text-lg font-bold text-navy-900">{data.title}</p>
                                         <p className="text-sm text-ui-text">
-                                            {[category?.name, data.quartier, data.surface && `${data.surface} m²`].filter(Boolean).join(' · ')}
+                                            {[
+                                                category?.name,
+                                                data.quartier,
+                                                data.surface && `${data.surface} m²`,
+                                                data.rooms && `${data.rooms} pièce${data.rooms > 1 ? 's' : ''}`,
+                                                data.is_furnished === '1' ? 'Meublé' : data.is_furnished === '0' ? 'Non meublé' : null,
+                                            ]
+                                                .filter(Boolean)
+                                                .join(' · ')}
                                         </p>
                                         {data.price !== '' && (
-                                            <p className="mt-1 font-semibold text-ui-text">{formatMad(data.price)} / mois</p>
+                                            <p className="mt-1 font-semibold text-ui-text">
+                                                {formatMad(data.price)} / mois
+                                                {data.charges !== '' && Number(data.charges) > 0 && (
+                                                    <span className="font-normal text-ui-muted"> + {formatMad(data.charges)} de charges</span>
+                                                )}
+                                            </p>
+                                        )}
+                                        {data.amenities.length > 0 && (
+                                            <p className="mt-1 text-sm text-ui-muted">
+                                                {data.amenities.map((key) => amenities[key]).join(', ')}
+                                            </p>
                                         )}
                                     </div>
 
