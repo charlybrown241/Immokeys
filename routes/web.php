@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\AnnonceController;
 use App\Http\Controllers\CertificationController;
+use App\Http\Controllers\ContactLogStatusController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
@@ -69,6 +70,8 @@ Route::middleware(['auth', 'verified', 'role:proprietaire'])->group(function () 
     Route::get('/annonces/{annonce}/edit', [AnnonceController::class, 'edit'])->name('annonces.edit');
     Route::put('/annonces/{annonce}', [AnnonceController::class, 'update'])->name('annonces.update');
     Route::delete('/annonces/{annonce}', [AnnonceController::class, 'destroy'])->name('annonces.destroy');
+
+    Route::patch('/demandes/{contactLog}/statut', ContactLogStatusController::class)->name('contacts.status');
 });
 
 Route::middleware(['auth', 'verified', 'role:etudiant,proprietaire'])->group(function () {

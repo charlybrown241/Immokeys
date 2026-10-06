@@ -1,6 +1,7 @@
 import ContactsAreaChart from '@/Components/charts/ContactsAreaChart';
 import RankingBars from '@/Components/charts/RankingBars';
 import StatusDonut from '@/Components/charts/StatusDonut';
+import ContactStatusMenu from '@/Components/dashboard/ContactStatusMenu';
 import FlashMessages from '@/Components/dashboard/FlashMessages';
 import PageHeading from '@/Components/dashboard/PageHeading';
 import Panel from '@/Components/dashboard/Panel';
@@ -9,7 +10,7 @@ import { CHART } from '@/Constants/chart';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { formatNumber, formatRelative } from '@/utils/format';
 import { Head, Link, usePage } from '@inertiajs/react';
-import { ArrowRight, Building2, Eye, MessageCircle, MessageCircleOff, Plus, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowRight, Building2, CircleCheck, Eye, MessageCircle, MessageCircleOff, Plus, ShieldCheck, Sparkles } from 'lucide-react';
 
 const CERTIFICATION_LABELS = {
     verified: { value: 'Certifiée', hint: 'Ton badge est visible sur tes annonces.' },
@@ -78,7 +79,11 @@ function RecentContacts({ contacts }) {
                         </p>
                     </div>
                     <div className="flex shrink-0 flex-col items-end gap-1">
-                        {contact.is_new && (
+                        {contact.status === 'traite' ? (
+                            <Badge variant="success" icon={CircleCheck}>
+                                Traitée
+                            </Badge>
+                        ) : (
                             <Badge variant="brand" icon={Sparkles}>
                                 Nouveau
                             </Badge>
@@ -87,6 +92,7 @@ function RecentContacts({ contacts }) {
                             {formatRelative(contact.created_at)}
                         </time>
                     </div>
+                    <ContactStatusMenu contact={contact} />
                 </li>
             ))}
         </ul>
@@ -181,7 +187,7 @@ export default function Dashboard({ certification, stats, contactsSeries, recent
                 <div className="grid gap-6 lg:grid-cols-3">
                     <Panel
                         title="Demandes récentes"
-                        description="Derniers étudiants qui t'ont contacté"
+                        description="Derniers étudiants qui t'ont contacté (hors archivées)"
                         className="lg:col-span-2"
                     >
                         <RecentContacts contacts={recentContacts} />

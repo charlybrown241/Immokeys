@@ -12,6 +12,9 @@ export default function Login({ status, canResetPassword }) {
         remember: false,
     });
 
+    // Sent here by a "Contacter sur WhatsApp" button: the status is an
+    // explanation, not a confirmation.
+    const fromContact = new URLSearchParams(window.location.search).get('reason') === 'contact-whatsapp';
     const emailRef = useRef(null);
     const passwordRef = useRef(null);
 
@@ -40,7 +43,7 @@ export default function Login({ status, canResetPassword }) {
             </AuthHeading>
 
             {status && (
-                <Alert variant="success" className="mt-6">
+                <Alert variant={fromContact ? 'info' : 'success'} className="mt-6">
                     {status}
                 </Alert>
             )}

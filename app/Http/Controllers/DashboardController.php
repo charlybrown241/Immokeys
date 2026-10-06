@@ -15,9 +15,6 @@ class DashboardController extends Controller
     /** Days of WhatsApp contacts sent to the chart (largest period). */
     private const SERIES_DAYS = 90;
 
-    /** Contacts younger than this are flagged "Nouveau". */
-    private const NEW_CONTACT_DAYS = 7;
-
     /**
      * Display the landlord dashboard: KPIs, contacts over time, recent
      * contacts, annonces by status and the most viewed annonces.
@@ -92,7 +89,7 @@ class DashboardController extends Controller
     }
 
     /**
-     * Latest WhatsApp contacts on the owner's annonces.
+     * Latest non-archived WhatsApp contacts on the owner's annonces.
      *
      * @return array<int, array<string, mixed>>
      */
@@ -100,6 +97,7 @@ class DashboardController extends Controller
     {
         return ContactLog::query()
             ->whereHas('annonce', fn ($query) => $query->where('user_id', $owner->id))
+            ->where('status', '!=', 'archive')
             ->with(['user:id,name', 'annonce:id,title'])
             ->latest()
             ->limit(6)
@@ -109,7 +107,7 @@ class DashboardController extends Controller
                 'student' => $log->user?->name ?? 'Étudiant',
                 'annonce' => $log->annonce?->only(['id', 'title']),
                 'created_at' => $log->created_at->toIso8601String(),
-                'is_new' => $log->created_at->gte(now()->subDays(self::NEW_CONTACT_DAYS)),
+                'status' => $log->status,
             ])
             ->all();
     }

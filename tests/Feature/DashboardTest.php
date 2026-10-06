@@ -111,18 +111,19 @@ class DashboardTest extends TestCase
 
         $popular = $this->annonceFor($owner, ['title' => 'Populaire', 'views_count' => 42]);
         $this->annonceFor($owner, ['title' => 'Discrete', 'views_count' => 3]);
-        ContactLog::forceCreate(['user_id' => $student->id, 'annonce_id' => $popular->id, 'created_at' => now()->subDays(20)]);
+        ContactLog::forceCreate(['user_id' => $student->id, 'annonce_id' => $popular->id, 'created_at' => now()->subDays(20), 'status' => 'traite']);
+        ContactLog::forceCreate(['user_id' => $student->id, 'annonce_id' => $popular->id, 'created_at' => now()->subDays(30), 'status' => 'archive']);
         ContactLog::create(['user_id' => $student->id, 'annonce_id' => $popular->id]);
 
         $this->actingAs($owner)->get('/dashboard')->assertInertia(fn ($page) => $page
             ->has('recentContacts', 2)
             ->where('recentContacts.0.student', 'Amine Etudiant')
             ->where('recentContacts.0.annonce.title', 'Populaire')
-            ->where('recentContacts.0.is_new', true)
-            ->where('recentContacts.1.is_new', false)
+            ->where('recentContacts.0.status', 'nouveau')
+            ->where('recentContacts.1.status', 'traite')
             ->where('topViewed.0.title', 'Populaire')
             ->where('topViewed.0.views_count', 42)
-            ->where('topViewed.0.contacts_count', 2)
+            ->where('topViewed.0.contacts_count', 3) // archived contacts still count
             ->where('topViewed.1.title', 'Discrete'));
     }
 
