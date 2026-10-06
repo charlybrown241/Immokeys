@@ -1,6 +1,6 @@
 import FlashMessages from '@/Components/dashboard/FlashMessages';
 import PageHeading from '@/Components/dashboard/PageHeading';
-import { Badge, Button, Card, cx, Dialog, EmptyState, focusRing } from '@/Components/ui';
+import { Badge, Button, Card, cx, Dialog, EmptyState, FilterTabs, focusRing } from '@/Components/ui';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { formatMad, formatNumber } from '@/utils/format';
 import { Head, Link, router } from '@inertiajs/react';
@@ -165,33 +165,16 @@ export default function Index({ annonces }) {
                     />
                 ) : (
                     <>
-                        <div role="group" aria-label="Filtrer par statut" className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
-                            {FILTERS.filter((item) => item.key === 'all' || counts[item.key] > 0).map((item) => (
-                                <button
-                                    key={item.key}
-                                    type="button"
-                                    onClick={() => setFilter(item.key)}
-                                    aria-pressed={filter === item.key}
-                                    className={cx(
-                                        'inline-flex min-h-10 shrink-0 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition',
-                                        focusRing,
-                                        filter === item.key
-                                            ? 'border-navy-900 bg-navy-900 text-white'
-                                            : 'border-ui-border bg-white text-ui-text hover:border-navy-900',
-                                    )}
-                                >
-                                    {item.label}
-                                    <span
-                                        className={cx(
-                                            'rounded-full px-1.5 text-xs',
-                                            filter === item.key ? 'bg-white/15 text-white' : 'bg-ui-bg text-ui-muted',
-                                        )}
-                                    >
-                                        {counts[item.key]}
-                                    </span>
-                                </button>
-                            ))}
-                        </div>
+                        <FilterTabs
+                            label="Filtrer par statut"
+                            value={filter}
+                            onChange={setFilter}
+                            items={FILTERS.filter((item) => item.key === 'all' || counts[item.key] > 0).map((item) => ({
+                                key: item.key,
+                                label: item.label,
+                                count: counts[item.key],
+                            }))}
+                        />
 
                         {visible.length > 0 ? (
                             <ul className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">

@@ -1,153 +1,93 @@
-import DangerButton from '@/Components/DangerButton';
-import PrimaryButton from '@/Components/PrimaryButton';
+import CertificationQueue from '@/Components/admin/CertificationQueue';
+import FlashMessages from '@/Components/dashboard/FlashMessages';
 import PageHeading from '@/Components/dashboard/PageHeading';
+import { Button, Card, EmptyState, FilterTabs } from '@/Components/ui';
 import DashboardLayout from '@/Layouts/DashboardLayout';
-import { Head, router, usePage } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
+import { FileCheck2, SearchX } from 'lucide-react';
+import { useMemo, useState } from 'react';
 
-const STATUS_STYLES = {
-    en_attente: 'bg-warning-50 text-warning-700',
-    approuve: 'bg-success-50 text-success-700',
-    rejete: 'bg-danger-50 text-danger-700',
-};
-
-const STATUS_LABELS = {
-    en_attente: 'En attente',
-    approuve: 'Approuvée',
-    rejete: 'Rejetée',
-};
-
-function StatusBadge({ status }) {
-    return (
-        <span
-            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_STYLES[status]}`}
-        >
-            {STATUS_LABELS[status]}
-        </span>
-    );
-}
+const FILTERS = [
+    { key: 'en_attente', label: 'En attente' },
+    { key: 'approuve', label: 'Approuvées' },
+    { key: 'rejete', label: 'Refusées' },
+    { key: 'all', label: 'Toutes' },
+];
 
 export default function Index({ certifications }) {
-    const { flash } = usePage().props;
+    // Same shape as the dashboard queue.
+    const items = useMemo(
+        () =>
+            certifications.map((certification) => ({
+                id: certification.id,
+                status: certification.status,
+                submitted_at: certification.created_at,
+                user: certification.user ? { name: certification.user.name, email: certification.user.email } : null,
+            })),
+        [certifications],
+    );
 
-    const approve = (certification) => {
-        router.post(route('admin.certifications.approve', certification.id));
-    };
+    const counts = useMemo(
+        () => Object.fromEntries(FILTERS.map(({ key }) => [key, key === 'all' ? items.length : items.filter((item) => item.status === key).length])),
+        [items],
+    );
 
-    const reject = (certification) => {
-        router.post(route('admin.certifications.reject', certification.id));
-    };
+    // Start on the pending queue when there is work to do.
+    const [filter, setFilter] = useState(counts.en_attente > 0 ? 'en_attente' : 'all');
+    const visible = filter === 'all' ? items : items.filter((item) => item.status === filter);
 
     return (
         <DashboardLayout
-            header={<PageHeading title="Certifications d'identité" subtitle="Pièces CIN envoyées par les propriétaires" />}
+            header={
+                <PageHeading
+                    title="Certifications d'identité"
+                    subtitle={
+                        counts.en_attente > 0
+                            ? `${counts.en_attente} pièce${counts.en_attente > 1 ? 's' : ''} à vérifier`
+                            : 'Aucune pièce en attente de vérification'
+                    }
+                />
+            }
         >
             <Head title="Certifications" />
 
-            <div className="py-8">
-                <div className="mx-auto max-w-7xl space-y-4 px-4 sm:px-6 lg:px-8">
-                    {flash?.success && (
-                        <div className="rounded-field bg-success-50 p-4 text-sm text-success-700">
-                            {flash.success}
-                        </div>
-                    )}
+            <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+                <FlashMessages />
 
-                    <div className="overflow-x-auto bg-white shadow-sm sm:rounded-card">
-                        <table className="min-w-full divide-y divide-ui-border">
-                            <thead className="bg-ui-bg">
-                                <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-ui-muted">
-                                        Propriétaire
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-ui-muted">
-                                        Soumis le
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-ui-muted">
-                                        Statut
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-ui-muted">
-                                        Document
-                                    </th>
-                                    <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-ui-muted">
-                                        Actions
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-ui-border bg-white">
-                                {certifications.map((certification) => (
-                                    <tr key={certification.id}>
-                                        <td className="whitespace-nowrap px-6 py-4">
-                                            <div className="font-medium text-ui-text">
-                                                {certification.user.name}
-                                            </div>
-                                            <div className="text-sm text-ui-muted">
-                                                {certification.user.email}
-                                            </div>
-                                        </td>
-                                        <td className="whitespace-nowrap px-6 py-4 text-sm text-ui-muted">
-                                            {new Date(
-                                                certification.created_at,
-                                            ).toLocaleDateString('fr-FR')}
-                                        </td>
-                                        <td className="whitespace-nowrap px-6 py-4 text-sm">
-                                            <StatusBadge
-                                                status={certification.status}
-                                            />
-                                        </td>
-                                        <td className="whitespace-nowrap px-6 py-4 text-sm">
-                                            <a
-                                                href={route(
-                                                    'admin.certifications.document',
-                                                    certification.id,
-                                                )}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-gold-700 underline hover:text-gold-700"
-                                            >
-                                                Voir le document
-                                            </a>
-                                        </td>
-                                        <td className="whitespace-nowrap space-x-2 px-6 py-4 text-right">
-                                            {certification.status ===
-                                                'en_attente' && (
-                                                <>
-                                                    <PrimaryButton
-                                                        onClick={() =>
-                                                            approve(
-                                                                certification,
-                                                            )
-                                                        }
-                                                    >
-                                                        Approuver
-                                                    </PrimaryButton>
-                                                    <DangerButton
-                                                        onClick={() =>
-                                                            reject(
-                                                                certification,
-                                                            )
-                                                        }
-                                                    >
-                                                        Rejeter
-                                                    </DangerButton>
-                                                </>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
-
-                                {certifications.length === 0 && (
-                                    <tr>
-                                        <td
-                                            colSpan={5}
-                                            className="px-6 py-4 text-center text-sm text-ui-muted"
-                                        >
-                                            Aucune certification soumise.
-                                        </td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                {items.length === 0 ? (
+                    <EmptyState
+                        icon={FileCheck2}
+                        title="Aucune demande de certification"
+                        description="Les pièces d'identité envoyées par les propriétaires apparaîtront ici."
+                    />
+                ) : (
+                    <>
+                        <FilterTabs
+                            label="Filtrer par statut"
+                            value={filter}
+                            onChange={setFilter}
+                            items={FILTERS.map(({ key, label }) => ({ key, label, count: counts[key] }))}
+                        />
+                        <Card>
+                            <CertificationQueue
+                                certifications={visible}
+                                empty={
+                                    <EmptyState
+                                        icon={SearchX}
+                                        title={filter === 'en_attente' ? 'Aucune pièce en attente' : 'Aucune demande dans cette catégorie'}
+                                        description={filter === 'en_attente' ? 'Tout est à jour.' : undefined}
+                                        action={
+                                            <Button variant="outline" onClick={() => setFilter('all')}>
+                                                Voir toutes les demandes
+                                            </Button>
+                                        }
+                                        className="border-0 py-8"
+                                    />
+                                }
+                            />
+                        </Card>
+                    </>
+                )}
             </div>
         </DashboardLayout>
     );
