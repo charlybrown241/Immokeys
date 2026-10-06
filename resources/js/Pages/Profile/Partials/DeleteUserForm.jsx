@@ -1,30 +1,21 @@
-import DangerButton from '@/Components/DangerButton';
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import Modal from '@/Components/Modal';
-import SecondaryButton from '@/Components/SecondaryButton';
-import TextInput from '@/Components/TextInput';
+import Panel from '@/Components/dashboard/Panel';
+import { Button, Dialog, PasswordInput } from '@/Components/ui';
 import { useForm } from '@inertiajs/react';
+import { Trash2 } from 'lucide-react';
 import { useRef, useState } from 'react';
 
 export default function DeleteUserForm({ className = '' }) {
-    const [confirmingUserDeletion, setConfirmingUserDeletion] = useState(false);
-    const passwordInput = useRef();
+    const [confirming, setConfirming] = useState(false);
+    const passwordInput = useRef(null);
 
-    const {
-        data,
-        setData,
-        delete: destroy,
-        processing,
-        reset,
-        errors,
-        clearErrors,
-    } = useForm({
+    const { data, setData, delete: destroy, processing, reset, errors, clearErrors } = useForm({
         password: '',
     });
 
-    const confirmUserDeletion = () => {
-        setConfirmingUserDeletion(true);
+    const close = () => {
+        setConfirming(false);
+        clearErrors();
+        reset();
     };
 
     const deleteUser = (e) => {
@@ -32,87 +23,51 @@ export default function DeleteUserForm({ className = '' }) {
 
         destroy(route('profile.destroy'), {
             preserveScroll: true,
-            onSuccess: () => closeModal(),
-            onError: () => passwordInput.current.focus(),
+            onSuccess: () => close(),
+            onError: () => passwordInput.current?.focus(),
             onFinish: () => reset(),
         });
     };
 
-    const closeModal = () => {
-        setConfirmingUserDeletion(false);
-
-        clearErrors();
-        reset();
-    };
-
     return (
-        <section className={`space-y-6 ${className}`}>
-            <header>
-                <h2 className="font-heading text-lg font-semibold text-danger-700">
-                    Supprimer mon compte
-                </h2>
-
-                <p className="mt-1 text-sm text-ui-muted">
-                    La suppression est définitive : vos annonces, vos photos et
-                    toutes vos données seront effacées. Conservez au préalable
-                    les informations que vous souhaitez garder.
-                </p>
-            </header>
-
-            <DangerButton onClick={confirmUserDeletion}>
+        <Panel
+            title="Supprimer mon compte"
+            description="La suppression est définitive : tes annonces, tes photos et toutes tes données seront effacées."
+            className={className}
+        >
+            <Button variant="danger" icon={Trash2} onClick={() => setConfirming(true)}>
                 Supprimer mon compte
-            </DangerButton>
+            </Button>
 
-            <Modal show={confirmingUserDeletion} onClose={closeModal}>
-                <form onSubmit={deleteUser} className="p-6">
-                    <h2 className="font-heading text-lg font-semibold text-ui-text">
-                        Supprimer définitivement votre compte ?
-                    </h2>
+            <Dialog
+                open={confirming}
+                onClose={() => !processing && close()}
+                title="Supprimer définitivement ton compte ?"
+                description="Toutes tes données seront effacées et cette action est irréversible. Saisis ton mot de passe pour confirmer."
+            >
+                <form onSubmit={deleteUser} noValidate className="mt-5">
+                    <PasswordInput
+                        ref={passwordInput}
+                        id="delete_password"
+                        name="password"
+                        label="Mot de passe"
+                        value={data.password}
+                        onChange={(e) => setData('password', e.target.value)}
+                        autoComplete="current-password"
+                        autoFocus
+                        error={errors.password}
+                    />
 
-                    <p className="mt-1 text-sm text-ui-muted">
-                        Toutes vos données seront effacées et cette action est
-                        irréversible. Saisissez votre mot de passe pour
-                        confirmer.
-                    </p>
-
-                    <div className="mt-6">
-                        <InputLabel
-                            htmlFor="password"
-                            value="Mot de passe"
-                            className="sr-only"
-                        />
-
-                        <TextInput
-                            id="password"
-                            type="password"
-                            name="password"
-                            ref={passwordInput}
-                            value={data.password}
-                            onChange={(e) =>
-                                setData('password', e.target.value)
-                            }
-                            className="mt-1 block w-full sm:w-3/4"
-                            isFocused
-                            placeholder="Mot de passe"
-                        />
-
-                        <InputError
-                            message={errors.password}
-                            className="mt-2"
-                        />
-                    </div>
-
-                    <div className="mt-6 flex justify-end">
-                        <SecondaryButton onClick={closeModal}>
+                    <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                        <Button variant="outline" onClick={close} disabled={processing}>
                             Annuler
-                        </SecondaryButton>
-
-                        <DangerButton className="ms-3" disabled={processing}>
-                            Supprimer
-                        </DangerButton>
+                        </Button>
+                        <Button type="submit" variant="danger" icon={Trash2} loading={processing}>
+                            Supprimer définitivement
+                        </Button>
                     </div>
                 </form>
-            </Modal>
-        </section>
+            </Dialog>
+        </Panel>
     );
 }

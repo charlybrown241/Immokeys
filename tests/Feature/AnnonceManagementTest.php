@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Annonce;
 use App\Models\Category;
+use App\Models\ContactLog;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -52,6 +53,21 @@ class AnnonceManagementTest extends TestCase
         $response->assertInertia(fn ($page) => $page
             ->has('annonces', 1)
             ->where('annonces.0.id', $mine->id)
+        );
+    }
+
+    public function test_index_exposes_views_and_whatsapp_contacts_per_annonce(): void
+    {
+        $owner = $this->verifiedProprietaire();
+        $annonce = $this->annonceFor($owner, ['views_count' => 42]);
+        $student = User::factory()->create(['role_id' => Role::where('name', 'etudiant')->firstOrFail()->id]);
+        ContactLog::create(['user_id' => $student->id, 'annonce_id' => $annonce->id]);
+        ContactLog::create(['user_id' => $student->id, 'annonce_id' => $annonce->id]);
+
+        $this->actingAs($owner)->get('/mes-annonces')->assertInertia(fn ($page) => $page
+            ->component('Annonces/Manage/Index')
+            ->where('annonces.0.views_count', 42)
+            ->where('annonces.0.contact_logs_count', 2)
         );
     }
 

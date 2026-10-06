@@ -23,6 +23,7 @@ class AnnonceController extends Controller
     {
         $annonces = $request->user()->annonces()
             ->with('photos')
+            ->withCount('contactLogs')
             ->latest()
             ->get();
 

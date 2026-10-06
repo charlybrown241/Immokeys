@@ -1,112 +1,86 @@
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
-import { Transition } from '@headlessui/react';
+import Panel from '@/Components/dashboard/Panel';
+import { Alert, Button, cx, focusRing, Input } from '@/Components/ui';
 import { Link, useForm, usePage } from '@inertiajs/react';
+import { Mail, UserRound } from 'lucide-react';
+import { useRef } from 'react';
+import SavedStatus from './SavedStatus';
 
-export default function UpdateProfileInformation({
-    mustVerifyEmail,
-    status,
-    className = '',
-}) {
+export default function UpdateProfileInformation({ mustVerifyEmail, status, className = '' }) {
     const user = usePage().props.auth.user;
+    const nameRef = useRef(null);
+    const emailRef = useRef(null);
 
-    const { data, setData, patch, errors, processing, recentlySuccessful } =
-        useForm({
-            name: user.name,
-            email: user.email,
-        });
+    const { data, setData, patch, errors, clearErrors, processing, recentlySuccessful } = useForm({
+        name: user.name,
+        email: user.email,
+    });
+
+    // Drop a field's error as soon as it is edited.
+    const update = (field) => (e) => {
+        setData(field, e.target.value);
+        clearErrors(field);
+    };
 
     const submit = (e) => {
         e.preventDefault();
 
-        patch(route('profile.update'));
+        patch(route('profile.update'), {
+            preserveScroll: true,
+            onError: (formErrors) => (formErrors.name ? nameRef : emailRef).current?.focus(),
+        });
     };
 
     return (
-        <section className={className}>
-            <header>
-                <h2 className="font-heading text-lg font-semibold text-ui-text">
-                    Informations du profil
-                </h2>
+        <Panel title="Informations du profil" description="Ton nom et ton adresse email." className={className}>
+            <form onSubmit={submit} noValidate className="space-y-5">
+                <Input
+                    ref={nameRef}
+                    id="name"
+                    label="Nom complet"
+                    icon={UserRound}
+                    value={data.name}
+                    onChange={update('name')}
+                    required
+                    autoComplete="name"
+                    error={errors.name}
+                />
 
-                <p className="mt-1 text-sm text-ui-muted">
-                    Modifiez votre nom et votre adresse e-mail.
-                </p>
-            </header>
-
-            <form onSubmit={submit} className="mt-6 space-y-6">
-                <div>
-                    <InputLabel htmlFor="name" value="Nom complet" />
-
-                    <TextInput
-                        id="name"
-                        className="mt-1 block w-full"
-                        value={data.name}
-                        onChange={(e) => setData('name', e.target.value)}
-                        required
-                        autoComplete="name"
-                    />
-
-                    <InputError className="mt-2" message={errors.name} />
-                </div>
-
-                <div>
-                    <InputLabel htmlFor="email" value="E-mail" />
-
-                    <TextInput
-                        id="email"
-                        type="email"
-                        className="mt-1 block w-full"
-                        value={data.email}
-                        onChange={(e) => setData('email', e.target.value)}
-                        required
-                        autoComplete="username"
-                    />
-
-                    <InputError className="mt-2" message={errors.email} />
-                </div>
+                <Input
+                    ref={emailRef}
+                    id="email"
+                    type="email"
+                    label="Email"
+                    icon={Mail}
+                    value={data.email}
+                    onChange={update('email')}
+                    required
+                    autoComplete="username"
+                    error={errors.email}
+                />
 
                 {mustVerifyEmail && user.email_verified_at === null && (
-                    <div>
-                        <p className="mt-2 text-sm text-ui-text">
-                            Votre adresse e-mail n'est pas vérifiée.{' '}
-                            <Link
-                                href={route('verification.send')}
-                                method="post"
-                                as="button"
-                                className="rounded text-sm text-ui-text underline underline-offset-2 hover:text-gold-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-600 focus-visible:ring-offset-2"
-                            >
-                                Renvoyer l'e-mail de vérification
-                            </Link>
-                        </p>
-
+                    <Alert variant="info" title="Adresse email non vérifiée">
+                        <Link
+                            href={route('verification.send')}
+                            method="post"
+                            as="button"
+                            className={cx('rounded-md font-semibold text-gold-700 underline underline-offset-4', focusRing)}
+                        >
+                            Renvoyer l'email de vérification
+                        </Link>
                         {status === 'verification-link-sent' && (
-                            <div className="mt-2 rounded-field bg-success-50 p-3 text-sm font-medium text-success-700">
-                                Un nouveau lien de vérification a été envoyé à
-                                votre adresse e-mail.
-                            </div>
+                            <span className="mt-1 block text-success-700">Un nouveau lien vient d'être envoyé.</span>
                         )}
-                    </div>
+                    </Alert>
                 )}
 
-                <div className="flex items-center gap-4">
-                    <PrimaryButton disabled={processing}>Enregistrer</PrimaryButton>
-
-                    <Transition
-                        show={recentlySuccessful}
-                        enter="transition ease-in-out"
-                        enterFrom="opacity-0"
-                        leave="transition ease-in-out"
-                        leaveTo="opacity-0"
-                    >
-                        <p className="text-sm text-success-700">
-                            Enregistré.
-                        </p>
-                    </Transition>
+                <div className="flex flex-wrap items-center gap-4">
+                    <Button type="submit" loading={processing}>
+                        {processing ? 'Enregistrement…' : 'Enregistrer'}
+                    </Button>
+                    <SavedStatus show={recentlySuccessful} />
                 </div>
             </form>
-        </section>
+        </Panel>
     );
 }
