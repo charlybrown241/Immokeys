@@ -4,6 +4,7 @@ namespace Tests\Feature\Auth;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class RegistrationTest extends TestCase
@@ -14,7 +15,26 @@ class RegistrationTest extends TestCase
     {
         $response = $this->get('/register');
 
-        $response->assertStatus(200);
+        $response->assertStatus(200)
+            ->assertInertia(fn (Assert $page) => $page->component('Auth/Register'));
+    }
+
+    public function test_invalid_registration_returns_an_error_per_field(): void
+    {
+        User::factory()->create(['email' => 'pris@example.com']);
+
+        $response = $this->from('/register')->post('/register', [
+            'name' => '',
+            'email' => 'pris@example.com',
+            'password' => 'court',
+            'password_confirmation' => 'different',
+            'role' => 'etudiant',
+        ]);
+
+        $response->assertRedirect('/register')
+            ->assertSessionHasErrors(['name', 'email', 'password'])
+            ->assertSessionDoesntHaveErrors('role');
+        $this->assertGuest();
     }
 
     public function test_new_student_can_register_with_a_free_subscription(): void
